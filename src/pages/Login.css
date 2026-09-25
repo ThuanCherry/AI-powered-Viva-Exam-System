@@ -1,0 +1,364 @@
+.login {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+}
+
+/* ---------- Left: the stage ---------- */
+
+.login__stage {
+  background: radial-gradient(120% 140% at 10% 0%, var(--ink-soft) 0%, var(--ink) 55%);
+  color: var(--mist);
+  padding: clamp(2rem, 4vw, 4.5rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2.5rem;
+}
+
+.login__stage-top {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.login__mark {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+
+.login__mark-sub {
+  font-size: 0.85rem;
+  color: var(--mist-dim);
+  border-left: 1px solid var(--ink-line);
+  padding-left: 0.75rem;
+}
+
+.login__stage-body {
+  max-width: 34rem;
+}
+
+.login__headline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2rem, 1.3rem + 2.4vw, 3.1rem);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: #fdfaf3;
+  margin: 0 0 1.25rem;
+}
+
+.login__lede {
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--mist);
+  max-width: 30rem;
+  margin: 0 0 2.5rem;
+}
+
+.login__stage-foot {
+  font-size: 0.8rem;
+  color: var(--mist-dim);
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+/* Waveform motif */
+
+.waveform {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 60px;
+}
+
+.waveform__bar {
+  width: 4px;
+  height: var(--h);
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--brass) 0%, var(--brass-deep) 100%);
+  opacity: 0.85;
+  transform-origin: bottom;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .waveform__bar {
+    animation: waveform-pulse 2.6s ease-in-out var(--delay) infinite;
+  }
+}
+
+@keyframes waveform-pulse {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.45);
+  }
+}
+
+/* ---------- Right: the form panel ---------- */
+
+.login__panel {
+  background: var(--parchment);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 5vw, 4rem);
+}
+
+.login__form {
+  width: 100%;
+  max-width: 23rem;
+}
+
+.login__form-title {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  font-weight: 500;
+  margin: 0 0 0.4rem;
+  color: var(--ink-text);
+}
+
+.login__form-sub {
+  font-size: 0.9rem;
+  color: var(--ink-text-dim);
+  line-height: 1.5;
+  margin: 0 0 2rem;
+}
+
+.field {
+  margin-bottom: 1.25rem;
+}
+
+.field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink-text);
+  margin-bottom: 0.4rem;
+}
+
+.field__label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.field__link {
+  font-size: 0.8rem;
+  color: var(--brass-deep);
+  text-decoration: none;
+}
+
+.field__link:hover {
+  text-decoration: underline;
+}
+
+.field input[type="email"],
+.field input[type="password"],
+.field input[type="text"] {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--parchment-line);
+  border-radius: 8px;
+  background: #fffdf9;
+  color: var(--ink-text);
+  transition: border-color 0.15s ease;
+}
+
+.field input::placeholder {
+  color: #b3a98d;
+}
+
+.field input:focus {
+  border-color: var(--brass);
+}
+
+.field input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.field__control {
+  position: relative;
+}
+
+.field__control input {
+  padding-right: 2.6rem;
+}
+
+.field__toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  color: var(--ink-text-dim);
+  padding: 0.35rem;
+  border-radius: 6px;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.field__toggle:hover {
+  color: var(--ink-text);
+}
+
+.field__error {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--danger);
+  margin-top: 0.4rem;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.88rem;
+  color: var(--ink-text-dim);
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+}
+
+.checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--brass-deep);
+}
+
+.login__form-error {
+  font-size: 0.85rem;
+  color: var(--danger);
+  background: #f6e6e1;
+  border: 1px solid #e3b8ab;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  margin: -0.5rem 0 1.25rem;
+}
+
+.submit {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #fdfaf3;
+  background: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--ink-soft);
+}
+
+.submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.submit:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+  color: var(--ink-text-dim);
+  font-size: 0.8rem;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--parchment-line);
+}
+
+.sso {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border: 1px solid var(--parchment-line);
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+  background: #fffdf9;
+  color: var(--ink-text);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.sso:hover {
+  border-color: var(--brass);
+  background: #fffefb;
+}
+
+.login__form-foot {
+  margin: 1.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-text-dim);
+  text-align: center;
+}
+
+.login__form-foot a {
+  color: var(--brass-deep);
+  text-decoration: none;
+}
+
+.login__form-foot a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  .login {
+    grid-template-columns: 1fr;
+  }
+
+  .login__stage {
+    padding: 1.75rem 1.5rem 2.25rem;
+    gap: 1.75rem;
+  }
+
+  .login__stage-body {
+    max-width: none;
+  }
+
+  .login__lede {
+    margin-bottom: 1.75rem;
+  }
+
+  .waveform {
+    height: 40px;
+  }
+
+  .login__panel {
+    padding: 2rem 1.5rem 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login__headline {
+    font-size: 1.75rem;
+  }
+
+  .login__stage-foot {
+    display: none;
+  }
+}

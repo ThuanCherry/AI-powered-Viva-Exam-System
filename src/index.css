@@ -1,0 +1,59 @@
+:root {
+  --ink: #10192c;
+  --ink-soft: #1b2a47;
+  --ink-line: #2c3e63;
+  --mist: #b9c4d6;
+  --mist-dim: #7c8aa3;
+
+  --parchment: #f6f1e6;
+  --parchment-deep: #eadfc7;
+  --parchment-line: #ddd0ab;
+  --ink-text: #1c1a15;
+  --ink-text-dim: #6b6455;
+
+  --brass: #c0923f;
+  --brass-deep: #9c7530;
+  --danger: #b6432e;
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--ink-text);
+  background: var(--parchment);
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
