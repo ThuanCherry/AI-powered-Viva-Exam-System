@@ -1,5 +1,6 @@
 import { useState } from "react";
-import "./Login.css";
+import { useNavigate } from "react-router-dom";
+import "../styles/Login.css";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -50,6 +51,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle"); // idle | submitting | error
+  const navigate = useNavigate();
 
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -84,6 +86,7 @@ export default function Login() {
       // TODO: wire up the real login API in Task 2 (Demo CRUD features).
       await new Promise((resolve) => setTimeout(resolve, 900));
       setStatus("idle");
+      navigate("/dashboard");
     } catch {
       setStatus("error");
     }
