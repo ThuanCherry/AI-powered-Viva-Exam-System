@@ -1,0 +1,63 @@
+@{
+    ViewData["Title"] = "Trang chủ";
+    var exams = ViewBag.Exams as IEnumerable<Exam> ?? Enumerable.Empty<Exam>();
+    var courses = ViewBag.Courses as IEnumerable<Course> ?? Enumerable.Empty<Course>();
+}
+
+<div class="hero-section">
+    <h1 class="hero-title">🎓 AI-powered Viva Exam System</h1>
+    <p class="hero-subtitle">Hệ thống phỏng vấn vấn đáp thông minh theo kiến trúc 3-Layers (WebMVC · Services · Data Access Layer)</p>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <div class="card-header">
+            <h3>📚 Khoá học đang hoạt động</h3>
+        </div>
+        <div class="card-body">
+            @if (!courses.Any())
+            {
+                <p class="empty-state">Chưa có khoá học nào.</p>
+            }
+            else
+            {
+                <ul class="item-list">
+                    @foreach (var c in courses)
+                    {
+                        <li class="item-row">
+                            <strong>@c.CourseCode</strong> - @c.CourseName
+                            <span class="badge">@c.Credits tín chỉ</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>📝 Danh sách đề thi Viva</h3>
+        </div>
+        <div class="card-body">
+            @if (!exams.Any())
+            {
+                <p class="empty-state">Chưa có đề thi nào.</p>
+            }
+            else
+            {
+                <ul class="item-list">
+                    @foreach (var e in exams)
+                    {
+                        <li class="item-row">
+                            <div>
+                                <strong>@e.Title</strong>
+                                <div class="item-meta">Môn: @e.Subject | @e.DurationMinutes phút | Độ khó: @e.Difficulty</div>
+                            </div>
+                            <span class="badge badge-accent">@e.TotalQuestions câu</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</div>

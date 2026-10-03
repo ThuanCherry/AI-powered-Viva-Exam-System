@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AIVES Viva Exam</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
+        <nav class="nav-container">
+            <a class="nav-brand" href="/">
+                <span class="brand-badge">AI</span>
+                <span>AIVES Exam System</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Trang chủ</a>
+                <a href="/api/exams" class="nav-link">Bài thi (API)</a>
+                <a href="/api/courses" class="nav-link">Khoá học (API)</a>
+                <a href="/swagger" class="nav-link">API Docs</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p>&copy; 2026 - AIVES: AI-powered Viva Exam System (3-Layer Architecture)</p>
+        </div>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

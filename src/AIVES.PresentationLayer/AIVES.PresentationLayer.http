@@ -1,0 +1,6 @@
+@AIVES.PresentationLayer_HostAddress = http://localhost:5234
+
+GET {{AIVES.PresentationLayer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

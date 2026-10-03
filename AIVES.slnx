@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AIVES.BusinessLogicLayer/AIVES.BusinessLogicLayer.csproj" />
+    <Project Path="src/AIVES.DataAccessLayer/AIVES.DataAccessLayer.csproj" />
+    <Project Path="src/AIVES.PresentationLayer/AIVES.PresentationLayer.csproj" />
+  </Folder>
+</Solution>
