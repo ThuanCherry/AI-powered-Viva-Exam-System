@@ -17,7 +17,7 @@
 ## 🏛️ Sơ đồ Kiến trúc Hệ thống (System Architecture)
 
 <p align="center">
-  <img src="./docs/AssignmentPRN_3Layers_Architecture.drawio.svg" alt="AIVES System Architecture" width="100%"/>
+  <img src="./docs/AssignmentPRN_3Layers_Architecture.drawio (1).svg" alt="AIVES System Architecture" width="100%"/>
 </p>
 
 ---
