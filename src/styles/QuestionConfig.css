@@ -241,6 +241,156 @@
   color: var(--moss);
 }
 
+/* ---------- Student scheduling ---------- */
+
+.qc-scheduler__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.qc-scheduler__subtitle {
+  margin: 0.3rem 0 0;
+  color: var(--ink-text-dim);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.qc-scheduler__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.qc-scheduler__select {
+  position: relative;
+  display: inline-flex;
+}
+
+.qc-scheduler__select select {
+  appearance: none;
+  min-width: 12rem;
+  background: #fffdf9;
+  border: 1px solid var(--parchment-line);
+  border-radius: 8px;
+  padding: 0.6rem 2.1rem 0.6rem 0.8rem;
+  font-size: 0.85rem;
+  color: var(--ink-text);
+  cursor: pointer;
+}
+
+.qc-scheduler__summary {
+  margin-bottom: 1rem;
+  font-size: 0.82rem;
+  color: var(--ink-text-dim);
+}
+
+.qc-scheduler__ok {
+  color: var(--moss);
+}
+
+.qc-scheduler__warning {
+  color: var(--danger);
+}
+
+.qc-scheduler__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.qc-scheduler__slot {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(7.5rem, 1fr) minmax(7.5rem, 1fr) auto;
+  gap: 0.85rem;
+  align-items: end;
+  padding: 0.9rem;
+  border: 1px solid var(--parchment-line);
+  border-radius: 10px;
+  background: #fffdf9;
+}
+
+.qc-scheduler__slot.is-conflict {
+  border-color: rgba(182, 67, 46, 0.5);
+  background: #fffaf8;
+}
+
+.qc-scheduler__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  color: var(--ink-text-dim);
+}
+
+.qc-scheduler__field input {
+  width: 100%;
+  border: 1px solid var(--parchment-line);
+  border-radius: 8px;
+  background: #fffdf9;
+  padding: 0.58rem 0.7rem;
+  color: var(--ink-text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+}
+
+.qc-scheduler__field input:focus {
+  border-color: var(--brass);
+}
+
+.qc-scheduler__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.qc-scheduler__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.28rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.qc-scheduler__chip--ok {
+  background: #e2e9dc;
+  color: var(--moss);
+}
+
+.qc-scheduler__chip--warn {
+  background: #f3e3c6;
+  color: var(--brass-deep);
+}
+
+.qc-scheduler__chip--bad {
+  background: #f6e6e1;
+  color: var(--danger);
+}
+
+.qc-scheduler__remove {
+  border: none;
+  background: none;
+  color: var(--ink-text-dim);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.qc-scheduler__remove:hover {
+  color: var(--ink-text);
+}
+
+.qc-scheduler__empty {
+  margin: 0;
+  color: var(--ink-text-dim);
+  font-size: 0.86rem;
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 960px) {
@@ -256,6 +406,18 @@
 @media (max-width: 640px) {
   .qc-strategy__options {
     grid-template-columns: 1fr;
+  }
+
+  .qc-scheduler__header {
+    flex-direction: column;
+  }
+
+  .qc-scheduler__slot {
+    grid-template-columns: 1fr;
+  }
+
+  .qc-scheduler__meta {
+    justify-content: space-between;
   }
 }
 

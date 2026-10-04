@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar.jsx";
-import DistributionPreview from "../components/DistributionPreview.jsx";
+import DistributionPreview from "../components/DistributePreview.jsx";
 import QuestionPool from "../components/QuestionPool.jsx";
 import { getExam } from "../api/exams.js";
 import { QUESTIONS } from "../data/questions.js";
@@ -29,6 +29,61 @@ const STRATEGIES = [
 ];
 
 const DEFAULT_CONFIG = { mainCount: "5", maxFollowUps: "2", strategy: "RANDOM" };
+
+const SAMPLE_SCHEDULE = [
+  { id: "slot-1", student: "Nguyen Minh Anh", start: "09:00", end: "09:25" },
+  { id: "slot-2", student: "Pham Gia Han", start: "10:30", end: "10:55" },
+  { id: "slot-3", student: "Le Duc Thinh", start: "13:00", end: "13:30" },
+  { id: "slot-4", student: "Vo Thi Kim Ngan", start: "14:30", end: "14:55" },
+];
+
+const STUDENT_CANDIDATES = [
+  "Nguyen Minh Anh",
+  "Pham Gia Han",
+  "Le Duc Thinh",
+  "Vo Thi Kim Ngan",
+  "Tran Quoc Bao",
+  "Dang Thu Trang",
+  "Bui Van Phat",
+  "Ngo Hai Yen",
+];
+
+function toMinutes(value) {
+  if (!value || typeof value !== "string") return Number.NaN;
+  const [hours, minutes] = value.split(":").map(Number);
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return Number.NaN;
+  return hours * 60 + minutes;
+}
+
+function buildScheduleConflicts(schedule) {
+  const entries = schedule
+    .map((slot) => ({
+      ...slot,
+      startMinutes: toMinutes(slot.start),
+      endMinutes: toMinutes(slot.end),
+    }))
+    .filter((slot) => Number.isFinite(slot.startMinutes) && Number.isFinite(slot.endMinutes));
+
+  const conflicts = [];
+  for (let i = 0; i < entries.length; i += 1) {
+    for (let j = i + 1; j < entries.length; j += 1) {
+      const a = entries[i];
+      const b = entries[j];
+
+      if (a.startMinutes < b.endMinutes && b.startMinutes < a.endMinutes) {
+        conflicts.push({
+          idA: a.id,
+          idB: b.id,
+          studentA: a.student,
+          studentB: b.student,
+          left: a,
+          right: b,
+        });
+      }
+    }
+  }
+  return conflicts;
+}
 
 function validateNumber(raw, { min, max }, noun) {
   if (raw.trim() === "" || !Number.isInteger(Number(raw))) {
@@ -157,6 +212,137 @@ function StrategyPicker({ value, onChange }) {
   );
 }
 
+function StudentSchedulePanel({ schedule, setSchedule, selectedStudent, setSelectedStudent }) {
+  const conflicts = useMemo(() => buildScheduleConflicts(schedule), [schedule]);
+  const conflictById = useMemo(() => {
+    const lookup = new Map();
+    conflicts.forEach((conflict) => {
+      lookup.set(conflict.idA, conflict);
+      lookup.set(conflict.idB, conflict);
+    });
+    return lookup;
+  }, [conflicts]);
+
+  const updateSlot = (id, field, value) => {
+    setSchedule((prev) =>
+      prev.map((slot) => (slot.id === id ? { ...slot, [field]: value } : slot))
+    );
+  };
+
+  const addStudentSlot = () => {
+    setSchedule((prev) => {
+      const nextId = `slot-${Date.now()}-${prev.length + 1}`;
+      return [
+        ...prev,
+        {
+          id: nextId,
+          student: selectedStudent,
+          start: "09:00",
+          end: "09:20",
+        },
+      ];
+    });
+  };
+
+  const removeSlot = (id) => {
+    setSchedule((prev) => prev.filter((slot) => slot.id !== id));
+  };
+
+  return (
+    <section className="qc-card qc-scheduler" aria-labelledby="qc-schedule-title">
+      <div className="qc-scheduler__header">
+        <div>
+          <h2 className="qc-card__title" id="qc-schedule-title">
+            Student scheduling
+          </h2>
+          <p className="qc-scheduler__subtitle">
+            Choose students, assign their viva time, and review overlap before the exam starts.
+          </p>
+        </div>
+
+        <div className="qc-scheduler__toolbar">
+          <label className="qc-scheduler__select">
+            <span className="sr-only">Choose student</span>
+            <select value={selectedStudent} onChange={(e) => setSelectedStudent(e.target.value)}>
+              {STUDENT_CANDIDATES.map((student) => (
+                <option key={student} value={student}>
+                  {student}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button type="button" className="qc-btn qc-btn--ghost" onClick={addStudentSlot}>
+            + Add student
+          </button>
+        </div>
+      </div>
+
+      <div className="qc-scheduler__summary" role="status">
+        {conflicts.length > 0 ? (
+          <span className="qc-scheduler__warning">{conflicts.length} overlap alert(s) detected.</span>
+        ) : (
+          <span className="qc-scheduler__ok">No time overlaps in the current schedule.</span>
+        )}
+      </div>
+
+      {schedule.length === 0 ? (
+        <p className="qc-scheduler__empty">No students assigned yet.</p>
+      ) : (
+        <div className="qc-scheduler__list">
+          {schedule.map((slot) => {
+            const startMinutes = toMinutes(slot.start);
+            const endMinutes = toMinutes(slot.end);
+            const invalidRange = Number.isFinite(startMinutes) && Number.isFinite(endMinutes) && startMinutes >= endMinutes;
+            const hasConflict = Boolean(conflictById.get(slot.id));
+
+            return (
+              <div key={slot.id} className={`qc-scheduler__slot ${hasConflict ? "is-conflict" : ""}`}>
+                <div className="qc-scheduler__student-wrap">
+                  <label className="qc-scheduler__field">
+                    <span>Student</span>
+                    <input
+                      type="text"
+                      value={slot.student}
+                      onChange={(e) => updateSlot(slot.id, "student", e.target.value)}
+                    />
+                  </label>
+                </div>
+
+                <label className="qc-scheduler__field">
+                  <span>Start</span>
+                  <input
+                    type="time"
+                    value={slot.start}
+                    onChange={(e) => updateSlot(slot.id, "start", e.target.value)}
+                  />
+                </label>
+
+                <label className="qc-scheduler__field">
+                  <span>End</span>
+                  <input
+                    type="time"
+                    value={slot.end}
+                    onChange={(e) => updateSlot(slot.id, "end", e.target.value)}
+                  />
+                </label>
+
+                <div className="qc-scheduler__meta">
+                  <span className={invalidRange ? "qc-scheduler__chip qc-scheduler__chip--bad" : hasConflict ? "qc-scheduler__chip qc-scheduler__chip--warn" : "qc-scheduler__chip qc-scheduler__chip--ok"}>
+                    {invalidRange ? "Invalid range" : hasConflict ? "Overlap" : "Ready"}
+                  </span>
+                  <button type="button" className="qc-scheduler__remove" onClick={() => removeSlot(slot.id)}>
+                    Remove
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function QuestionConfig() {
   const { examId } = useParams();
 
@@ -183,6 +369,8 @@ export default function QuestionConfig() {
 
   const [config, setConfig] = useState(DEFAULT_CONFIG);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [schedule, setSchedule] = useState(SAMPLE_SCHEDULE);
+  const [selectedStudent, setSelectedStudent] = useState(STUDENT_CANDIDATES[0]);
   const [touched, setTouched] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
@@ -325,6 +513,13 @@ export default function QuestionConfig() {
           mainCount={paramsValid ? mainCount : NaN}
           maxFollowUps={paramsValid ? followUps : 0}
           strategy={config.strategy}
+        />
+
+        <StudentSchedulePanel
+          schedule={schedule}
+          setSchedule={setSchedule}
+          selectedStudent={selectedStudent}
+          setSelectedStudent={setSelectedStudent}
         />
         </div>
 
