@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { clearSession, getSession } from "../auth/session.js";
 import "../styles/Sidebar.css";
 
 const NAV_ITEMS = [
@@ -101,7 +102,24 @@ function IconBars() {
   );
 }
 
+function initialsOf(name) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  const first = words[0][0];
+  const last = words.length > 1 ? words[words.length - 1][0] : "";
+  return (first + last).toUpperCase();
+}
+
 function Sidebar() {
+  const navigate = useNavigate();
+  const session = getSession();
+  const displayName = session?.fullName || session?.email || "Signed in";
+
+  const handleSignOut = () => {
+    clearSession();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <aside className="shell-sidebar">
       <div className="shell-sidebar__brand">
@@ -125,12 +143,17 @@ function Sidebar() {
       </nav>
 
       <div className="shell-sidebar__user">
-        <span className="shell-sidebar__avatar">TM</span>
+        <span className="shell-sidebar__avatar">{initialsOf(displayName)}</span>
         <div className="shell-sidebar__user-info">
-          <span className="shell-sidebar__user-name">Dr. Tran Thi Mai</span>
-          <span className="shell-sidebar__user-role">Course Instructor</span>
+          <span className="shell-sidebar__user-name">{displayName}</span>
+          {session?.role && <span className="shell-sidebar__user-role">{session.role}</span>}
         </div>
-        <button type="button" className="shell-sidebar__signout" aria-label="Sign out">
+        <button
+          type="button"
+          className="shell-sidebar__signout"
+          aria-label="Sign out"
+          onClick={handleSignOut}
+        >
           <svg viewBox="0 0 20 20" width="17" height="17" aria-hidden="true">
             <path
               d="M8 17H4.7c-.7 0-1.2-.5-1.2-1.2V4.2c0-.7.5-1.2 1.2-1.2H8M13 13.5l3.5-3.5-3.5-3.5M16.3 10H8"

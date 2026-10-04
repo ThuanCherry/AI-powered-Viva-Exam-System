@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ApiError } from "../api/client.js";
-import { login } from "../api/users.js";
-import { saveSession } from "../auth/session.js";
+import { register } from "../api/users.js";
 import "../styles/Login.css";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Giới hạn theo RegisterViewModel của backend.
+const NAME = { min: 3, max: 100 };
+const PASSWORD = { min: 6, max: 100 };
 
 function Waveform() {
   // Decorative bars evoking a voice waveform — the "viva" / oral-exam motif.
@@ -49,60 +52,63 @@ function EyeIcon({ open }) {
   );
 }
 
-export default function Login() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const registeredEmail = location.state?.registeredEmail ?? "";
+function validate(form) {
+  const errors = {};
+  const name = form.fullName.trim();
 
-  const [form, setForm] = useState({ email: registeredEmail, password: "", remember: false });
+  if (!name) errors.fullName = "Please enter your full name.";
+  else if (name.length < NAME.min || name.length > NAME.max)
+    errors.fullName = `Name must be ${NAME.min}–${NAME.max} characters.`;
+
+  if (!form.email.trim()) errors.email = "Please enter your email.";
+  else if (!EMAIL_PATTERN.test(form.email.trim())) errors.email = "Enter a valid email address.";
+
+  if (!form.password) errors.password = "Please choose a password.";
+  else if (form.password.length < PASSWORD.min || form.password.length > PASSWORD.max)
+    errors.password = `Password must be ${PASSWORD.min}–${PASSWORD.max} characters.`;
+
+  if (!form.confirmPassword) errors.confirmPassword = "Please confirm your password.";
+  else if (form.confirmPassword !== form.password)
+    errors.confirmPassword = "Passwords do not match.";
+
+  return errors;
+}
+
+export default function Register() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ fullName: "", email: "", password: "", confirmPassword: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle"); // idle | submitting | error
   const [serverError, setServerError] = useState("");
 
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  }
-
-  function validate() {
-    const next = {};
-    if (!form.email.trim()) {
-      next.email = "Please enter your email.";
-    } else if (!EMAIL_PATTERN.test(form.email.trim())) {
-      next.email = "Enter a valid email address.";
-    }
-    if (!form.password) {
-      next.password = "Please enter your password.";
-    } else if (form.password.length < 6) {
-      next.password = "Password must be at least 6 characters.";
-    }
-    return next;
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
-    const validation = validate();
+    const validation = validate(form);
     setErrors(validation);
     if (Object.keys(validation).length > 0) return;
 
     setStatus("submitting");
     setServerError("");
     try {
-      const user = await login({
+      await register({
+        fullName: form.fullName.trim(),
         email: form.email.trim(),
         password: form.password,
-        rememberMe: form.remember,
+        confirmPassword: form.confirmPassword,
       });
-      saveSession(user, form.remember);
-      navigate("/dashboard");
+      navigate("/login", { state: { registeredEmail: form.email.trim() } });
     } catch (error) {
       setServerError(
         error instanceof ApiError
           ? error.message
-          : "Sign in failed. Please check your details and try again."
+          : "Could not create the account. Please try again."
       );
       setStatus("error");
     }
@@ -120,13 +126,13 @@ export default function Login() {
 
         <div className="login__stage-body">
           <h1 className="login__headline">
-            Every viva
+            Join the panel.
             <br />
-            begins with a question.
+            Start with a question.
           </h1>
           <p className="login__lede">
-            Sign in to prepare questions, run exams, and grade viva sessions —
-            alongside an AI panel that listens as closely as you do.
+            Create an account to build question banks, schedule viva exams,
+            and review AI-assisted grading.
           </p>
           <Waveform />
         </div>
@@ -138,14 +144,28 @@ export default function Login() {
 
       <section className="login__panel">
         <form className="login__form" onSubmit={handleSubmit} noValidate>
-          <h2 className="login__form-title">Sign in</h2>
-          <p className="login__form-sub">Enter your account details.</p>
+          <h2 className="login__form-title">Create account</h2>
+          <p className="login__form-sub">Fill in your details to get started.</p>
 
-          {registeredEmail && (
-            <p className="login__form-notice" role="status">
-              Account created. Sign in to continue.
-            </p>
-          )}
+          <div className="field">
+            <label htmlFor="fullName">Full name</label>
+            <input
+              id="fullName"
+              name="fullName"
+              type="text"
+              autoComplete="name"
+              placeholder="Nguyen Van A"
+              value={form.fullName}
+              onChange={(e) => updateField("fullName", e.target.value)}
+              aria-invalid={Boolean(errors.fullName)}
+              aria-describedby={errors.fullName ? "fullName-error" : undefined}
+            />
+            {errors.fullName && (
+              <span className="field__error" id="fullName-error">
+                {errors.fullName}
+              </span>
+            )}
+          </div>
 
           <div className="field">
             <label htmlFor="email">Email</label>
@@ -168,18 +188,13 @@ export default function Login() {
           </div>
 
           <div className="field">
-            <div className="field__label-row">
-              <label htmlFor="password">Password</label>
-              <a className="field__link" href="#forgot-password">
-                Forgot password?
-              </a>
-            </div>
+            <label htmlFor="password">Password</label>
             <div className="field__control">
               <input
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
+                autoComplete="new-password"
                 placeholder="••••••••"
                 value={form.password}
                 onChange={(e) => updateField("password", e.target.value)}
@@ -203,14 +218,36 @@ export default function Login() {
             )}
           </div>
 
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              checked={form.remember}
-              onChange={(e) => updateField("remember", e.target.checked)}
-            />
-            <span>Remember me on this device</span>
-          </label>
+          <div className="field">
+            <label htmlFor="confirmPassword">Confirm password</label>
+            <div className="field__control">
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirm ? "text" : "password"}
+                autoComplete="new-password"
+                placeholder="••••••••"
+                value={form.confirmPassword}
+                onChange={(e) => updateField("confirmPassword", e.target.value)}
+                aria-invalid={Boolean(errors.confirmPassword)}
+                aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
+              />
+              <button
+                type="button"
+                className="field__toggle"
+                onClick={() => setShowConfirm((v) => !v)}
+                aria-label={showConfirm ? "Hide password" : "Show password"}
+                aria-pressed={showConfirm}
+              >
+                <EyeIcon open={showConfirm} />
+              </button>
+            </div>
+            {errors.confirmPassword && (
+              <span className="field__error" id="confirmPassword-error">
+                {errors.confirmPassword}
+              </span>
+            )}
+          </div>
 
           {status === "error" && (
             <p className="login__form-error" role="alert">
@@ -219,37 +256,11 @@ export default function Login() {
           )}
 
           <button type="submit" className="submit" disabled={status === "submitting"}>
-            {status === "submitting" ? "Signing in…" : "Sign in"}
-          </button>
-
-          <div className="divider">
-            <span>or</span>
-          </div>
-
-          <button type="button" className="sso">
-            <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true">
-              <path
-                fill="#4285F4"
-                d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.91c1.7-1.57 2.69-3.88 2.69-6.62Z"
-              />
-              <path
-                fill="#34A853"
-                d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.35 0-4.34-1.58-5.05-3.71H.98v2.33A9 9 0 0 0 9 18Z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M3.95 10.71A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.71V4.96H.98A9 9 0 0 0 0 9c0 1.45.35 2.83.98 4.04l2.97-2.33Z"
-              />
-              <path
-                fill="#EA4335"
-                d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .98 4.96l2.97 2.33C4.66 5.16 6.65 3.58 9 3.58Z"
-              />
-            </svg>
-            Continue with Google
+            {status === "submitting" ? "Creating account…" : "Create account"}
           </button>
 
           <p className="login__form-foot">
-            Don&apos;t have an account? <Link to="/register">Create one.</Link>
+            Already have an account? <Link to="/login">Sign in.</Link>
           </p>
         </form>
       </section>

@@ -362,3 +362,12 @@
     display: none;
   }
 }
+.login__form-notice {
+  font-size: 0.85rem;
+  color: var(--moss);
+  background: #e8eee1;
+  border: 1px solid #c9d6bd;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  margin: 0 0 1.25rem;
+}

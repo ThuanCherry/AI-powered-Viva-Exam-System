@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar.jsx";
 import QuestionPool from "../components/QuestionPool.jsx";
+import { getExam } from "../api/exams.js";
 import { QUESTIONS } from "../data/questions.js";
 import "../styles/QuestionConfig.css";
 
@@ -27,9 +28,6 @@ const STRATEGIES = [
 ];
 
 const DEFAULT_CONFIG = { mainCount: "5", maxFollowUps: "2", strategy: "RANDOM" };
-
-// TODO: thay bằng dữ liệu thật từ API (GET /api/exams/{examId}) khi backend sẵn sàng.
-const MOCK_EXAM = { id: "demo", title: "Database Systems — Final Viva" };
 
 function validateNumber(raw, { min, max }, noun) {
   if (raw.trim() === "" || !Number.isInteger(Number(raw))) {
@@ -160,7 +158,27 @@ function StrategyPicker({ value, onChange }) {
 
 export default function QuestionConfig() {
   const { examId } = useParams();
-  const exam = { ...MOCK_EXAM, id: examId ?? MOCK_EXAM.id };
+
+  // Tải exam thật từ backend. Trạng thái gắn kèm examId + reloadKey để không phải setState đồng bộ trong effect.
+  const [examState, setExamState] = useState({ examId: null, key: 0, exam: null, error: null });
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    if (!examId) return undefined;
+    const controller = new AbortController();
+    getExam(examId, controller.signal)
+      .then((data) => setExamState({ examId, key: reloadKey, exam: data, error: null }))
+      .catch((error) => {
+        if (error.name === "AbortError") return;
+        setExamState({ examId, key: reloadKey, exam: null, error: error.message });
+      });
+    return () => controller.abort();
+  }, [examId, reloadKey]);
+
+  const examLoaded = examState.examId === examId && examState.key === reloadKey;
+  const loadingExam = Boolean(examId) && !examLoaded;
+  const exam = examLoaded ? examState.exam : null;
+  const examError = examLoaded ? examState.error : null;
 
   const [config, setConfig] = useState(DEFAULT_CONFIG);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -193,13 +211,13 @@ export default function QuestionConfig() {
     if (!isValid) return;
 
     const payload = {
-      examId: exam.id,
+      examId: Number(examId),
       mainQuestionCount: mainCount,
       maxFollowUpPerQuestion: followUps,
       strategy: config.strategy,
       selectedQuestionIds: selectedIds,
     };
-    // TODO: gọi API lưu cấu hình (ví dụ PUT /api/exams/{examId}/question-config)
+    // TODO: backend chưa có endpoint lưu cấu hình câu hỏi (xem phần "Cần backend bổ sung").
     console.log("Question config payload:", payload);
     setSavedAt(new Date());
   };
@@ -217,18 +235,46 @@ export default function QuestionConfig() {
   return (
     <Sidebar
       title="Question Configuration"
-      subtitle={`Set how many questions each student gets in ${exam.title}.`}
+      subtitle={
+        exam
+          ? `Set how many questions each student gets in ${exam.title}.`
+          : "Set how many questions each student gets in an exam."
+      }
       actions={
         <>
           <button type="button" className="qc-btn qc-btn--ghost" onClick={handleReset}>
             Reset
           </button>
-          <button type="button" className="qc-btn qc-btn--primary" onClick={handleSave}>
+          <button
+            type="button"
+            className="qc-btn qc-btn--primary"
+            onClick={handleSave}
+            disabled={!exam}
+          >
             Save configuration
           </button>
         </>
       }
     >
+      {!examId && (
+        <p className="qc-notice" role="alert">
+          No exam selected. Open this page from an exam, for example /exams/1/config.
+        </p>
+      )}
+      {loadingExam && (
+        <p className="qc-notice qc-notice--info" role="status">
+          Loading exam…
+        </p>
+      )}
+      {examError && (
+        <p className="qc-notice" role="alert">
+          {examError}{" "}
+          <button type="button" className="qc-notice__retry" onClick={() => setReloadKey((k) => k + 1)}>
+            Try again
+          </button>
+        </p>
+      )}
+
       <div className="qc-layout">
         <div className="qc-main">
         <section className="qc-card" aria-labelledby="qc-params-title">
@@ -308,7 +354,9 @@ export default function QuestionConfig() {
           )}
 
           <p className="qc-summary__status" role="status">
-            {savedAt ? `Configuration saved at ${savedAt.toLocaleTimeString()}.` : ""}
+            {savedAt
+              ? `Configuration is valid (${savedAt.toLocaleTimeString()}). The server cannot store it yet.`
+              : ""}
           </p>
         </aside>
       </div>

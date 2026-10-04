@@ -447,3 +447,39 @@
     display: none;
   }
 }
+
+/* ---------- Notices ---------- */
+
+.qc-notice {
+  margin: 0 0 1.25rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid #e3c2b9;
+  border-left: 3px solid var(--danger);
+  border-radius: 8px;
+  background: #f9ece8;
+  font-size: 0.88rem;
+  color: var(--ink-text);
+}
+
+.qc-notice--info {
+  border-color: var(--parchment-line);
+  border-left-color: var(--brass);
+  background: #faf3e2;
+  color: var(--ink-text-dim);
+}
+
+.qc-notice__retry {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--danger);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.qc-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
