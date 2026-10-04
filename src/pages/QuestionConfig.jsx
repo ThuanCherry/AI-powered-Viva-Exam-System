@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar.jsx";
+import QuestionPool from "../components/QuestionPool.jsx";
+import { QUESTIONS } from "../data/questions.js";
 import "../styles/QuestionConfig.css";
 
 // Giới hạn nhập liệu. Chỉnh ở đây nếu đề bài / backend quy định khác.
@@ -40,12 +42,23 @@ function validateNumber(raw, { min, max }, noun) {
   return null;
 }
 
-function validate(config) {
+function validate(config, poolSize) {
   const errors = {};
   const mainError = validateNumber(config.mainCount, LIMITS.mainCount, "main questions");
   const followError = validateNumber(config.maxFollowUps, LIMITS.maxFollowUps, "follow-ups");
   if (mainError) errors.mainCount = mainError;
   if (followError) errors.maxFollowUps = followError;
+
+  // Chỉ kiểm tra pool khi số câu chính hợp lệ.
+  if (!mainError) {
+    const needed = Number(config.mainCount);
+    if (poolSize < needed) {
+      errors.pool =
+        poolSize === 0
+          ? `Select at least ${needed} questions for the pool.`
+          : `The pool has ${poolSize} of the ${needed} questions needed. Select ${needed - poolSize} more.`;
+    }
+  }
   return errors;
 }
 
@@ -150,20 +163,27 @@ export default function QuestionConfig() {
   const exam = { ...MOCK_EXAM, id: examId ?? MOCK_EXAM.id };
 
   const [config, setConfig] = useState(DEFAULT_CONFIG);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [touched, setTouched] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
 
-  const errors = useMemo(() => validate(config), [config]);
+  const errors = useMemo(() => validate(config, selectedIds.length), [config, selectedIds]);
   const showError = (field) => (touched[field] || submitted ? errors[field] : null);
 
   const update = (field) => (value) => {
     setSavedAt(null);
     setConfig((prev) => ({ ...prev, [field]: value }));
   };
+  const updatePool = (ids) => {
+    setSavedAt(null);
+    setTouched((prev) => ({ ...prev, pool: true }));
+    setSelectedIds(ids);
+  };
   const markTouched = (field) => () => setTouched((prev) => ({ ...prev, [field]: true }));
 
   const isValid = Object.keys(errors).length === 0;
+  const paramsValid = !errors.mainCount && !errors.maxFollowUps;
   const mainCount = Number(config.mainCount);
   const followUps = Number(config.maxFollowUps);
   const maxFollowUpTotal = mainCount * followUps;
@@ -177,6 +197,7 @@ export default function QuestionConfig() {
       mainQuestionCount: mainCount,
       maxFollowUpPerQuestion: followUps,
       strategy: config.strategy,
+      selectedQuestionIds: selectedIds,
     };
     // TODO: gọi API lưu cấu hình (ví dụ PUT /api/exams/{examId}/question-config)
     console.log("Question config payload:", payload);
@@ -185,6 +206,7 @@ export default function QuestionConfig() {
 
   const handleReset = () => {
     setConfig(DEFAULT_CONFIG);
+    setSelectedIds([]);
     setTouched({});
     setSubmitted(false);
     setSavedAt(null);
@@ -208,6 +230,7 @@ export default function QuestionConfig() {
       }
     >
       <div className="qc-layout">
+        <div className="qc-main">
         <section className="qc-card" aria-labelledby="qc-params-title">
           <h2 className="qc-card__title" id="qc-params-title">
             Question settings
@@ -238,12 +261,21 @@ export default function QuestionConfig() {
           <StrategyPicker value={config.strategy} onChange={update("strategy")} />
         </section>
 
+        <QuestionPool
+          questions={QUESTIONS}
+          selectedIds={selectedIds}
+          onChange={updatePool}
+          required={Number.isFinite(mainCount) && !errors.mainCount ? mainCount : NaN}
+          error={showError("pool")}
+        />
+        </div>
+
         <aside className="qc-card qc-summary" aria-labelledby="qc-summary-title">
           <h2 className="qc-card__title" id="qc-summary-title">
             Per student
           </h2>
 
-          {isValid ? (
+          {paramsValid ? (
             <>
               <p className="qc-summary__figure">
                 {mainCount}
@@ -260,6 +292,16 @@ export default function QuestionConfig() {
               <p className="qc-summary__line">
                 Strategy: <strong>{strategy.title}</strong>
               </p>
+              <p className="qc-summary__line">
+                Pool: <strong>{selectedIds.length}</strong>{" "}
+                {selectedIds.length === 1 ? "question" : "questions"}
+              </p>
+              {config.strategy === "RANDOM" && selectedIds.length === mainCount && (
+                <p className="qc-summary__note">
+                  The pool is the same size as the main questions, so every student will get the
+                  same set. Add more questions for a different draw per student.
+                </p>
+              )}
             </>
           ) : (
             <p className="qc-summary__line">Fix the highlighted fields to see the totals.</p>
