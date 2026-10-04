@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar.jsx";
+import DistributionPreview from "../components/DistributionPreview.jsx";
 import QuestionPool from "../components/QuestionPool.jsx";
 import { getExam } from "../api/exams.js";
 import { QUESTIONS } from "../data/questions.js";
@@ -205,6 +206,10 @@ export default function QuestionConfig() {
   const mainCount = Number(config.mainCount);
   const followUps = Number(config.maxFollowUps);
   const maxFollowUpTotal = mainCount * followUps;
+  const selectedQuestions = useMemo(() => {
+    const chosen = new Set(selectedIds);
+    return QUESTIONS.filter((q) => chosen.has(q.id));
+  }, [selectedIds]);
 
   const handleSave = () => {
     setSubmitted(true);
@@ -236,7 +241,7 @@ export default function QuestionConfig() {
     <Sidebar
       title="Question Configuration"
       subtitle={
-        exam
+        exam?.title
           ? `Set how many questions each student gets in ${exam.title}.`
           : "Set how many questions each student gets in an exam."
       }
@@ -313,6 +318,13 @@ export default function QuestionConfig() {
           onChange={updatePool}
           required={Number.isFinite(mainCount) && !errors.mainCount ? mainCount : NaN}
           error={showError("pool")}
+        />
+
+        <DistributionPreview
+          pool={selectedQuestions}
+          mainCount={paramsValid ? mainCount : NaN}
+          maxFollowUps={paramsValid ? followUps : 0}
+          strategy={config.strategy}
         />
         </div>
 

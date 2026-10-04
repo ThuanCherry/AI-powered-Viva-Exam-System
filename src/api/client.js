@@ -1,3 +1,4 @@
+// Địa chỉ backend lấy từ file .env, ví dụ: VITE_API_BASE_URL=http://localhost:5234
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
 export class ApiError extends Error {
@@ -30,6 +31,11 @@ async function request(path, { method = "GET", body, signal } = {}) {
     } catch {
       payload = text;
     }
+  }
+
+  // Nhận về trang HTML nghĩa là request không tới backend (thường do thiếu hoặc sai biến trong .env).
+  if (response.ok && typeof payload === "string" && /^\s*</.test(payload)) {
+    throw new ApiError("Unexpected response from the server. Check VITE_API_BASE_URL in your .env file.");
   }
 
   // ApiExceptionFilter của backend trả { success: false, message, details } khi lỗi.
