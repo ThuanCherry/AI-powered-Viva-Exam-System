@@ -1,0 +1,260 @@
+/* ---------- Buttons (topbar actions) ---------- */
+
+.qc-btn {
+  border-radius: 8px;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.qc-btn--primary {
+  border: 1px solid var(--ink);
+  color: #fdfaf3;
+  background: var(--ink);
+}
+
+.qc-btn--primary:hover {
+  background: var(--ink-soft);
+}
+
+.qc-btn--ghost {
+  border: 1px solid var(--parchment-line);
+  color: var(--ink-text);
+  background: transparent;
+  margin-right: 0.5rem;
+}
+
+.qc-btn--ghost:hover {
+  background: var(--parchment-deep);
+}
+
+/* ---------- Layout ---------- */
+
+.qc-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20rem;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.qc-card {
+  background: #fffdf9;
+  border: 1px solid var(--parchment-line);
+  border-radius: 10px;
+  padding: 1.5rem 1.6rem;
+}
+
+.qc-card__title {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+/* ---------- Fields ---------- */
+
+.qc-field {
+  margin: 0 0 1.75rem;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.qc-field__label {
+  display: block;
+  padding: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink-text);
+}
+
+.qc-field__hint {
+  margin: 0.2rem 0 0.7rem;
+  font-size: 0.82rem;
+  color: var(--ink-text-dim);
+  max-width: 60ch;
+}
+
+.qc-field__error {
+  margin: 0.45rem 0 0;
+  font-size: 0.82rem;
+  color: var(--danger);
+}
+
+/* ---------- Number stepper ---------- */
+
+.qc-stepper {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--parchment-line);
+  border-radius: 8px;
+  background: #fffdf9;
+  overflow: hidden;
+}
+
+.qc-stepper:focus-within {
+  border-color: var(--brass);
+}
+
+.qc-stepper.has-error {
+  border-color: var(--danger);
+}
+
+.qc-stepper button {
+  width: 2.5rem;
+  border: none;
+  background: var(--parchment);
+  color: var(--ink-text);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.qc-stepper button:hover:not(:disabled) {
+  background: var(--parchment-deep);
+}
+
+.qc-stepper button:disabled {
+  color: #b3a98d;
+  cursor: not-allowed;
+}
+
+.qc-stepper input {
+  width: 4rem;
+  border: none;
+  border-left: 1px solid var(--parchment-line);
+  border-right: 1px solid var(--parchment-line);
+  background: none;
+  padding: 0.55rem 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink-text);
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.qc-stepper input::-webkit-outer-spin-button,
+.qc-stepper input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.qc-stepper input:focus-visible {
+  outline: none;
+}
+
+/* ---------- Strategy picker ---------- */
+
+.qc-strategy {
+  margin-bottom: 0;
+}
+
+.qc-strategy__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.qc-strategy__option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--parchment-line);
+  border-radius: 8px;
+  background: #fffdf9;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.qc-strategy__option:hover {
+  border-color: var(--brass);
+}
+
+.qc-strategy__option.is-selected {
+  border-color: var(--brass);
+  background: #faf3e2;
+  box-shadow: inset 0 0 0 1px var(--brass);
+}
+
+.qc-strategy__option:focus-within {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+.qc-strategy__option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.qc-strategy__title {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.qc-strategy__desc {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink-text-dim);
+}
+
+/* ---------- Summary ---------- */
+
+.qc-summary {
+  position: sticky;
+  top: 1.5rem;
+}
+
+.qc-summary__figure {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.qc-summary__figure span {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink-text-dim);
+}
+
+.qc-summary__line {
+  margin: 0 0 0.45rem;
+  font-size: 0.88rem;
+  color: var(--ink-text-dim);
+}
+
+.qc-summary__line strong {
+  color: var(--ink-text);
+  font-weight: 600;
+}
+
+.qc-summary__status {
+  margin: 1rem 0 0;
+  min-height: 1.2em;
+  font-size: 0.82rem;
+  color: var(--moss);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  .qc-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .qc-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .qc-strategy__options {
+    grid-template-columns: 1fr;
+  }
+}
