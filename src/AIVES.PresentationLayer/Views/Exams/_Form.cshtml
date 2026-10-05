@@ -1,0 +1,17 @@
+@model CreateExamViewModel
+<div asp-validation-summary="All" class="validation-summary-errors"></div>
+<div class="form-grid">
+<div><label asp-for="CourseId">Môn học</label><select asp-for="CourseId"><option value="0">Chọn môn phụ trách</option>
+@foreach (var course in Model.Courses) { <option value="@course.CourseId">@course.CourseCode — @course.CourseName</option> }
+</select><small><a asp-controller="Courses" asp-action="Create">Thêm môn học mới</a></small></div>
+<div><label asp-for="Title">Tiêu đề</label><input asp-for="Title" /></div>
+<div><label asp-for="StartsAt">Giờ sinh viên đầu tiên bắt đầu thi</label><input asp-for="StartsAt" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" /></div>
+<div><label asp-for="DurationMinutesPerStudent">Số phút mỗi sinh viên</label><input asp-for="DurationMinutesPerStudent" /><small>Ví dụ 20 phút: 08:00 → 08:20 → 08:40. Giờ kết thúc được tính tự động theo số thí sinh.</small></div>
+<div><label asp-for="MainQuestionCount">Số câu chính mỗi sinh viên</label><input asp-for="MainQuestionCount" /><small>Ví dụ 3 câu/SV: cần chọn ít nhất 3 câu đã duyệt trong ngân hàng kỳ thi.</small></div>
+<div><label asp-for="MaxFollowUpPerQuestion">Đào sâu tối đa mỗi câu chính</label><input asp-for="MaxFollowUpPerQuestion" /></div>
+<div><label asp-for="SelectionStrategy">Cách chọn câu</label><select asp-for="SelectionStrategy"><option>RANDOM</option><option>ADAPTIVE</option></select></div>
+<div><label asp-for="AvoidRecentDuplicateCount">Tránh câu của N thí sinh ngay trước</label><input asp-for="AvoidRecentDuplicateCount" /></div>
+</div>
+<label asp-for="Description">Mô tả</label><textarea asp-for="Description"></textarea>
+<p class="muted">RANDOM chọn ngẫu nhiên; ADAPTIVE cân bằng độ khó/Bloom. Chọn nhiều câu hơn để hạn chế trùng giữa sinh viên.</p>
+<button type="submit">Lưu kỳ thi</button>

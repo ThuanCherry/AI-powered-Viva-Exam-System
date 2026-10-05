@@ -1,36 +1,16 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 namespace AIVES.DataAccessLayer.Models;
-
-[Table("Questions")]
+[Table("questions")]
 public class Question
 {
-    [Key]
-    public int QuestionId { get; set; }
-
-    [Required]
-    public string QuestionText { get; set; } = string.Empty;
-
-    public string? ExpectedAnswer { get; set; }
-
-    public string? AIPromptContext { get; set; }
-
-    [MaxLength(20)]
-    public string Difficulty { get; set; } = "Medium"; // Easy, Medium, Hard
-
-    public int MaxScore { get; set; } = 10;
-
-    public int OrderIndex { get; set; }
-
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    // Foreign Key
-    public int ExamId { get; set; }
-
-    [ForeignKey("ExamId")]
-    public Exam Exam { get; set; } = null!;
-
-    // Navigation properties
-    public ICollection<StudentAnswer> StudentAnswers { get; set; } = new List<StudentAnswer>();
+    [Key, Column("id")] public long QuestionId { get; set; }
+    [Column("course_id")] public long CourseId { get; set; }
+    [Column("content")] public string QuestionText { get; set; } = "";
+    [Column("bloom_level"), MaxLength(30)] public string? BloomLevel { get; set; }
+    [Column("difficulty"), MaxLength(30)] public string? Difficulty { get; set; }
+    [Column("is_approved")] public bool IsApproved { get; set; }
+    [Column("is_active")] public bool IsActive { get; set; } = true;
+    [Column("created_at")] public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    [Column("updated_at")] public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

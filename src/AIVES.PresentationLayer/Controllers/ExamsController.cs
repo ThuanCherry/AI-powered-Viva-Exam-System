@@ -1,99 +1,75 @@
+using System.Security.Claims;
+using AIVES.BusinessLogicLayer.Common;
 using AIVES.BusinessLogicLayer.Interfaces;
-using AIVES.DataAccessLayer.Models;
 using AIVES.PresentationLayer.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 namespace AIVES.PresentationLayer.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class ExamsController : ControllerBase
+[Authorize(Roles = "LECTURER")]
+public class ExamsController(IExamService exams, ICourseService courses, IExamSessionService schedules, IQuestionAssignmentService assignments) : Controller
 {
-    private readonly IExamService _examService;
-
-    public ExamsController(IExamService examService)
+    private long CurrentUserId => long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    [HttpGet] public async Task<IActionResult> Index() => View(await exams.GetAllAsync(CurrentUserId));
+    [HttpGet("/api/exams")] public async Task<IActionResult> ApiList() => Ok(await exams.GetAllAsync(CurrentUserId));
+    [HttpGet] public async Task<IActionResult> Create()
     {
-        _examService = examService;
+        return View(new CreateExamViewModel { Courses = await courses.GetForLecturerAsync(CurrentUserId) });
     }
-
-    /// <summary>
-    /// Get all active exams.
-    /// </summary>
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
+    [HttpPost] public async Task<IActionResult> Create(CreateExamViewModel model)
     {
-        var result = await _examService.GetAllAsync();
-        return result.Success ? Ok(result) : BadRequest(result);
-    }
-
-    /// <summary>
-    /// Get exam by ID with questions.
-    /// </summary>
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var result = await _examService.GetByIdAsync(id);
-        return result.Success ? Ok(result) : NotFound(result);
-    }
-
-    /// <summary>
-    /// Get exams by subject.
-    /// </summary>
-    [HttpGet("subject/{subject}")]
-    public async Task<IActionResult> GetBySubject(string subject)
-    {
-        var result = await _examService.GetBySubjectAsync(subject);
-        return result.Success ? Ok(result) : BadRequest(result);
-    }
-
-    /// <summary>
-    /// Create a new exam with questions.
-    /// </summary>
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateExamViewModel model, [FromQuery] int createdByUserId)
-    {
-        var exam = new Exam
+        if (ModelState.IsValid)
         {
-            Title = model.Title,
-            Description = model.Description,
-            Subject = model.Subject,
-            CourseId = model.CourseId,
-            DurationMinutes = model.DurationMinutes,
-            Difficulty = model.Difficulty
-        };
-
-        var result = await _examService.CreateAsync(exam, Enumerable.Empty<Question>(), createdByUserId);
-        return result.Success
-            ? CreatedAtAction(nameof(GetById), new { id = result.Data!.ExamId }, result)
-            : BadRequest(result);
+            var result = await exams.CreateAsync(model.ToCommand(), CurrentUserId);
+            if (result.Success) return RedirectToAction(nameof(Details), new { id = result.Data!.ExamId });
+            ModelState.AddModelError("", result.Message);
+        }
+        model.Courses = await courses.GetForLecturerAsync(CurrentUserId);
+        return View(model);
     }
-
-    /// <summary>
-    /// Update an existing exam.
-    /// </summary>
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CreateExamViewModel model)
+    [HttpGet] public async Task<IActionResult> Edit(long id)
     {
-        var exam = new Exam
+        var result = await exams.GetOwnedAsync(id, CurrentUserId, true);
+        if (!result.Success) return Forbid();
+        var model = CreateExamViewModel.From(result.Data!);
+        model.Courses = await courses.GetForLecturerAsync(CurrentUserId);
+        return View(model);
+    }
+    [HttpPost] public async Task<IActionResult> Edit(long id, CreateExamViewModel model)
+    {
+        if (ModelState.IsValid)
         {
-            Title = model.Title,
-            Description = model.Description,
-            Subject = model.Subject,
-            DurationMinutes = model.DurationMinutes,
-            Difficulty = model.Difficulty
-        };
-
-        var result = await _examService.UpdateAsync(id, exam);
-        return result.Success ? Ok(result) : NotFound(result);
+            var result = await exams.UpdateAsync(id, model.ToCommand(), CurrentUserId);
+            if (result.Success) { TempData["Success"] = result.Message; return RedirectToAction(nameof(Details), new { id }); }
+            ModelState.AddModelError("", result.Message);
+        }
+        model.Courses = await courses.GetForLecturerAsync(CurrentUserId);
+        return View(model);
     }
-
-    /// <summary>
-    /// Soft-delete an exam.
-    /// </summary>
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    [HttpPost] public async Task<IActionResult> Delete(long id)
     {
-        var result = await _examService.DeleteAsync(id);
-        return result.Success ? Ok(result) : NotFound(result);
+        var result = await exams.DeleteAsync(id, CurrentUserId);
+        TempData[result.Success ? "Success" : "Error"] = result.Message;
+        return RedirectToAction(nameof(Index));
     }
+    [HttpGet] public async Task<IActionResult> Details(long id)
+    {
+        var result = await exams.GetDetailsAsync(id, CurrentUserId);
+        return result.Success ? View(result.Data) : Forbid();
+    }
+    [HttpPost] public async Task<IActionResult> Participants(long id, ParticipantForm model) =>
+        Finish(id, ModelState.IsValid ? await exams.SetParticipantsAsync(id, model.StudentIds, CurrentUserId) : Invalid());
+    [HttpPost] public async Task<IActionResult> GenerateSchedule(long id, ScheduleSettingsViewModel model) =>
+        Finish(id, ModelState.IsValid ? await schedules.GenerateScheduleAsync(id, CurrentUserId, model.StartsAt, model.DurationMinutesPerStudent) : Invalid());
+    [HttpPost] public async Task<IActionResult> SaveSchedule(long id, ScheduleViewModel model) =>
+        Finish(id, ModelState.IsValid ? await schedules.UpdateSlotsAsync(id, model.Slots.Select(x => new SlotCommand(x.ParticipantId, x.Start, x.End)).ToArray(), CurrentUserId) : Invalid());
+    [HttpPost] public async Task<IActionResult> QuestionPool(long id, QuestionPoolForm model) =>
+        Finish(id, ModelState.IsValid ? await exams.SetQuestionPoolAsync(id, model.QuestionIds, CurrentUserId) : Invalid());
+    [HttpPost] public async Task<IActionResult> GenerateAssignments(long id) => Finish(id, await assignments.GenerateAsync(id, CurrentUserId));
+    [HttpPost] public async Task<IActionResult> Publish(long id) => Finish(id, await exams.PublishAsync(id, CurrentUserId));
+    private IActionResult Finish(long id, ServiceResult<bool> result)
+    {
+        TempData[result.Success ? "Success" : "Error"] = result.Message;
+        return RedirectToAction(nameof(Details), new { id });
+    }
+    private static ServiceResult<bool> Invalid() => ServiceResult<bool>.FailureResult("Dữ liệu form không hợp lệ.");
 }

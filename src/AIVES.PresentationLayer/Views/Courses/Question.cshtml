@@ -1,0 +1,15 @@
+@model QuestionViewModel
+@{ ViewData["Title"] = "Câu hỏi môn học"; }
+<section class="card"><h1>@(Context.Request.Query.ContainsKey("questionId") ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi")</h1>
+<form asp-action="Question" asp-route-id="@ViewContext.RouteData.Values["id"]" asp-route-questionId="@Context.Request.Query["questionId"]" method="post">
+<div asp-validation-summary="All" class="validation-summary-errors"></div>
+<label asp-for="Content">Nội dung câu hỏi</label><textarea asp-for="Content" rows="5"></textarea>
+<div class="form-grid">
+<div><label asp-for="Difficulty">Độ khó</label><select asp-for="Difficulty"><option value="">Không phân loại</option><option value="Easy">Dễ</option><option value="Medium">Trung bình</option><option value="Hard">Khó</option></select></div>
+<div><label asp-for="BloomLevel">Mức tư duy (Bloom)</label><select asp-for="BloomLevel"><option value="">Không phân loại</option><option value="Remember">Ghi nhớ</option><option value="Understand">Hiểu</option><option value="Apply">Vận dụng</option><option value="Analyze">Phân tích</option><option value="Evaluate">Đánh giá</option><option value="Create">Sáng tạo</option></select></div>
+</div>
+<label class="check"><input asp-for="IsApproved" /> Đã duyệt — cho phép chọn vào đề thi</label>
+<label class="check"><input asp-for="IsActive" /> Câu hỏi đang hoạt động</label>
+<p>Chỉ câu hỏi vừa đang hoạt động vừa được duyệt mới xuất hiện trong ngân hàng kỳ thi.</p>
+<button type="submit">Lưu câu hỏi</button>
+</form></section>
