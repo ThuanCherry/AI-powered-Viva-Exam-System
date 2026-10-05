@@ -1,48 +1,22 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 namespace AIVES.DataAccessLayer.Models;
-
-[Table("Exams")]
+[Table("exams")]
 public class Exam
 {
-    [Key]
-    public int ExamId { get; set; }
-
-    [Required, MaxLength(200)]
-    public string Title { get; set; } = string.Empty;
-
-    [MaxLength(1000)]
-    public string? Description { get; set; }
-
-    [Required, MaxLength(100)]
-    public string Subject { get; set; } = string.Empty;
-
-    public int DurationMinutes { get; set; } = 30;
-
-    public int TotalQuestions { get; set; } = 10;
-
-    [MaxLength(20)]
-    public string Difficulty { get; set; } = "Medium"; // Easy, Medium, Hard
-
-    public int? CourseId { get; set; }
-
-    [ForeignKey("CourseId")]
-    public Course? Course { get; set; }
-
-    public bool IsAIGenerated { get; set; } = false;
-
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public bool IsActive { get; set; } = true;
-
-    // Foreign Key
-    public int CreatedByUserId { get; set; }
-
-    [ForeignKey("CreatedByUserId")]
-    public User CreatedBy { get; set; } = null!;
-
-    // Navigation properties
-    public ICollection<Question> Questions { get; set; } = new List<Question>();
-    public ICollection<ExamSession> ExamSessions { get; set; } = new List<ExamSession>();
+    [Key, Column("ExamId")] public long ExamId { get; set; }
+    [Column("course_id")] public long CourseId { get; set; }
+    [Column("created_by")] public long CreatedByUserId { get; set; }
+    [Column("title"), MaxLength(255)] public string Title { get; set; } = "";
+    [Column("description")] public string? Description { get; set; }
+    [Column("starts_at")] public DateTime StartsAt { get; set; }
+    [Column("ends_at")] public DateTime EndsAt { get; set; }
+    [Column("duration_minutes_per_student")] public int DurationMinutesPerStudent { get; set; } = 15;
+    [Column("main_question_count")] public int MainQuestionCount { get; set; } = 3;
+    [Column("max_follow_up_per_question")] public int MaxFollowUpPerQuestion { get; set; } = 2;
+    [Column("selection_strategy")] public string SelectionStrategy { get; set; } = "RANDOM";
+    [Column("avoid_recent_duplicate_count")] public int AvoidRecentDuplicateCount { get; set; } = 1;
+    [Column("status")] public string Status { get; set; } = "DRAFT";
+    [Column("created_at")] public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    [Column("updated_at")] public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

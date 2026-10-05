@@ -1,220 +1,80 @@
-# 🎓 AssignmentPRN - AI-powered Viva Exam System (AIVES)
+# AIVES — AI-powered Viva Exam System
 
-<div align="center">
+ASP.NET Core MVC / Razor, .NET 10, EF Core, and MySQL. Function 2 manages viva exams, participants, schedules, question pools, pre-selection and publication.
 
-![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
-![C#](https://img.shields.io/badge/C%23-13.0-239120?style=for-the-badge&logo=csharp&logoColor=white)
-![ASP.NET Core MVC](https://img.shields.io/badge/ASP.NET%20Core-Web%20MVC-blue?style=for-the-badge&logo=dotnet&logoColor=white)
-![EF Core](https://img.shields.io/badge/EF%20Core-10.0-purple?style=for-the-badge&logo=nuget&logoColor=white)
-![MySQL](<https://img.shields.io/badge/MySQL-8.4%20(Aiven%20TLS)-00758F?style=for-the-badge&logo=mysql&logoColor=white>)
+## Architecture
 
-**Hệ thống thi vấn đáp (Viva Exam) thông minh với kiến trúc 3-Layers chuẩn hoá**
+![3-Layers architecture](docs/images/Kien%20truc%203-layers.png)
 
-</div>
+- `src/AIVES.PresentationLayer`: cookie authentication, role-protected controllers, forms and Razor views.
+- `src/AIVES.BusinessLogicLayer`: authentication, ownership validation, scheduling, RANDOM/ADAPTIVE selection, publication and Development seeding.
+- `src/AIVES.DataAccessLayer`: mapped entities, repositories, transactions and MySQL.
+- `tests/AIVES.Tests`: xUnit rule/selection/mapping tests.
+- `tests/e2e_function2.py`: real HTTP/MySQL acceptance flow.
 
----
+Controllers call Business services. Database queries and per-exam transaction locks stay in DataAccess.
 
-## 🏛️ Sơ đồ Kiến trúc Hệ thống (System Architecture)
+## Database configuration
 
-<p align="center">
-  <img src="./docs/AssignmentPRN_3Layers_Architecture.drawio (1).svg" alt="AIVES System Architecture" width="100%"/>
-</p>
+**`docs/AIVES_DB.txt` is the schema source of truth.** Its dump identifies `aives_swd`; that existing database contains the complete Function 2 schema. Configure `ConnectionStrings:DefaultConnection` with your MySQL host, port, database, username and password.
 
----
+Example (replace the password locally):
 
-## 🔍 Chi tiết các Tầng (Layer Breakdown)
-
-### 1. 🌐 Presentation Layer (`AIVES.PresentationLayer`)
-
-- **WebMVC Pattern**: Hỗ trợ đồng thời Razor Views để render giao diện Web và các Controller phục vụ RESTful API.
-- **Controllers**:
-  - `HomeController`: Điều hướng và render trang chủ qua Razor Views.
-  - `CoursesController`: Quản lý khoá học (Course).
-  - `ExamsController`: Quản lý đề thi vấn đáp (Exam).
-  - `ExamSessionsController`: Quản lý phiên thi, nộp bài vấn đáp.
-  - `UsersController`: Đăng ký, đăng nhập và thông tin tài khoản.
-- **Razor Views**:
-  - `_Layout.cshtml`: Khung giao diện chính (header, footer, stylesheet).
-  - `Home/Index.cshtml`: Giao diện danh sách khoá học và đề thi.
-  - `_ViewImports.cshtml`, `_ViewStart.cshtml`.
-- **ViewModels**: Chịu trách nhiệm data binding và validation cho dữ liệu người dùng nhập (`ExamViewModels`, `UserViewModels`, v.v.).
-- **Hạ tầng · khởi động**:
-  - `Program.cs`: Cấu hình Dependency Injection và Middleware pipeline.
-  - `appsettings.json`: Cấu hình ConnectionStrings (MySQL 8.4 Aiven TLS / SQL Server) và `MaterialStorage`.
-  - `Constants/AppConstants.cs`: Các hằng số ứng dụng.
-  - `Filters/ApiExceptionFilter.cs`: Bắt và xử lý ngoại lệ tập trung.
-  - `wwwroot/`: Chứa file tĩnh (`site.css`, assets, scripts).
-
----
-
-### 2. ⚡ Business Layer (`AIVES.BusinessLogicLayer`)
-
-- **Interfaces**:
-  - Nằm ở tầng ngoài cùng cấp với Services (`Interfaces/`).
-  - Hợp đồng dịch vụ: `ICourseService`, `IExamService`, `IUserService`, `IExamSessionService`.
-- **Services**:
-  - `UserService`: Nghiệp vụ xác thực, đăng nhập, bảo mật.
-  - `CourseService`: Nghiệp vụ quản lý học phần / khoá học.
-  - `ExamService`: Tạo, duyệt và phân loại đề thi viva.
-  - `ExamSessionService`: Điều khiển phiên thi, tích hợp trực tiếp thuật toán chấm điểm câu trả lời viva exam.
-- **Common**:
-  - `ServiceResult<T>`: Chuẩn hoá kết quả trả về của các dịch vụ.
-- **Khối Nối Tầng**:
-  - `ServiceCollectionExtensions.cs`: Extension method `AddAivesLayers()` đăng ký toàn bộ DI của hệ thống, giúp Presentation Layer kết nối sạch sẽ với các tầng dưới.
-
----
-
-### 3. 💾 Data Access Layer (`AIVES.DataAccessLayer`)
-
-- **Repositories & Unit of Work**:
-  - `IGenericRepository<T>` & `GenericRepository<T>`: Hỗ trợ cả **Query** (Get, Find, Exists, Count) và **Command** (Add, Update, Remove).
-  - `IUnitOfWork` & `UnitOfWork`: Quản lý transaction tập trung cho tất cả DbSets.
-- **AivesDbContext**:
-  - Kế thừa `DbContext` của Entity Framework Core.
-  - Hỗ trợ kết nối cơ sở dữ liệu **MySQL 8.4 (Aiven Cloud với TLS)** hoặc **SQL Server**.
-- **Entity Models**:
-  - `User`, `Course`, `Exam`, `Question`, `ExamSession`, `StudentAnswer`.
-- **File tài liệu (`LocalMaterialFileStore`)**:
-  - Quản lý lưu trữ tài liệu môn học, file âm thanh câu trả lời viva tại thư mục `Storage/materials`.
-- **Hạ tầng DAL**:
-  - `Common/Contracts`: `IAuditableEntity`, `ISoftDeletable`.
-  - `Common/Enums`: `UserRole`, `ExamStatus`, `SessionStatus`, `QuestionDifficulty`.
-
----
-
-## 📂 Cấu trúc thư mục Source Code
-
-```
-AI-powered-Viva-Exam-System/
-│
-├── 📄 AIVES.slnx                                # Solution file (.NET 10)
-├── 📄 .gitignore
-├── 📄 README.md
-│
-└── 📂 src/
-    │
-    ├── 📂 AIVES.PresentationLayer/              # 🌐 TẦNG 1: PRESENTATION LAYER (WebMVC)
-    │   ├── 📂 Controllers/
-    │   │   ├── HomeController.cs                # MVC Controller render Razor Views
-    │   │   ├── CoursesController.cs             # API Controller khoá học
-    │   │   ├── ExamsController.cs               # API Controller đề thi
-    │   │   ├── ExamSessionsController.cs        # API Controller phiên thi viva
-    │   │   └── UsersController.cs               # API Controller người dùng & auth
-    │   ├── 📂 Views/                            # Razor Views (.cshtml)
-    │   │   ├── 📂 Home/
-    │   │   │   └── Index.cshtml
-    │   │   ├── 📂 Shared/
-    │   │   │   └── _Layout.cshtml
-    │   │   ├── _ViewImports.cshtml
-    │   │   └── _ViewStart.cshtml
-    │   ├── 📂 ViewModels/                       # Binding & Validation
-    │   │   ├── CourseViewModels.cs
-    │   │   ├── ExamViewModels.cs
-    │   │   └── UserViewModels.cs
-    │   ├── 📂 Constants/
-    │   │   └── AppConstants.cs
-    │   ├── 📂 Filters/
-    │   │   └── ApiExceptionFilter.cs
-    │   ├── 📂 wwwroot/                          # Static files (CSS, JS)
-    │   │   └── 📂 css/
-    │   │       └── site.css
-    │   ├── Program.cs                           # DI & Middleware pipeline
-    │   ├── appsettings.json                     # ConnectionString & MaterialStorage
-    │   └── appsettings.Development.json
-    │
-    ├── 📂 AIVES.BusinessLogicLayer/             # ⚡ TẦNG 2: BUSINESS LAYER (SERVICES)
-    │   ├── 📄 ServiceCollectionExtensions.cs    # 🔗 NỐI TẦNG: DI Extension Method
-    │   ├── 📄 DataAccessMappings.cs             # 🔗 NỐI TẦNG: Entity <-> DTO Mapping
-    │   ├── 📂 Services/
-    │   │   ├── 📂 Interfaces/
-    │   │   │   ├── ICourseService.cs
-    │   │   │   ├── IExamService.cs
-    │   │   │   ├── IExamSessionService.cs
-    │   │   │   └── IUserService.cs
-    │   │   └── 📂 Implementations/
-    │   │       ├── CourseService.cs
-    │   │       ├── ExamService.cs
-    │   │       ├── ExamSessionService.cs
-    │   │       └── UserService.cs
-    │   ├── 📂 BusinessRules/                    # 📐 Quy tắc nghiệp vụ riêng biệt
-    │   │   ├── ScoringRule.cs                   # Tính điểm viva tự động
-    │   │   ├── QuestionPickingRule.cs           # Bốc thăm câu hỏi viva
-    │   │   └── ExamSchedulingRule.cs            # Kiểm tra thời gian làm bài
-    │   └── 📂 DTOs/
-    │       └── AllDTOs.cs                       # Request / Response DTOs
-    │
-    └── 📂 AIVES.DataAccessLayer/                # 💾 TẦNG 3: DATA ACCESS LAYER
-        ├── 📂 Data/
-        │   └── AivesDbContext.cs                # EF Core DbContext (MySQL / SQL Server)
-        ├── 📂 Models/                           # Entity Models
-        │   ├── User.cs
-        │   ├── Course.cs
-        │   ├── Exam.cs
-        │   ├── Question.cs
-        │   ├── ExamSession.cs
-        │   └── StudentAnswer.cs
-        ├── 📂 Repositories/                     # Repository & Unit of Work
-        │   ├── IGenericRepository.cs
-        │   ├── GenericRepository.cs
-        │   ├── IUnitOfWork.cs
-        │   └── UnitOfWork.cs
-        ├── 📂 Storage/                          # 💾 File tài liệu
-        │   └── LocalMaterialFileStore.cs        # Lưu trữ Storage/materials
-        └── 📂 Common/                           # 🛠️ Hạ tầng DAL
-            ├── 📂 Contracts/
-            │   └── IEntityContracts.cs
-            └── 📂 Enums/
-                └── AppEnums.cs
+```text
+Server=localhost;Port=3306;Database=aives_swd;User=root;Password=YOUR_PASSWORD;
 ```
 
----
+You can override it with `ConnectionStrings__DefaultConnection` in the environment. Development does not replace this connection setting. DBeaver is used to inspect the same MySQL database.
 
-## 🚀 Hướng dẫn Cài đặt & Chạy Dự án
+The app never runs migrations, creates tables, or resets the database. **Do not rerun the SQL dump on an existing database:** it contains DROP statements. The old six-table `aives_db` database does not match this Function 2 schema.
 
-### 1. Yêu cầu môi trường
+## Run
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/)
-- MySQL 8.4 (hoặc SQL Server LocalDB)
+Install the .NET 10 SDK and start MySQL, then:
 
-### 2. Cấu hình Connection String
-
-Mở file `src/AIVES.PresentationLayer/appsettings.json` và cấu hình chuỗi kết nối:
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=AIVES_DB;Trusted_Connection=True;MultipleActiveResultSets=true",
-    "MySqlConnection": "Server=mysql-aiven-host.aivencloud.com;Port=12345;Database=defaultdb;User=avnadmin;Password=secret;SslMode=Required;"
-  },
-  "MaterialStorage": {
-    "BasePath": "Storage/materials",
-    "MaxFileSizeMB": 50
-  }
-}
-```
-
-### 3. Build & Chạy Solution
-
-```bash
-# Clone source code
-git clone https://github.com/your-username/AI-powered-Viva-Exam-System.git
-cd AI-powered-Viva-Exam-System
-
-# Restore & Build
-dotnet restore
+```powershell
+dotnet restore AIVES.slnx
 dotnet build AIVES.slnx
-
-# Chạy ứng dụng WebMVC
-dotnet run --project src/AIVES.PresentationLayer
+dotnet run --project src/AIVES.PresentationLayer --launch-profile http
 ```
 
-Truy cập:
+Open **http://localhost:5000** (also available at http://localhost:5234). Development automatically adds sample data without deleting existing rows. Date/time form values and schedules use local exam time; audit fields use UTC.
 
-- 🌐 **Web MVC Interface**: `http://localhost:5000`
-- 📡 **Swagger API Documentation**: `http://localhost:5000/openapi/v1.json`
+## Demo accounts
 
----
+All demo accounts use **`Demo@123`**. Passwords are salted hashes.
 
-## 📄 License
+| Role | Email | Assigned course |
+| --- | --- | --- |
+| Lecturer | lecturer1@aives.local | PRN222 |
+| Lecturer | lecturer2@aives.local | SWP391 |
+| Student | student01@aives.local through student08@aives.local | PRN222; first five also SWP391 |
 
-Phân phối theo giấy phép MIT License.
+The seeder adds 12 approved PRN222 questions, a DRAFT exam and a PUBLISHED exam with a ready schedule. It preserves existing demo exam edits on restart. Public registration always creates STUDENT, without automatic course enrollment.
+
+## Demo flow
+
+Lecturers can open **Môn học & câu hỏi** to add/edit a course, enroll active students, and add/edit its questions. New courses are assigned to the lecturer who creates them. Questions in published exams are protected; add a new question to preserve an existing published paper.
+
+1. Login as lecturer1 and open **PRN222 Viva - Draft Demo**, or create an exam.
+2. Select enrolled students and save; their appointments are generated automatically.
+3. Set the first student's start time and minutes per student (e.g. 15 or 20). Save to recalculate all appointments and the exam end time automatically.
+4. Select at least the configured number of approved questions in Question Pool.
+5. Generate Assignments and inspect Preview; try RANDOM or ADAPTIVE.
+6. Publish, logout, then login as student01 and open **My Schedule**.
+
+DRAFT configuration/participant/schedule/pool changes invalidate existing previews explicitly. Published exams cannot be edited or regenerated. Small pools may reuse recent questions between students, with a visible warning; questions never duplicate within one student. ADAPTIVE balances difficulty/Bloom metadata and falls back to RANDOM if metadata is absent.
+
+Question Pool means the questions available to this exam. If each student needs 3 main questions, select at least 3 approved/active questions. Partial selections can be saved, but assignment generation and publication explain exactly how many more questions are needed. The page provides a live selection count and a select-all button.
+
+Student routes derive identity from claims and return only their schedule, never question assignments. Every modifying form checks antiforgery tokens; services enforce lecturer ownership/course assignment.
+
+## Verification
+
+```powershell
+dotnet test AIVES.slnx
+# With the Development server running:
+python tests/e2e_function2.py
+```
+
+The Python acceptance test uses the connection in appsettings.json and a MySQL CLI installed at the standard Windows location. It adds uniquely named QA accounts/exams and preserves all existing records. See [implementation and verification notes](docs/FUNCTION2_IMPLEMENTATION.md).

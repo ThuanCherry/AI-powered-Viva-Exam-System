@@ -1,38 +1,17 @@
 using System.ComponentModel.DataAnnotations;
-
 namespace AIVES.PresentationLayer.ViewModels;
-
 public class LoginViewModel
 {
-    [Required(ErrorMessage = "Email không được để trống")]
-    [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
-    public string Email { get; set; } = string.Empty;
-
-    [Required(ErrorMessage = "Mật khẩu không được để trống")]
-    [DataType(DataType.Password)]
-    public string Password { get; set; } = string.Empty;
-
+    [Required, EmailAddress] public string Email { get; set; } = "";
+    [Required, DataType(DataType.Password)] public string Password { get; set; } = "";
     public bool RememberMe { get; set; }
 }
-
 public class RegisterViewModel
 {
-    [Required(ErrorMessage = "Họ tên không được để trống")]
-    [StringLength(100, MinimumLength = 3)]
-    public string FullName { get; set; } = string.Empty;
-
-    [Required(ErrorMessage = "Email không được để trống")]
-    [EmailAddress]
-    public string Email { get; set; } = string.Empty;
-
-    [Required(ErrorMessage = "Mật khẩu không được để trống")]
-    [StringLength(100, MinimumLength = 6, ErrorMessage = "Mật khẩu tối thiểu 6 ký tự")]
-    [DataType(DataType.Password)]
-    public string Password { get; set; } = string.Empty;
-
-    [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
-    [DataType(DataType.Password)]
-    public string ConfirmPassword { get; set; } = string.Empty;
-
-    public string Role { get; set; } = "Student";
+    [Required, StringLength(255, MinimumLength = 2)] public string FullName { get; set; } = "";
+    [Required, EmailAddress, StringLength(255)] public string Email { get; set; } = "";
+    [StringLength(50)] public string? StudentCode { get; set; }
+    [Required, StringLength(128, MinimumLength = 8), RegularExpression(@"^(?=.*\p{L})(?=.*\d).{8,128}$", ErrorMessage = "Mật khẩu cần chữ, số và ít nhất 8 ký tự."), DataType(DataType.Password)]
+    public string Password { get; set; } = "";
+    [Required, Compare(nameof(Password)), DataType(DataType.Password)] public string ConfirmPassword { get; set; } = "";
 }

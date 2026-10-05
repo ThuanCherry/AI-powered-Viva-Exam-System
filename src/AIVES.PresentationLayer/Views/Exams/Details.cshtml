@@ -1,0 +1,75 @@
+@model AIVES.BusinessLogicLayer.Common.ExamDetails
+@{
+    ViewData["Title"] = Model.Exam.Title;
+    var e = Model.Exam;
+    var draft = e.Status == "DRAFT";
+    var available = Model.Questions.Where(x => x.IsActive && x.IsApproved).ToArray();
+}
+<div class="page-heading"><div><h1>@e.Title</h1><p>@Model.Course.CourseCode · @e.StartsAt.ToString("dd/MM/yyyy HH:mm") → @e.EndsAt.ToString("dd/MM/yyyy HH:mm")</p></div>
+<span class="badge">@e.Status</span>
+@if (draft) { <a asp-action="Edit" asp-route-id="@e.ExamId">Sửa cấu hình</a> }</div>
+<p>@e.MainQuestionCount câu chính/SV · @e.DurationMinutesPerStudent phút/SV · @e.SelectionStrategy</p>
+<section class="card step"><h2>1. Chọn thí sinh</h2>
+@if (draft) {
+<form asp-action="Participants" asp-route-id="@e.ExamId" method="post"><div class="check-grid">
+@foreach (var student in Model.EligibleStudents) {
+<label class="check"><input type="checkbox" name="StudentIds" value="@student.UserId" checked="@Model.Participants.Any(x => x.Participant.StudentId == student.UserId)" /> @student.FullName (@student.Email)</label>
+}
+</div><button type="submit">Lưu thí sinh và tự xếp lịch</button></form>
+<p><a asp-controller="Courses" asp-action="Details" asp-route-id="@e.CourseId">Quản lý sinh viên ghi danh của môn học</a></p>
+} else { <p>@Model.Participants.Count thí sinh. Kỳ thi đã khóa chỉnh sửa.</p> }
+</section>
+<section class="card step"><h2>2. Lịch thi tự động</h2>
+<p>Chỉ nhập giờ bắt đầu và số phút mỗi sinh viên. Mỗi lượt bắt đầu ngay khi lượt trước kết thúc; không cần nhập giờ cho từng người.</p>
+@if (draft) {
+<form asp-action="GenerateSchedule" asp-route-id="@e.ExamId" method="post" data-schedule-form data-count="@Model.Participants.Count">
+<div class="form-grid">
+<div><label for="ScheduleStart">Giờ bắt đầu sinh viên đầu tiên</label><input id="ScheduleStart" type="datetime-local" name="StartsAt" value="@e.StartsAt.ToString("yyyy-MM-ddTHH:mm")" required /></div>
+<div><label for="ScheduleMinutes">Số phút mỗi sinh viên</label><input id="ScheduleMinutes" type="number" name="DurationMinutesPerStudent" min="1" max="1440" value="@e.DurationMinutesPerStudent" required /></div>
+</div><p>Kết thúc dự kiến: <strong data-schedule-end>@e.EndsAt.ToString("dd/MM/yyyy HH:mm")</strong> (@Model.Participants.Count sinh viên)</p>
+<button type="submit">Lưu và xếp lịch tự động</button></form>
+}
+<div class="table-wrap"><table><thead><tr><th>Lượt</th><th>Sinh viên</th><th>Bắt đầu</th><th>Kết thúc</th></tr></thead><tbody>
+@for (var i = 0; i < Model.Participants.Count; i++) {
+var row = Model.Participants[i]; var p = row.Participant;
+<tr><td>@(i + 1)</td><td>@row.StudentName<br /><small>@row.Email</small></td><td>@p.ScheduledStartAt.ToString("dd/MM HH:mm")</td><td>@p.ScheduledEndAt.ToString("dd/MM HH:mm")</td></tr>
+}
+</tbody></table></div>
+</section>
+<section class="card step"><h2>3. Chọn ngân hàng câu hỏi cho kỳ thi (Question Pool)</h2>
+<p>Mỗi sinh viên nhận <strong>@e.MainQuestionCount câu chính</strong>. Cần chọn ít nhất @e.MainQuestionCount câu khác nhau; càng nhiều câu càng ít trùng giữa sinh viên.</p>
+<p>Đã lưu: <strong>@Model.SelectedQuestionIds.Count câu</strong> · Có thể chọn: @available.Length câu đã duyệt.</p>
+@if (draft) { <p><a asp-controller="Courses" asp-action="Question" asp-route-id="@e.CourseId">Thêm câu hỏi cho môn học</a> · <a asp-controller="Courses" asp-action="Details" asp-route-id="@e.CourseId">Quản lý / duyệt câu hỏi</a></p> }
+@if (available.Length == 0) { <p>Chưa có câu hỏi được duyệt. Thêm câu hỏi, bật “Đã duyệt” và “Đang hoạt động” trước.</p> }
+<form asp-action="QuestionPool" asp-route-id="@e.ExamId" method="post" data-pool-form data-required="@e.MainQuestionCount">
+@if (draft && available.Length > 0) { <button type="button" data-select-all>Chọn tất cả câu đã duyệt</button> }
+@foreach (var question in available) {
+<label class="check question"><input type="checkbox" name="QuestionIds" value="@question.QuestionId" checked="@Model.SelectedQuestionIds.Contains(question.QuestionId)" disabled="@(!draft)" />
+<span>#@question.QuestionId @question.QuestionText <small>@question.Difficulty / @question.BloomLevel</small></span></label>
+}
+@if (draft) { <p data-pool-count aria-live="polite"></p><button type="submit">Lưu các câu đã chọn</button> }
+</form></section>
+<section class="card step"><h2>4. Tạo và xem trước bộ câu hỏi</h2>
+@if (draft) {
+<form asp-action="GenerateAssignments" asp-route-id="@e.ExamId" method="post"><button type="submit">Tạo bộ câu hỏi (@e.SelectionStrategy)</button></form>
+}
+<p class="muted">Câu lặp gần nhau được đánh dấu. Không có câu trùng trong bộ câu hỏi của cùng một sinh viên.</p>
+<div class="preview-grid">
+@foreach (var row in Model.Participants) {
+var assigned = Model.Assignments.Where(x => x.ParticipantId == row.Participant.ParticipantId).ToArray();
+<article class="preview"><h3>@row.StudentName</h3><small>@row.Participant.ScheduledStartAt.ToString("HH:mm")</small>
+@if (assigned.Length == 0) { <p>Chưa có bộ câu hỏi. Lưu ngân hàng câu hỏi rồi bấm “Tạo bộ câu hỏi”.</p> }
+<ol>@foreach (var assignment in assigned) {
+<li class="@(assignment.RecentDuplicate ? "repeat" : "")">#@assignment.Question.QuestionId @assignment.Question.QuestionText
+<small>@assignment.Question.Difficulty / @assignment.Question.BloomLevel</small>
+@if (assignment.RecentDuplicate) { <span class="badge">Lặp gần nhau</span> }</li>
+}</ol></article>
+}
+</div></section>
+<section class="card step"><h2>5. Công bố kỳ thi</h2>
+@if (draft) {
+<p>Hệ thống kiểm tra lịch và bộ câu hỏi trước khi công bố. Kỳ thi công bố sẽ khóa chỉnh sửa.</p>
+<form asp-action="Publish" asp-route-id="@e.ExamId" method="post"><button type="submit">Công bố kỳ thi</button></form>
+} else { <p>Đã công bố. Sinh viên xem lịch ở My Schedule; không được xem trước câu hỏi.</p> }
+</section>
+@section Scripts { <script src="~/js/exam-planning.js"></script> }

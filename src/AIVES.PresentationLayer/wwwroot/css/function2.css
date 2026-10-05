@@ -1,0 +1,17 @@
+body{font-family:system-ui,sans-serif;background:#f4f6fb;color:#17243a}
+a{color:#244eaa}.main-content{max-width:1250px;margin:auto;padding:28px 20px}
+.card{padding:24px;margin:18px 0;background:white;border:1px solid #dbe2ed;border-radius:12px}
+.nav-links{display:flex;gap:20px;align-items:center;flex-wrap:wrap}.nav-links form{margin:0}.nav-links a{color:inherit}
+button,.button{display:inline-block;border:0;border-radius:6px;background:#244eaa;color:white;padding:10px 16px;cursor:pointer;text-decoration:none;margin:8px 0}
+button:hover,.button:hover{background:#173877}input:not([type=checkbox]),select,textarea{display:block;width:100%;padding:10px;border:1px solid #b8c4d8;border-radius:5px;font:inherit;box-sizing:border-box}
+label{display:block;margin:12px 0 6px;font-weight:600}textarea{min-height:90px}
+.form-grid,.check-grid,.preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.check{display:flex;align-items:flex-start;gap:8px;font-weight:400}.check input{width:auto;margin-top:4px}.question{padding:10px;border-bottom:1px solid #e5eaf2}
+small{display:block;color:#57677f}.table-wrap{overflow-x:auto;margin:16px 0}table{width:100%;border-collapse:collapse;background:white}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #dbe2ed}th{background:#eaf0fa}td input{min-width:190px}
+.page-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.auth-card{max-width:480px;margin:30px auto}.notice{padding:14px;border-radius:6px;margin-bottom:16px}.success{background:#dcf4e5}.error,.validation-summary-errors{color:#922b2b;background:#fff0ef;padding:12px}.validation-summary-valid{display:none}
+.preview{background:#f6f8fc;border:1px solid #dbe2ed;border-radius:8px;padding:16px}.preview li{margin:12px 0}.repeat{background:#fff0d7;padding:8px}.muted{color:#57677f}
+.badge{display:inline-block;background:#eaf0fa;border-radius:6px;padding:4px 8px}.app-footer{text-align:center;padding:20px}.intro{text-align:center}
+.exam-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.exam-actions form{margin:0}
+button.button-danger{background:#b42318}button.button-danger:hover{background:#8f1c13}

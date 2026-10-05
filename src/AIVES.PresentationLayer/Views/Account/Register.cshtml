@@ -1,0 +1,16 @@
+@model RegisterViewModel
+@{ ViewData["Title"] = "Register"; }
+<section class="card auth-card">
+<h1>Đăng ký sinh viên</h1>
+<form asp-action="Register" method="post">
+    <div asp-validation-summary="All" class="validation-summary-errors"></div>
+    <label asp-for="FullName">Họ tên</label><input asp-for="FullName" autocomplete="name" />
+    <label asp-for="Email"></label><input asp-for="Email" autocomplete="email" />
+    <label asp-for="StudentCode">Mã sinh viên (tùy chọn)</label><input asp-for="StudentCode" />
+    <label asp-for="Password">Mật khẩu</label><input asp-for="Password" autocomplete="new-password" />
+    <small>Ít nhất 8 ký tự, có chữ và số.</small>
+    <label asp-for="ConfirmPassword">Xác nhận mật khẩu</label><input asp-for="ConfirmPassword" autocomplete="new-password" />
+    <button type="submit">Register</button>
+</form>
+<p>Tài khoản đăng ký có role STUDENT. Đăng ký không tự ghi danh vào môn học.</p>
+</section>

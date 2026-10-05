@@ -1,0 +1,4 @@
+@model CourseViewModel
+@{ ViewData["Title"] = "Sửa môn học"; }
+<section class="card"><h1>Chỉnh sửa môn học</h1>
+<form asp-action="Edit" asp-route-id="@ViewContext.RouteData.Values["id"]" method="post"><partial name="_Form" model="Model" /></form></section>

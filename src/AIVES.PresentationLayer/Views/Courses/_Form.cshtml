@@ -1,0 +1,7 @@
+@model CourseViewModel
+<div asp-validation-summary="All" class="validation-summary-errors"></div>
+<label asp-for="Code">Mã môn học</label><input asp-for="Code" placeholder="Ví dụ: PRN222" />
+<label asp-for="Name">Tên môn học</label><input asp-for="Name" />
+<label asp-for="Description">Mô tả</label><textarea asp-for="Description"></textarea>
+<label class="check"><input asp-for="IsActive" /> Môn học đang hoạt động</label>
+<button type="submit">Lưu môn học</button>

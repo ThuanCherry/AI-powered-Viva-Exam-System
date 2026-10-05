@@ -1,57 +1,62 @@
+using System.Security.Claims;
 using AIVES.BusinessLogicLayer;
+using AIVES.BusinessLogicLayer.Interfaces;
+using AIVES.BusinessLogicLayer.Services;
 using AIVES.PresentationLayer.Filters;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// ===== 1. Khối Nối Tầng - Đăng ký DI của Business Layer & Data Access Layer =====
 builder.Services.AddAivesLayers(builder.Configuration);
-
-// ===== 2. Presentation Layer (WebMVC) Configuration =====
 builder.Services.AddControllersWithViews(options =>
 {
+    options.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
     options.Filters.Add<ApiExceptionFilter>();
 });
-
-// Swagger / OpenAPI
 builder.Services.AddOpenApi();
-
-// CORS
-builder.Services.AddCors(options =>
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.Cookie.Name = "AIVES.Auth";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.Events.OnValidatePrincipal = async context =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
+        var idText = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+        var identity = long.TryParse(idText, out var id) ?
+            await context.HttpContext.RequestServices.GetRequiredService<IUserService>().GetIdentityAsync(id) : null;
+        var claimRoles = context.Principal?.FindAll(ClaimTypes.Role).Select(x => x.Value).Order().ToArray() ?? [];
+        if (identity == null || !identity.Roles.Order().SequenceEqual(claimRoles))
+        {
+            context.RejectPrincipal();
+            await context.HttpContext.SignOutAsync();
+        }
+    };
 });
-
+builder.Services.AddAuthorization(options =>
+    options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 var app = builder.Build();
-
-// ===== 3. Pipeline / Middleware =====
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi().RequireAuthorization();
+    using var scope = app.Services.CreateScope();
+    await scope.ServiceProvider.GetRequiredService<DevelopmentDataSeeder>().SeedAsync();
 }
 else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-app.UseCors("AllowAll");
+app.UseAuthentication();
 app.UseAuthorization();
-
-// Route cho MVC Controllers (Razor Views)
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-// Route cho API Controllers
+app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 app.MapControllers();
-
 app.Run();
+public partial class Program { }

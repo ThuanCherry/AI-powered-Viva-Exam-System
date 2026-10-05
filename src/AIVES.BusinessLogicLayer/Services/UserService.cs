@@ -2,107 +2,73 @@ using AIVES.BusinessLogicLayer.Common;
 using AIVES.BusinessLogicLayer.Interfaces;
 using AIVES.DataAccessLayer.Models;
 using AIVES.DataAccessLayer.Repositories;
-using Microsoft.Extensions.Logging;
-
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 namespace AIVES.BusinessLogicLayer.Services;
-
-public class UserService : IUserService
+public class UserService(IUnitOfWork uow, IPasswordHasher<User> hasher) : IUserService
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<UserService> _logger;
-
-    public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger)
+    public async Task<ServiceResult<AuthUser>> RegisterAsync(RegisterRequest r)
     {
-        _unitOfWork = unitOfWork;
-        _logger = logger;
-    }
-
-    public async Task<ServiceResult<User>> GetByIdAsync(int userId)
-    {
-        var user = await _unitOfWork.Users.GetByIdAsync(userId);
-        if (user == null)
-            return ServiceResult<User>.FailureResult("User not found.");
-
-        return ServiceResult<User>.SuccessResult(user);
-    }
-
-    public async Task<ServiceResult<IEnumerable<User>>> GetAllAsync()
-    {
-        var users = await _unitOfWork.Users.GetAllAsync();
-        return ServiceResult<IEnumerable<User>>.SuccessResult(users);
-    }
-
-    public async Task<ServiceResult<User>> CreateAsync(User user, string plainPassword)
-    {
-        var exists = await _unitOfWork.Users.ExistsAsync(u => u.Email == user.Email);
-        if (exists)
-            return ServiceResult<User>.FailureResult("Email already registered.");
-
-        user.PasswordHash = HashPassword(plainPassword);
-        user.CreatedAt = DateTime.UtcNow;
-        user.IsActive = true;
-
-        await _unitOfWork.Users.AddAsync(user);
-        await _unitOfWork.SaveChangesAsync();
-
-        _logger.LogInformation("User created: {Email}, Role: {Role}", user.Email, user.Role);
-        return ServiceResult<User>.SuccessResult(user, "User created successfully.");
-    }
-
-    public async Task<ServiceResult<LoginResult>> LoginAsync(string email, string password)
-    {
-        var users = await _unitOfWork.Users.FindAsync(u => u.Email == email);
-        var user = users.FirstOrDefault();
-
-        if (user == null || !VerifyPassword(password, user.PasswordHash))
-            return ServiceResult<LoginResult>.FailureResult("Invalid email or password.");
-
-        if (!user.IsActive)
-            return ServiceResult<LoginResult>.FailureResult("Account is deactivated.");
-
-        var response = new LoginResult
+        var email = r.Email.Trim().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(r.FullName) || r.FullName.Trim().Length > 255 ||
+            email.Length > 255 || !System.Net.Mail.MailAddress.TryCreate(email, out _) ||
+            r.Password.Length < 8 || r.Password.Length > 128 || !r.Password.Any(char.IsLetter) || !r.Password.Any(char.IsDigit) ||
+            r.StudentCode?.Length > 50)
+            return ServiceResult<AuthUser>.FailureResult("Thông tin đăng ký không hợp lệ. Mật khẩu cần ít nhất 8 ký tự, có chữ và số.");
+        if (await uow.Users.ExistsAsync(x => x.Email == email))
+            return ServiceResult<AuthUser>.FailureResult("Email đã được đăng ký.");
+        var code = string.IsNullOrWhiteSpace(r.StudentCode) ? null : r.StudentCode.Trim();
+        if (code != null && await uow.Users.ExistsAsync(x => x.StudentCode == code))
+            return ServiceResult<AuthUser>.FailureResult("Mã sinh viên đã được sử dụng.");
+        try
         {
-            UserId = user.UserId,
-            FullName = user.FullName,
-            Email = user.Email,
-            Role = user.Role,
-            Token = GenerateToken(user)
-        };
-
-        _logger.LogInformation("User logged in: {Email}", user.Email);
-        return ServiceResult<LoginResult>.SuccessResult(response, "Login successful.");
+            return await uow.InTransactionAsync(null, async () =>
+            {
+                var role = (await uow.Roles.FindAsync(x => x.Code == "STUDENT")).SingleOrDefault();
+                if (role == null) return ServiceResult<AuthUser>.FailureResult("Database chưa có role STUDENT.");
+                var user = new User { Email = email, FullName = r.FullName.Trim(), StudentCode = code, Status = "ACTIVE" };
+                user.PasswordHash = hasher.HashPassword(user, r.Password);
+                await uow.Users.AddAsync(user);
+                await uow.SaveChangesAsync();
+                await uow.UserRoles.AddAsync(new UserRole { UserId = user.UserId, RoleId = role.RoleId });
+                await uow.SaveChangesAsync();
+                return ServiceResult<AuthUser>.SuccessResult(new(user.UserId, user.FullName, user.Email, new[] { "STUDENT" }));
+            }, x => x.Success);
+        }
+        catch (DbUpdateException)
+        {
+            // The database unique constraints also protect concurrent registrations.
+            return ServiceResult<AuthUser>.FailureResult("Không thể đăng ký. Kiểm tra email và mã sinh viên có bị trùng không.");
+        }
     }
 
-    public async Task<ServiceResult<bool>> DeactivateAsync(int userId)
+    public async Task<ServiceResult<AuthUser>> LoginAsync(string email, string password)
     {
-        var user = await _unitOfWork.Users.GetByIdAsync(userId);
-        if (user == null)
-            return ServiceResult<bool>.FailureResult("User not found.");
-
-        user.IsActive = false;
-        _unitOfWork.Users.Update(user);
-        await _unitOfWork.SaveChangesAsync();
-
-        _logger.LogInformation("User deactivated: {UserId}", userId);
-        return ServiceResult<bool>.SuccessResult(true, "User deactivated.");
+        var normalized = email.Trim().ToLowerInvariant();
+        var user = (await uow.Users.FindAsync(x => x.Email == normalized)).SingleOrDefault();
+        if (user == null || user.Status != "ACTIVE" || user.LockoutEndAt > DateTime.UtcNow)
+            return ServiceResult<AuthUser>.FailureResult("Email hoặc mật khẩu không hợp lệ, hoặc tài khoản không hoạt động.");
+        PasswordVerificationResult verified;
+        try { verified = hasher.VerifyHashedPassword(user, user.PasswordHash, password); }
+        catch (FormatException) { verified = PasswordVerificationResult.Failed; }
+        if (verified == PasswordVerificationResult.Failed)
+            return ServiceResult<AuthUser>.FailureResult("Email hoặc mật khẩu không hợp lệ.");
+        var identity = await GetIdentityAsync(user.UserId);
+        if (identity == null || identity.Roles.Count == 0) return ServiceResult<AuthUser>.FailureResult("Tài khoản chưa có quyền truy cập.");
+        if (verified == PasswordVerificationResult.SuccessRehashNeeded)
+            user.PasswordHash = hasher.HashPassword(user, password);
+        user.LastLoginAt = DateTime.UtcNow;
+        user.UpdatedAt = DateTime.UtcNow;
+        await uow.SaveChangesAsync();
+        return ServiceResult<AuthUser>.SuccessResult(identity);
     }
-
-    // ===== Private Helper Methods =====
-    private static string HashPassword(string password)
+    public async Task<AuthUser?> GetIdentityAsync(long userId)
     {
-        using var sha = System.Security.Cryptography.SHA256.Create();
-        var bytes = System.Text.Encoding.UTF8.GetBytes(password);
-        var hash = sha.ComputeHash(bytes);
-        return Convert.ToBase64String(hash);
-    }
-
-    private static bool VerifyPassword(string password, string hash)
-    {
-        return HashPassword(password) == hash;
-    }
-
-    private static string GenerateToken(User user)
-    {
-        return $"token_{user.UserId}_{DateTime.UtcNow.Ticks}";
+        var user = await uow.Users.GetByIdAsync(userId);
+        if (user == null || user.Status != "ACTIVE") return null;
+        var links = await uow.UserRoles.FindAsync(x => x.UserId == userId);
+        var ids = links.Select(x => x.RoleId).ToArray();
+        var roles = await uow.Roles.FindAsync(x => ids.Contains(x.RoleId));
+        return new(user.UserId, user.FullName, user.Email, roles.Select(x => x.Code).ToArray());
     }
 }
