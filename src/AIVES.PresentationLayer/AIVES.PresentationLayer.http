@@ -1,0 +1,31 @@
+@host = http://localhost:5000
+
+# Authenticate through /Account/Login first; these endpoints require the AIVES.Auth cookie.
+# Lecturer only: owned exams.
+GET {{host}}/api/exams
+Accept: application/json
+
+###
+
+# Lecturer only: assigned courses.
+GET {{host}}/api/courses
+Accept: application/json
+
+###
+
+# Authenticated user's safe identity (no password/hash).
+GET {{host}}/api/users/me
+Accept: application/json
+
+###
+
+# Student only: own published schedule, no studentId parameter.
+GET {{host}}/api/examsessions/mine
+Accept: application/json
+
+###
+
+GET {{host}}/openapi/v1.json
+Accept: application/json
+
+###
