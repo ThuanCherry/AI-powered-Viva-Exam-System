@@ -1,0 +1,37 @@
+@host = http://localhost:5234
+
+### Login
+POST {{host}}/api/Users/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "rememberMe": false
+}
+
+### Register
+POST {{host}}/api/Users/register
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "email": "newuser@example.com",
+  "password": "Password123!",
+  "confirmPassword": "Password123!"
+}
+
+### Get All Exams
+GET {{host}}/api/Exams
+
+### Get Exam by ID
+GET {{host}}/api/Exams/1
+
+### Get All Courses
+GET {{host}}/api/Courses
+
+### Get All Questions
+GET {{host}}/api/Questions
+
+### Get Questions by Course
+GET {{host}}/api/Questions?courseId=1&difficulty=Medium
