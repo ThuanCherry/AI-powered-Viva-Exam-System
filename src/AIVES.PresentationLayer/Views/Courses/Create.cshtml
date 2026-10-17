@@ -1,0 +1,4 @@
+@model CourseViewModel
+@{ ViewData["Title"] = "Thêm môn học"; }
+<section class="card"><h1>Thêm môn học</h1><p>Môn mới sẽ được phân công cho bạn phụ trách.</p>
+<form asp-action="Create" method="post"><partial name="_Form" model="Model" /></form></section>

@@ -1,0 +1,12 @@
+@model IReadOnlyList<Course>
+@{ ViewData["Title"] = "Môn học"; }
+<div class="page-heading"><h1>Môn học tôi phụ trách</h1><a class="button" asp-action="Create">Thêm môn học</a></div>
+<p>Quản lý thông tin môn, sinh viên ghi danh và ngân hàng câu hỏi trước khi tạo kỳ thi.</p>
+<div class="table-wrap"><table><thead><tr><th>Mã môn</th><th>Tên môn</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>
+@foreach (var course in Model)
+{
+<tr><td>@course.CourseCode</td><td>@course.CourseName</td><td>@(course.IsActive ? "Đang hoạt động" : "Tạm ngưng")</td>
+<td><a asp-action="Details" asp-route-id="@course.CourseId">Sinh viên & câu hỏi</a> · <a asp-action="Edit" asp-route-id="@course.CourseId">Chỉnh sửa</a></td></tr>
+}
+</tbody></table></div>
+@if (Model.Count == 0) { <p>Chưa có môn học. Bấm “Thêm môn học” để bắt đầu.</p> }

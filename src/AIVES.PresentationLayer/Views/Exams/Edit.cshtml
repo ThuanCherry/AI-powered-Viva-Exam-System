@@ -1,0 +1,4 @@
+@model CreateExamViewModel
+@{ ViewData["Title"] = "Edit Exam"; }
+<section class="card"><h1>Sửa kỳ thi DRAFT</h1><p>Giờ bắt đầu và số phút mỗi sinh viên sẽ tự xếp lại lịch. Sau khi lưu, tạo lại bộ câu hỏi; môn học được giữ nguyên.</p>
+<form asp-action="Edit" asp-route-id="@ViewContext.RouteData.Values["id"]" method="post"><partial name="_Form" model="Model" /></form></section>

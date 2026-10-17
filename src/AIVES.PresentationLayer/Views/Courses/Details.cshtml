@@ -1,0 +1,24 @@
+@model AIVES.BusinessLogicLayer.Common.CourseDetails
+@{ ViewData["Title"] = Model.Course.CourseName; var course = Model.Course; }
+<div class="page-heading"><div><h1>@course.CourseCode — @course.CourseName</h1><p>@course.Description</p></div>
+<a asp-action="Edit" asp-route-id="@course.CourseId">Sửa môn học</a></div>
+<section class="card"><h2>Sinh viên ghi danh</h2><p>Chọn sinh viên thuộc môn học. Khi tạo kỳ thi, bạn chọn thí sinh từ danh sách này.</p>
+<form asp-action="Students" asp-route-id="@course.CourseId" method="post"><div class="check-grid">
+@foreach (var student in Model.Students)
+{
+<label class="check"><input type="checkbox" name="StudentIds" value="@student.UserId" checked="@Model.EnrolledStudentIds.Contains(student.UserId)" /> @student.FullName (@student.Email)</label>
+}
+</div><button type="submit">Lưu sinh viên của môn</button></form></section>
+<section class="card"><div class="page-heading"><h2>Ngân hàng câu hỏi (@Model.Questions.Count)</h2><a class="button" asp-action="Question" asp-route-id="@course.CourseId">Thêm câu hỏi</a></div>
+<p>Câu đang hoạt động và được duyệt có thể dùng khi chọn câu hỏi cho kỳ thi. Câu đã dùng trong kỳ thi công bố được giữ nguyên; bạn có thể thêm câu mới.</p>
+<div class="table-wrap"><table><thead><tr><th>Nội dung</th><th>Độ khó / Bloom</th><th>Duyệt</th><th>Hoạt động</th><th>Thao tác</th></tr></thead><tbody>
+@foreach (var question in Model.Questions)
+{
+<tr><td>#@question.QuestionId @question.QuestionText</td><td>@question.Difficulty / @question.BloomLevel</td><td>@(question.IsApproved ? "Đã duyệt" : "Chưa duyệt")</td><td>@(question.IsActive ? "Có" : "Không")</td>
+<td>@if (Model.LockedQuestionIds.Contains(question.QuestionId)) { <span>Đã dùng trong kỳ thi công bố</span> } else {
+<a asp-action="Question" asp-route-id="@course.CourseId" asp-route-questionId="@question.QuestionId">Chỉnh sửa</a>
+}</td></tr>
+}
+</tbody></table></div>
+@if (Model.Questions.Count == 0) { <p>Chưa có câu hỏi. Thêm và duyệt câu hỏi trước khi tạo bộ đề.</p> }
+</section>

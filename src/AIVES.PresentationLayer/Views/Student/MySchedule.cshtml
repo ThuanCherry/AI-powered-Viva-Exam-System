@@ -1,0 +1,11 @@
+@model IReadOnlyList<AIVES.BusinessLogicLayer.Common.StudentSchedule>
+@{ ViewData["Title"] = "My Schedule"; }
+<h1>Lịch thi của tôi</h1><p>Chỉ hiển thị kỳ thi đã công bố. Câu hỏi được giữ kín trước kỳ thi.</p>
+<div class="table-wrap"><table><thead><tr><th>Exam</th><th>Course</th><th>Start</th><th>End</th><th>Duration</th><th>Status</th></tr></thead><tbody>
+@foreach (var row in Model)
+{
+<tr><td>@row.ExamTitle</td><td>@row.CourseName</td><td>@row.Start.ToString("dd/MM/yyyy HH:mm")</td>
+<td>@row.End.ToString("dd/MM/yyyy HH:mm")</td><td>@row.DurationMinutes phút</td><td>@row.Status</td></tr>
+}
+</tbody></table></div>
+@if (Model.Count == 0) { <p>Chưa có lịch thi được công bố cho bạn.</p> }

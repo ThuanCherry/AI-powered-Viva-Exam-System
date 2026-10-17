@@ -1,0 +1,21 @@
+@model IReadOnlyList<AIVES.BusinessLogicLayer.Common.ExamSummary>
+@{ ViewData["Title"] = "Exam Management"; }
+<div class="page-heading"><h1>Quản lý kỳ thi</h1><a class="button" asp-action="Create">Tạo kỳ thi</a></div>
+<div class="table-wrap"><table>
+<thead><tr><th>Tiêu đề / Môn</th><th>Bắt đầu</th><th>Kết thúc</th><th>Phút/SV</th><th>Câu chính</th><th>Đào sâu/câu</th><th>Strategy</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody>
+@foreach (var row in Model)
+{
+    var e = row.Exam;
+    <tr><td><strong>@e.Title</strong><br />@row.CourseName</td><td>@e.StartsAt.ToString("dd/MM/yyyy HH:mm")</td>
+    <td>@e.EndsAt.ToString("dd/MM/yyyy HH:mm")</td><td>@e.DurationMinutesPerStudent</td><td>@e.MainQuestionCount</td>
+    <td>@e.MaxFollowUpPerQuestion</td><td>@e.SelectionStrategy</td><td><span class="badge">@e.Status</span></td>
+    <td><div class="exam-actions"><a asp-action="Details" asp-route-id="@e.ExamId">Details</a>
+    @if (e.Status == "DRAFT") { <a asp-action="Edit" asp-route-id="@e.ExamId">Edit</a> }
+    <form asp-action="Delete" asp-route-id="@e.ExamId" method="post" data-delete-exam data-exam-title="@e.Title">
+        <button type="submit" class="button-danger" aria-label="Xóa kỳ thi @e.Title">Delete</button>
+    </form></div></td></tr>
+}
+</tbody></table></div>
+@if (Model.Count == 0) { <p>Chưa có kỳ thi thuộc các môn bạn phụ trách.</p> }
+@section Scripts { <script src="~/js/exam-planning.js" asp-append-version="true"></script> }
