@@ -161,5 +161,9 @@ public class ExamsController : ControllerBase
         {
             return BadRequest(new { success = false, message = ex.Message });
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { success = false, message = ex.Message });
+        }
     }
 }

@@ -122,19 +122,73 @@ public class ExamService
 
         if (exam is null) return false;
 
+        // Terminal & State check
+        if (exam.Status == ExamSession.Statuses.Completed || exam.Status == ExamSession.Statuses.Cancelled)
+        {
+            throw new InvalidOperationException($"Cannot assign candidates or modify schedule: Exam is in terminal state '{exam.Status}'.");
+        }
+
+        if (exam.Status != ExamSession.Statuses.Draft && exam.Status != ExamSession.Statuses.Scheduled)
+        {
+            throw new InvalidOperationException($"Cannot assign candidates or modify schedule when exam is in '{exam.Status}' status. Allowed statuses: Draft, Scheduled.");
+        }
+
+        // Guard: [Valid schedule]
+        if (request.Candidates == null || request.Candidates.Count == 0)
+        {
+            throw new ArgumentException("Candidate list cannot be empty.");
+        }
+
         var studentIds = request.Candidates.Select(c => c.StudentId).Distinct().ToList();
+        if (request.Candidates.Count != studentIds.Count)
+        {
+            throw new ArgumentException("Duplicate student assignments detected in candidate list.");
+        }
+
         var validStudents = await _db.Users
             .Where(u => studentIds.Contains(u.UserId))
             .Select(u => u.UserId)
             .ToListAsync();
 
+        var missingStudents = studentIds.Except(validStudents).ToList();
+        if (missingStudents.Count > 0)
+        {
+            throw new ArgumentException($"The following student ID(s) do not exist: {string.Join(", ", missingStudents)}");
+        }
+
+        // Validate schedule timeslot boundaries and conflicts
+        var sortedCandidates = request.Candidates.OrderBy(c => c.ScheduledTime).ToList();
+        int duration = exam.TimePerStudent > 0 ? exam.TimePerStudent : 20;
+
+        for (int i = 0; i < sortedCandidates.Count; i++)
+        {
+            var item = sortedCandidates[i];
+
+            // Must fall within exam start and end
+            if (item.ScheduledTime < exam.StartTime || item.ScheduledTime > exam.EndTime)
+            {
+                throw new ArgumentException($"Scheduled time ({item.ScheduledTime:yyyy-MM-dd HH:mm}) for student {item.StudentId} is outside exam duration ({exam.StartTime:yyyy-MM-dd HH:mm} - {exam.EndTime:yyyy-MM-dd HH:mm}).");
+            }
+
+            // Check overlap with next candidate
+            for (int j = i + 1; j < sortedCandidates.Count; j++)
+            {
+                var other = sortedCandidates[j];
+                var itemEnd = item.ScheduledTime.AddMinutes(duration);
+                var otherEnd = other.ScheduledTime.AddMinutes(duration);
+
+                if (item.ScheduledTime < otherEnd && other.ScheduledTime < itemEnd)
+                {
+                    throw new ArgumentException($"Timeslot conflict detected: Student {item.StudentId} ({item.ScheduledTime:HH:mm} - {itemEnd:HH:mm}) overlaps with Student {other.StudentId} ({other.ScheduledTime:HH:mm} - {otherEnd:HH:mm}).");
+                }
+            }
+        }
+
         var existingCandidates = exam.Candidates.ToList();
         _db.ExamCandidates.RemoveRange(existingCandidates);
 
-        foreach (var item in request.Candidates)
+        foreach (var item in sortedCandidates)
         {
-            if (!validStudents.Contains(item.StudentId)) continue;
-
             _db.ExamCandidates.Add(new ExamCandidate
             {
                 ExamId = examId,
@@ -144,7 +198,7 @@ public class ExamService
             });
         }
 
-        if (exam.Status == ExamSession.Statuses.Draft && request.Candidates.Count > 0)
+        if (exam.Status == ExamSession.Statuses.Draft)
         {
             exam.Status = ExamSession.Statuses.Scheduled;
         }
@@ -162,6 +216,16 @@ public class ExamService
 
         if (exam is null)
             throw new ArgumentException($"Exam with ID {examId} not found.");
+
+        if (exam.Status == ExamSession.Statuses.Completed || exam.Status == ExamSession.Statuses.Cancelled)
+        {
+            throw new InvalidOperationException($"Cannot generate question sets: Exam is in terminal state '{exam.Status}'.");
+        }
+
+        if (exam.Status != ExamSession.Statuses.Scheduled && exam.Status != ExamSession.Statuses.Ready)
+        {
+            throw new InvalidOperationException($"Cannot generate question sets when exam is in '{exam.Status}' status. Exam must be in 'Scheduled' status.");
+        }
 
         if (request.MainQuestionCount.HasValue && request.MainQuestionCount.Value > 0)
         {
@@ -281,6 +345,19 @@ public class ExamService
         return newExamQuestions.Count;
     }
 
+    public static bool IsValidTransition(string currentStatus, string targetStatus)
+    {
+        return (currentStatus, targetStatus) switch
+        {
+            (ExamSession.Statuses.Draft, ExamSession.Statuses.Cancelled) => true,
+            (ExamSession.Statuses.Scheduled, ExamSession.Statuses.Cancelled) => true,
+            (ExamSession.Statuses.Ready, ExamSession.Statuses.InProgress) => true,
+            (ExamSession.Statuses.Ready, ExamSession.Statuses.Cancelled) => true,
+            (ExamSession.Statuses.InProgress, ExamSession.Statuses.Completed) => true,
+            _ => false
+        };
+    }
+
     public async Task<bool> UpdateStatusAsync(int examId, string newStatus)
     {
         if (!ExamSession.Statuses.All.Contains(newStatus))
@@ -288,8 +365,58 @@ public class ExamService
             throw new ArgumentException($"Invalid status: '{newStatus}'. Allowed: {string.Join(", ", ExamSession.Statuses.All)}");
         }
 
-        var exam = await _db.ExamSessions.FindAsync(examId);
+        var exam = await _db.ExamSessions
+            .Include(e => e.Candidates)
+            .FirstOrDefaultAsync(e => e.ExamId == examId);
+
         if (exam is null) return false;
+
+        // Terminal state enforcement
+        if (exam.Status == ExamSession.Statuses.Completed)
+        {
+            throw new InvalidOperationException("Exam is in terminal state 'Completed' and cannot change status.");
+        }
+        if (exam.Status == ExamSession.Statuses.Cancelled)
+        {
+            throw new InvalidOperationException("Exam is in terminal state 'Cancelled' and cannot change status.");
+        }
+
+        // Validate state machine transition
+        if (!IsValidTransition(exam.Status, newStatus))
+        {
+            throw new InvalidOperationException($"Invalid state transition: Cannot transition exam from '{exam.Status}' to '{newStatus}'.");
+        }
+
+        // Guard Condition: Ready -> InProgress [Exam time reached]
+        if (exam.Status == ExamSession.Statuses.Ready && newStatus == ExamSession.Statuses.InProgress)
+        {
+            bool isTimeReached = exam.StartTime.Kind == DateTimeKind.Utc
+                ? DateTime.UtcNow >= exam.StartTime
+                : (DateTime.Now >= exam.StartTime || DateTime.UtcNow >= exam.StartTime);
+
+            if (!isTimeReached)
+            {
+                throw new InvalidOperationException($"Cannot start exam. Scheduled exam start time ({exam.StartTime:yyyy-MM-dd HH:mm}) has not been reached yet.");
+            }
+        }
+
+        // Guard Condition: InProgress -> Completed [All students finished]
+        if (exam.Status == ExamSession.Statuses.InProgress && newStatus == ExamSession.Statuses.Completed)
+        {
+            if (exam.Candidates.Count == 0)
+            {
+                throw new InvalidOperationException("Cannot finish exam: No candidates were assigned to this exam.");
+            }
+
+            var unfinished = exam.Candidates
+                .Where(c => c.Status != "Completed" && c.Status != "Absent" && c.Status != "Cancelled")
+                .ToList();
+
+            if (unfinished.Count > 0)
+            {
+                throw new InvalidOperationException($"Cannot finish exam. There are still {unfinished.Count} student(s) who have not completed the exam.");
+            }
+        }
 
         exam.Status = newStatus;
         exam.UpdatedAt = DateTime.UtcNow;
