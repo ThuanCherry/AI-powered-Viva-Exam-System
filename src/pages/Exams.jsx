@@ -175,7 +175,7 @@ export default function Exams() {
                         Configure & Schedule
                       </Link>
 
-                      {exam.status !== "Cancelled" && exam.status !== "Completed" && (
+                      {exam.status !== "Cancelled" && exam.status !== "Completed" && exam.status !== "InProgress" && (
                         <button
                           type="button"
                           className="action-btn-cancel"
