@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Exams from "./pages/Exams.jsx";
 import QuestionBank from "./pages/QuestionBank.jsx";
 import QuestionConfig from "./pages/QuestionConfig.jsx";
 import RequireAuth from "./auth/RequireAuth.jsx";
@@ -13,6 +14,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+      <Route path="/exams" element={<RequireAuth><Exams /></RequireAuth>} />
       <Route path="/questions" element={<RequireAuth><QuestionBank /></RequireAuth>} />
       <Route
         path="/exams/:examId/config"

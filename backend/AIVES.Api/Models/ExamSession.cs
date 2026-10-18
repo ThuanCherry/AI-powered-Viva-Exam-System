@@ -41,7 +41,22 @@ public class ExamSession
 
     [Column("status")]
     [MaxLength(20)]
-    public string Status { get; set; } = "Draft";
+    public string Status { get; set; } = Statuses.Draft;
+
+    public static class Statuses
+    {
+        public const string Draft = "Draft";
+        public const string Scheduled = "Scheduled";
+        public const string Ready = "Ready";
+        public const string InProgress = "InProgress";
+        public const string Completed = "Completed";
+        public const string Cancelled = "Cancelled";
+
+        public static readonly HashSet<string> All = new(StringComparer.OrdinalIgnoreCase)
+        {
+            Draft, Scheduled, Ready, InProgress, Completed, Cancelled
+        };
+    }
 
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }

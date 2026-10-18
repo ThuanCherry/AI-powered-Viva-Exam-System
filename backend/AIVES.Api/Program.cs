@@ -1,6 +1,7 @@
 using System.Text;
 using AIVES.Api.Data;
 using AIVES.Api.Features.Auth;
+using AIVES.Api.Features.Exams;
 using AIVES.Api.Hubs;
 using AIVES.Api.Integrations.LLM;
 using AIVES.Api.Integrations.STT;
@@ -57,6 +58,7 @@ builder.Services.AddAuthorization();
 
 // ---------- Services ----------
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<ExamService>();
 builder.Services.AddSingleton<ILlmService, PlaceholderLlmService>();
 builder.Services.AddSingleton<ISttService, PlaceholderSttService>();
 builder.Services.AddSingleton<ITtsService, PlaceholderTtsService>();

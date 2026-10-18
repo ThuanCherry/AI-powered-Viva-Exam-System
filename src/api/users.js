@@ -1,6 +1,5 @@
 import { api } from "./client.js";
 
-// OpenAPI không mô tả response, nên đọc linh hoạt: có thể là { user: {...} } hoặc chính user.
 function toUser(payload, fallbackEmail) {
   const raw = payload && typeof payload === "object" ? (payload.user ?? payload) : {};
   return {
@@ -20,4 +19,14 @@ export async function login({ email, password, rememberMe }) {
 // POST /api/Users/register  { fullName, email, password, confirmPassword, role? }
 export function register({ fullName, email, password, confirmPassword }) {
   return api.post("/api/Users/register", { fullName, email, password, confirmPassword });
+}
+
+// GET /api/Users?role=Student
+export function getUsers({ role } = {}, signal) {
+  const url = role ? `/api/Users?role=${encodeURIComponent(role)}` : "/api/Users";
+  return api.get(url, { signal });
+}
+
+export function getStudents(signal) {
+  return getUsers({ role: "Student" }, signal);
 }

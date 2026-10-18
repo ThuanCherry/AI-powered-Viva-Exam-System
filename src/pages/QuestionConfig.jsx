@@ -1,58 +1,49 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar.jsx";
 import DistributionPreview from "../components/DistributePreview.jsx";
 import QuestionPool from "../components/QuestionPool.jsx";
-import { getExam } from "../api/exams.js";
-import { QUESTIONS } from "../data/questions.js";
+import { getExam, assignCandidates, generateExamQuestions, updateExamStatus } from "../api/exams.js";
+import { getQuestions } from "../api/questions.js";
+import { getStudents } from "../api/users.js";
+import { QUESTIONS as FALLBACK_QUESTIONS } from "../data/questions.js";
 import "../styles/QuestionConfig.css";
 
-// Giới hạn nhập liệu. Chỉnh ở đây nếu đề bài / backend quy định khác.
+// Giới hạn nhập liệu
 const LIMITS = {
   mainCount: { min: 1, max: 20 },
-  maxFollowUps: { min: 0, max: 3 },
+  maxFollowUps: { min: 0, max: 5 },
 };
 
 const STRATEGIES = [
   {
     value: "RANDOM",
-    title: "Random",
+    title: "Random (Anti-Overlap)",
     description:
-      "Each student gets a different random draw from the question pool, so consecutive candidates rarely see the same questions.",
+      "Each student gets a different draw from the pool. Consecutive candidates are guaranteed to have non-overlapping questions to prevent eavesdropping.",
   },
   {
     value: "ADAPTIVE",
     title: "Adaptive",
     description:
-      "The next main question is chosen from the pool based on how well the student answered the previous one.",
+      "Candidates start with balanced medium-difficulty questions, while ensuring consecutive candidates see different initial questions.",
   },
 ];
 
-const DEFAULT_CONFIG = { mainCount: "5", maxFollowUps: "2", strategy: "RANDOM" };
-
-const SAMPLE_SCHEDULE = [
-  { id: "slot-1", student: "Nguyen Minh Anh", start: "09:00", end: "09:25" },
-  { id: "slot-2", student: "Pham Gia Han", start: "10:30", end: "10:55" },
-  { id: "slot-3", student: "Le Duc Thinh", start: "13:00", end: "13:30" },
-  { id: "slot-4", student: "Vo Thi Kim Ngan", start: "14:30", end: "14:55" },
-];
-
-const STUDENT_CANDIDATES = [
-  "Nguyen Minh Anh",
-  "Pham Gia Han",
-  "Le Duc Thinh",
-  "Vo Thi Kim Ngan",
-  "Tran Quoc Bao",
-  "Dang Thu Trang",
-  "Bui Van Phat",
-  "Ngo Hai Yen",
-];
+const DEFAULT_CONFIG = { mainCount: "3", maxFollowUps: "2", strategy: "RANDOM" };
 
 function toMinutes(value) {
   if (!value || typeof value !== "string") return Number.NaN;
   const [hours, minutes] = value.split(":").map(Number);
   if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return Number.NaN;
   return hours * 60 + minutes;
+}
+
+function fromMinutes(totalMinutes) {
+  const normalized = (totalMinutes % (24 * 60) + 24 * 60) % (24 * 60);
+  const hours = Math.floor(normalized / 60);
+  const mins = normalized % 60;
+  return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
 }
 
 function buildScheduleConflicts(schedule) {
@@ -76,8 +67,6 @@ function buildScheduleConflicts(schedule) {
           idB: b.id,
           studentA: a.student,
           studentB: b.student,
-          left: a,
-          right: b,
         });
       }
     }
@@ -86,7 +75,7 @@ function buildScheduleConflicts(schedule) {
 }
 
 function validateNumber(raw, { min, max }, noun) {
-  if (raw.trim() === "" || !Number.isInteger(Number(raw))) {
+  if (raw === undefined || raw === null || String(raw).trim() === "" || !Number.isInteger(Number(raw))) {
     return "Enter a whole number.";
   }
   const value = Number(raw);
@@ -103,7 +92,6 @@ function validate(config, poolSize) {
   if (mainError) errors.mainCount = mainError;
   if (followError) errors.maxFollowUps = followError;
 
-  // Chỉ kiểm tra pool khi số câu chính hợp lệ.
   if (!mainError) {
     const needed = Number(config.mainCount);
     if (poolSize < needed) {
@@ -122,7 +110,7 @@ function clamp(value, { min, max }) {
 
 function NumberField({ id, label, hint, value, limits, error, onChange, onBlur }) {
   const current = Number(value);
-  const hasValue = value.trim() !== "" && Number.isFinite(current);
+  const hasValue = String(value).trim() !== "" && Number.isFinite(current);
 
   const step = (delta) => {
     const base = hasValue ? current : limits.min;
@@ -185,7 +173,7 @@ function StrategyPicker({ value, onChange }) {
   return (
     <fieldset className="qc-field qc-strategy">
       <legend className="qc-field__label">Question strategy</legend>
-      <p className="qc-field__hint">How the system picks questions for each student.</p>
+      <p className="qc-field__hint">Algorithm for distributing questions to prevent duplicate questions between consecutive candidates.</p>
 
       <div className="qc-strategy__options">
         {STRATEGIES.map((option) => {
@@ -212,7 +200,14 @@ function StrategyPicker({ value, onChange }) {
   );
 }
 
-function StudentSchedulePanel({ schedule, setSchedule, selectedStudent, setSelectedStudent }) {
+function StudentSchedulePanel({
+  schedule,
+  setSchedule,
+  studentsList,
+  selectedStudentId,
+  setSelectedStudentId,
+  durationMinutes = 20,
+}) {
   const conflicts = useMemo(() => buildScheduleConflicts(schedule), [schedule]);
   const conflictById = useMemo(() => {
     const lookup = new Map();
@@ -225,20 +220,43 @@ function StudentSchedulePanel({ schedule, setSchedule, selectedStudent, setSelec
 
   const updateSlot = (id, field, value) => {
     setSchedule((prev) =>
-      prev.map((slot) => (slot.id === id ? { ...slot, [field]: value } : slot))
+      prev.map((slot) => {
+        if (slot.id !== id) return slot;
+        const updated = { ...slot, [field]: value };
+        if (field === "start" && value) {
+          const startM = toMinutes(value);
+          if (Number.isFinite(startM)) {
+            updated.end = fromMinutes(startM + durationMinutes);
+          }
+        }
+        return updated;
+      })
     );
   };
 
   const addStudentSlot = () => {
+    const student = studentsList.find((s) => String(s.userId) === String(selectedStudentId));
+    if (!student) return;
+
     setSchedule((prev) => {
-      const nextId = `slot-${Date.now()}-${prev.length + 1}`;
+      let startTime = "09:00";
+      if (prev.length > 0) {
+        const lastEnd = prev[prev.length - 1].end;
+        if (lastEnd && Number.isFinite(toMinutes(lastEnd))) {
+          startTime = lastEnd;
+        }
+      }
+      const startM = toMinutes(startTime);
+      const endTime = fromMinutes(startM + durationMinutes);
+
       return [
         ...prev,
         {
-          id: nextId,
-          student: selectedStudent,
-          start: "09:00",
-          end: "09:20",
+          id: `slot-${Date.now()}-${prev.length + 1}`,
+          studentId: student.userId,
+          student: student.fullName || `Student #${student.userId}`,
+          start: startTime,
+          end: endTime,
         },
       ];
     });
@@ -253,26 +271,29 @@ function StudentSchedulePanel({ schedule, setSchedule, selectedStudent, setSelec
       <div className="qc-scheduler__header">
         <div>
           <h2 className="qc-card__title" id="qc-schedule-title">
-            Student scheduling
+            Candidate Scheduling & Slots
           </h2>
           <p className="qc-scheduler__subtitle">
-            Choose students, assign their viva time, and review overlap before the exam starts.
+            Assign students to specific viva timeslots ({durationMinutes} mins each). Order defines the sequential anti-overlap distribution.
           </p>
         </div>
 
         <div className="qc-scheduler__toolbar">
           <label className="qc-scheduler__select">
             <span className="sr-only">Choose student</span>
-            <select value={selectedStudent} onChange={(e) => setSelectedStudent(e.target.value)}>
-              {STUDENT_CANDIDATES.map((student) => (
-                <option key={student} value={student}>
-                  {student}
+            <select
+              value={selectedStudentId}
+              onChange={(e) => setSelectedStudentId(e.target.value)}
+            >
+              {studentsList.map((student) => (
+                <option key={student.userId} value={student.userId}>
+                  {student.fullName} ({student.email})
                 </option>
               ))}
             </select>
           </label>
           <button type="button" className="qc-btn qc-btn--ghost" onClick={addStudentSlot}>
-            + Add student
+            + Add candidate
           </button>
         </div>
       </div>
@@ -281,35 +302,44 @@ function StudentSchedulePanel({ schedule, setSchedule, selectedStudent, setSelec
         {conflicts.length > 0 ? (
           <span className="qc-scheduler__warning">{conflicts.length} overlap alert(s) detected.</span>
         ) : (
-          <span className="qc-scheduler__ok">No time overlaps in the current schedule.</span>
+          <span className="qc-scheduler__ok">
+            {schedule.length} candidate(s) scheduled. No time overlaps.
+          </span>
         )}
       </div>
 
       {schedule.length === 0 ? (
-        <p className="qc-scheduler__empty">No students assigned yet.</p>
+        <p className="qc-scheduler__empty">No candidates scheduled yet. Select a student and click "+ Add candidate".</p>
       ) : (
         <div className="qc-scheduler__list">
-          {schedule.map((slot) => {
+          {schedule.map((slot, index) => {
             const startMinutes = toMinutes(slot.start);
             const endMinutes = toMinutes(slot.end);
-            const invalidRange = Number.isFinite(startMinutes) && Number.isFinite(endMinutes) && startMinutes >= endMinutes;
+            const invalidRange =
+              Number.isFinite(startMinutes) && Number.isFinite(endMinutes) && startMinutes >= endMinutes;
             const hasConflict = Boolean(conflictById.get(slot.id));
 
             return (
               <div key={slot.id} className={`qc-scheduler__slot ${hasConflict ? "is-conflict" : ""}`}>
-                <div className="qc-scheduler__student-wrap">
-                  <label className="qc-scheduler__field">
-                    <span>Student</span>
-                    <input
-                      type="text"
-                      value={slot.student}
-                      onChange={(e) => updateSlot(slot.id, "student", e.target.value)}
-                    />
-                  </label>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <span style={{ fontWeight: 700, color: "#64748b", minWidth: "24px" }}>
+                    #{index + 1}
+                  </span>
+                  <div className="qc-scheduler__student-wrap">
+                    <label className="qc-scheduler__field">
+                      <span>Candidate</span>
+                      <input
+                        type="text"
+                        value={slot.student}
+                        readOnly
+                        style={{ background: "#f8fafc", cursor: "default" }}
+                      />
+                    </label>
+                  </div>
                 </div>
 
                 <label className="qc-scheduler__field">
-                  <span>Start</span>
+                  <span>Start Time</span>
                   <input
                     type="time"
                     value={slot.start}
@@ -318,7 +348,7 @@ function StudentSchedulePanel({ schedule, setSchedule, selectedStudent, setSelec
                 </label>
 
                 <label className="qc-scheduler__field">
-                  <span>End</span>
+                  <span>End Time</span>
                   <input
                     type="time"
                     value={slot.end}
@@ -327,8 +357,16 @@ function StudentSchedulePanel({ schedule, setSchedule, selectedStudent, setSelec
                 </label>
 
                 <div className="qc-scheduler__meta">
-                  <span className={invalidRange ? "qc-scheduler__chip qc-scheduler__chip--bad" : hasConflict ? "qc-scheduler__chip qc-scheduler__chip--warn" : "qc-scheduler__chip qc-scheduler__chip--ok"}>
-                    {invalidRange ? "Invalid range" : hasConflict ? "Overlap" : "Ready"}
+                  <span
+                    className={
+                      invalidRange
+                        ? "qc-scheduler__chip qc-scheduler__chip--bad"
+                        : hasConflict
+                        ? "qc-scheduler__chip qc-scheduler__chip--warn"
+                        : "qc-scheduler__chip qc-scheduler__chip--ok"
+                    }
+                  >
+                    {invalidRange ? "Invalid" : hasConflict ? "Overlap" : "Scheduled"}
                   </span>
                   <button type="button" className="qc-scheduler__remove" onClick={() => removeSlot(slot.id)}>
                     Remove
@@ -346,19 +384,81 @@ function StudentSchedulePanel({ schedule, setSchedule, selectedStudent, setSelec
 export default function QuestionConfig() {
   const { examId } = useParams();
 
-  // Tải exam thật từ backend. Trạng thái gắn kèm examId + reloadKey để không phải setState đồng bộ trong effect.
   const [examState, setExamState] = useState({ examId: null, key: 0, exam: null, error: null });
   const [reloadKey, setReloadKey] = useState(0);
 
+  const [availableQuestions, setAvailableQuestions] = useState([]);
+  const [studentsList, setStudentsList] = useState([]);
+  const [selectedStudentId, setSelectedStudentId] = useState("");
+
+  const [config, setConfig] = useState(DEFAULT_CONFIG);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [schedule, setSchedule] = useState([]);
+  const [touched, setTouched] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState(null);
+  const [saveError, setSaveError] = useState(null);
+
+  // Load Exam
   useEffect(() => {
-    if (!examId) return undefined;
+    if (!examId) return;
     const controller = new AbortController();
     getExam(examId, controller.signal)
-      .then((data) => setExamState({ examId, key: reloadKey, exam: data, error: null }))
+      .then((data) => {
+        setExamState({ examId, key: reloadKey, exam: data, error: null });
+
+        if (data) {
+          setConfig((prev) => ({
+            ...prev,
+            mainCount: String(data.mainQuestionCount ?? 3),
+            maxFollowUps: String(data.maxFollowUpCount ?? 2),
+          }));
+
+          // Prefill schedule if exam already has candidates
+          if (data.candidates && data.candidates.length > 0) {
+            const mappedSchedule = data.candidates.map((c, i) => {
+              const startStr = c.scheduledTime
+                ? new Date(c.scheduledTime).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })
+                : fromMinutes(9 * 60 + i * (data.timePerStudent || 20));
+              const startM = toMinutes(startStr);
+              const endStr = fromMinutes(startM + (data.timePerStudent || 20));
+              return {
+                id: `cand-${c.candidateId}`,
+                studentId: c.studentId,
+                student: c.studentName || `Student #${c.studentId}`,
+                start: startStr,
+                end: endStr,
+              };
+            });
+            setSchedule(mappedSchedule);
+          }
+
+          // Parse scope
+          if (data.questionScopeJson) {
+            try {
+              const scope = JSON.parse(data.questionScopeJson);
+              if (scope.selectedQuestionIds && Array.isArray(scope.selectedQuestionIds)) {
+                setSelectedIds(scope.selectedQuestionIds.map(String));
+              }
+              if (scope.strategy) {
+                setConfig((prev) => ({ ...prev, strategy: scope.strategy }));
+              }
+            } catch {
+              // Ignore invalid scope JSON
+            }
+          }
+        }
+      })
       .catch((error) => {
         if (error.name === "AbortError") return;
         setExamState({ examId, key: reloadKey, exam: null, error: error.message });
       });
+
     return () => controller.abort();
   }, [examId, reloadKey]);
 
@@ -367,23 +467,71 @@ export default function QuestionConfig() {
   const exam = examLoaded ? examState.exam : null;
   const examError = examLoaded ? examState.error : null;
 
-  const [config, setConfig] = useState(DEFAULT_CONFIG);
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [schedule, setSchedule] = useState(SAMPLE_SCHEDULE);
-  const [selectedStudent, setSelectedStudent] = useState(STUDENT_CANDIDATES[0]);
-  const [touched, setTouched] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [savedAt, setSavedAt] = useState(null);
+  // Load Questions and Students
+  useEffect(() => {
+    if (!exam?.course?.courseId) return;
+
+    // Fetch questions for course
+    getQuestions({ courseId: exam.course.courseId })
+      .then((qs) => {
+        if (qs && qs.length > 0) {
+          const formatted = qs.map((q) => ({
+            id: String(q.questionId),
+            text: q.questionText,
+            subject: q.courseName || exam.course?.courseName || "Subject",
+            difficulty: q.difficulty || "Medium",
+            type: q.questionType || "Short Answer",
+            bloomLevel: q.bloomLevel || "Understand",
+          }));
+          setAvailableQuestions(formatted);
+          if (selectedIds.length === 0) {
+            setSelectedIds(formatted.map((q) => q.id));
+          }
+        } else {
+          // Fallback to demo questions
+          setAvailableQuestions(FALLBACK_QUESTIONS);
+          if (selectedIds.length === 0) {
+            setSelectedIds(FALLBACK_QUESTIONS.map((q) => q.id));
+          }
+        }
+      })
+      .catch(() => {
+        setAvailableQuestions(FALLBACK_QUESTIONS);
+      });
+
+    // Fetch students
+    getStudents()
+      .then((students) => {
+        if (students && students.length > 0) {
+          setStudentsList(students);
+          if (!selectedStudentId) {
+            setSelectedStudentId(String(students[0].userId));
+          }
+        } else {
+          // Mock student list if DB empty
+          const fallbackStudents = [
+            { userId: 1, fullName: "Nguyen Minh Anh", email: "anh.nm@fpt.edu.vn" },
+            { userId: 2, fullName: "Pham Gia Han", email: "han.pg@fpt.edu.vn" },
+            { userId: 3, fullName: "Le Duc Thinh", email: "thinh.ld@fpt.edu.vn" },
+            { userId: 4, fullName: "Vo Thi Kim Ngan", email: "ngan.vtk@fpt.edu.vn" },
+            { userId: 5, fullName: "Tran Quoc Bao", email: "bao.tq@fpt.edu.vn" },
+          ];
+          setStudentsList(fallbackStudents);
+          setSelectedStudentId("1");
+        }
+      })
+      .catch(() => {});
+  }, [exam?.course?.courseId]);
 
   const errors = useMemo(() => validate(config, selectedIds.length), [config, selectedIds]);
   const showError = (field) => (touched[field] || submitted ? errors[field] : null);
 
   const update = (field) => (value) => {
-    setSavedAt(null);
+    setSaveSuccessMsg(null);
     setConfig((prev) => ({ ...prev, [field]: value }));
   };
   const updatePool = (ids) => {
-    setSavedAt(null);
+    setSaveSuccessMsg(null);
     setTouched((prev) => ({ ...prev, pool: true }));
     setSelectedIds(ids);
   };
@@ -394,71 +542,113 @@ export default function QuestionConfig() {
   const mainCount = Number(config.mainCount);
   const followUps = Number(config.maxFollowUps);
   const maxFollowUpTotal = mainCount * followUps;
-  const selectedQuestions = useMemo(() => {
-    const chosen = new Set(selectedIds);
-    return QUESTIONS.filter((q) => chosen.has(q.id));
-  }, [selectedIds]);
 
-  const handleSave = () => {
+  const selectedQuestions = useMemo(() => {
+    const chosen = new Set(selectedIds.map(String));
+    return availableQuestions.filter((q) => chosen.has(String(q.id)));
+  }, [availableQuestions, selectedIds]);
+
+  const handleSave = async () => {
     setSubmitted(true);
+    setSaveError(null);
+    setSaveSuccessMsg(null);
+
     if (!isValid) return;
 
-    const payload = {
-      examId: Number(examId),
-      mainQuestionCount: mainCount,
-      maxFollowUpPerQuestion: followUps,
-      strategy: config.strategy,
-      selectedQuestionIds: selectedIds,
-    };
-    // TODO: backend chưa có endpoint lưu cấu hình câu hỏi (xem phần "Cần backend bổ sung").
-    console.log("Question config payload:", payload);
-    setSavedAt(new Date());
+    if (schedule.length === 0) {
+      setSaveError("Please add at least one candidate to the schedule.");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // Step 1: Assign Candidates
+      const examBaseDate = exam?.startTime ? new Date(exam.startTime) : new Date();
+      const candidatesPayload = schedule.map((slot) => {
+        const [h, m] = (slot.start || "09:00").split(":").map(Number);
+        const schedTime = new Date(examBaseDate);
+        schedTime.setHours(h, m, 0, 0);
+        return {
+          studentId: Number(slot.studentId) || 1,
+          scheduledTime: schedTime.toISOString(),
+        };
+      });
+
+      await assignCandidates(examId, candidatesPayload);
+
+      // Step 2: Distribute Questions without duplicates between consecutive candidates
+      const questionPayload = {
+        selectedQuestionIds: selectedIds.map(Number).filter((n) => !Number.isNaN(n) && n > 0),
+        strategy: config.strategy,
+        mainQuestionCount: mainCount,
+        maxFollowUpCount: followUps,
+      };
+
+      const result = await generateExamQuestions(examId, questionPayload);
+
+      setSaveSuccessMsg(
+        result?.message ||
+          "Questions successfully distributed! Consecutive candidates have non-overlapping questions. Exam is now READY."
+      );
+
+      setReloadKey((k) => k + 1);
+    } catch (err) {
+      setSaveError(err.message || "Failed to distribute questions and save schedule.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleReset = () => {
     setConfig(DEFAULT_CONFIG);
-    setSelectedIds([]);
+    setSelectedIds(availableQuestions.map((q) => q.id));
     setTouched({});
     setSubmitted(false);
-    setSavedAt(null);
+    setSaveSuccessMsg(null);
+    setSaveError(null);
   };
 
-  const strategy = STRATEGIES.find((s) => s.value === config.strategy);
+  const strategy = STRATEGIES.find((s) => s.value === config.strategy) || STRATEGIES[0];
 
   return (
     <Sidebar
-      title="Question Configuration"
+      title="Question & Schedule Configuration"
       subtitle={
-        exam?.title
-          ? `Set how many questions each student gets in ${exam.title}.`
-          : "Set how many questions each student gets in an exam."
+        exam?.examName
+          ? `Configure questions and candidate slots for "${exam.examName}" (${exam.course?.courseCode || "Course"}).`
+          : "Configure oral questions and candidate schedule."
       }
       actions={
-        <>
-          <button type="button" className="qc-btn qc-btn--ghost" onClick={handleReset}>
+        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+          <Link to="/exams" className="qc-btn qc-btn--ghost">
+            &larr; Back to Exams
+          </Link>
+          <button type="button" className="qc-btn qc-btn--ghost" onClick={handleReset} disabled={isSaving}>
             Reset
           </button>
           <button
             type="button"
             className="qc-btn qc-btn--primary"
             onClick={handleSave}
-            disabled={!exam}
+            disabled={!exam || isSaving}
           >
-            Save configuration
+            {isSaving ? "Distributing Questions..." : "Save & Distribute Questions"}
           </button>
-        </>
+        </div>
       }
     >
       {!examId && (
         <p className="qc-notice" role="alert">
-          No exam selected. Open this page from an exam, for example /exams/1/config.
+          No exam selected. Select an exam from <Link to="/exams">Exam Management</Link>.
         </p>
       )}
+
       {loadingExam && (
         <p className="qc-notice qc-notice--info" role="status">
-          Loading exam…
+          Loading exam configuration...
         </p>
       )}
+
       {examError && (
         <p className="qc-notice" role="alert">
           {examError}{" "}
@@ -468,64 +658,178 @@ export default function QuestionConfig() {
         </p>
       )}
 
+      {saveSuccessMsg && (
+        <div
+          style={{
+            padding: "1rem 1.25rem",
+            background: "#ecfdf5",
+            border: "1px solid #6ee7b7",
+            color: "#065f46",
+            borderRadius: "0.5rem",
+            marginBottom: "1.5rem",
+            fontWeight: 500,
+          }}
+        >
+          &check; {saveSuccessMsg}
+        </div>
+      )}
+
+      {saveError && (
+        <div
+          style={{
+            padding: "1rem 1.25rem",
+            background: "#fef2f2",
+            border: "1px solid #fca5a5",
+            color: "#b91c1c",
+            borderRadius: "0.5rem",
+            marginBottom: "1.5rem",
+            fontWeight: 500,
+          }}
+        >
+          &times; {saveError}
+        </div>
+      )}
+
       <div className="qc-layout">
         <div className="qc-main">
-        <section className="qc-card" aria-labelledby="qc-params-title">
-          <h2 className="qc-card__title" id="qc-params-title">
-            Question settings
-          </h2>
+          {/* Status Alert Banner */}
+          {exam && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "0.875rem 1.25rem",
+                background: "#f8fafc",
+                border: "1px solid #e2e8f0",
+                borderRadius: "0.75rem",
+                marginBottom: "1.25rem",
+              }}
+            >
+              <div>
+                <strong>Current State: </strong>
+                <span className={`badge-status is-${(exam.status || "draft").toLowerCase()}`}>
+                  {exam.status}
+                </span>
+                <span style={{ marginLeft: "1rem", color: "#64748b", fontSize: "0.9rem" }}>
+                  Assigned questions: {exam.assignedQuestionsCount ?? 0}
+                </span>
+              </div>
+              <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                Window: {new Date(exam.startTime).toLocaleDateString()} &bull; {exam.timePerStudent} mins / candidate
+              </span>
+            </div>
+          )}
 
-          <NumberField
-            id="qc-main-count"
-            label="Main questions"
-            hint={`Questions every student is asked (${LIMITS.mainCount.min}–${LIMITS.mainCount.max}).`}
-            value={config.mainCount}
-            limits={LIMITS.mainCount}
-            error={showError("mainCount")}
-            onChange={update("mainCount")}
-            onBlur={markTouched("mainCount")}
+          {/* Section 1: Question Settings */}
+          <section className="qc-card" aria-labelledby="qc-params-title">
+            <h2 className="qc-card__title" id="qc-params-title">
+              Viva Question Settings
+            </h2>
+
+            <NumberField
+              id="qc-main-count"
+              label="Main questions"
+              hint={`Primary oral questions asked per student (${LIMITS.mainCount.min}–${LIMITS.mainCount.max}).`}
+              value={config.mainCount}
+              limits={LIMITS.mainCount}
+              error={showError("mainCount")}
+              onChange={update("mainCount")}
+              onBlur={markTouched("mainCount")}
+            />
+
+            <NumberField
+              id="qc-follow-ups"
+              label="Max follow-up (deep-dive) questions"
+              hint={`Follow-up prompts the AI / Panel may ask per question (${LIMITS.maxFollowUps.min}–${LIMITS.maxFollowUps.max}).`}
+              value={config.maxFollowUps}
+              limits={LIMITS.maxFollowUps}
+              error={showError("maxFollowUps")}
+              onChange={update("maxFollowUps")}
+              onBlur={markTouched("maxFollowUps")}
+            />
+
+            <StrategyPicker value={config.strategy} onChange={update("strategy")} />
+          </section>
+
+          {/* Section 2: Question Pool */}
+          <QuestionPool
+            questions={availableQuestions}
+            selectedIds={selectedIds}
+            onChange={updatePool}
+            required={Number.isFinite(mainCount) && !errors.mainCount ? mainCount : NaN}
+            error={showError("pool")}
           />
 
-          <NumberField
-            id="qc-follow-ups"
-            label="Follow-ups per question"
-            hint={`Most follow-up questions the AI may ask after one answer (${LIMITS.maxFollowUps.min}–${LIMITS.maxFollowUps.max}).`}
-            value={config.maxFollowUps}
-            limits={LIMITS.maxFollowUps}
-            error={showError("maxFollowUps")}
-            onChange={update("maxFollowUps")}
-            onBlur={markTouched("maxFollowUps")}
+          {/* Section 3: Distribution Preview */}
+          <DistributionPreview
+            pool={selectedQuestions}
+            mainCount={paramsValid ? mainCount : NaN}
+            maxFollowUps={paramsValid ? followUps : 0}
+            strategy={config.strategy}
           />
 
-          <StrategyPicker value={config.strategy} onChange={update("strategy")} />
-        </section>
+          {/* Section 4: Student Scheduling */}
+          <StudentSchedulePanel
+            schedule={schedule}
+            setSchedule={setSchedule}
+            studentsList={studentsList}
+            selectedStudentId={selectedStudentId}
+            setSelectedStudentId={setSelectedStudentId}
+            durationMinutes={exam?.timePerStudent || 20}
+          />
 
-        <QuestionPool
-          questions={QUESTIONS}
-          selectedIds={selectedIds}
-          onChange={updatePool}
-          required={Number.isFinite(mainCount) && !errors.mainCount ? mainCount : NaN}
-          error={showError("pool")}
-        />
+          {/* Section 5: Actual Distributed Questions Preview (when Ready or InProgress) */}
+          {exam?.candidates && exam.candidates.some((c) => c.questions && c.questions.length > 0) && (
+            <section className="qc-card" style={{ marginTop: "1.5rem" }}>
+              <h2 className="qc-card__title" style={{ color: "#047857" }}>
+                &check; Verified Anti-Overlap Question Sets ({exam.candidates.length} candidates)
+              </h2>
+              <p className="qc-card__subtitle" style={{ fontSize: "0.875rem", color: "#64748b", margin: "0.25rem 0 1rem" }}>
+                These questions have been locked and assigned into database for each candidate. Notice consecutive candidates have distinct questions.
+              </p>
 
-        <DistributionPreview
-          pool={selectedQuestions}
-          mainCount={paramsValid ? mainCount : NaN}
-          maxFollowUps={paramsValid ? followUps : 0}
-          strategy={config.strategy}
-        />
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                {exam.candidates.map((cand, idx) => (
+                  <div
+                    key={cand.candidateId}
+                    style={{
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "0.5rem",
+                      padding: "0.875rem",
+                      background: idx % 2 === 0 ? "#f8fafc" : "#ffffff",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                      <span style={{ fontWeight: 600, color: "#1e293b" }}>
+                        #{idx + 1} {cand.studentName} ({cand.studentEmail || "Student"})
+                      </span>
+                      <span style={{ fontSize: "0.8rem", color: "#64748b" }}>
+                        Slot: {cand.scheduledTime ? new Date(cand.scheduledTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "N/A"}
+                      </span>
+                    </div>
 
-        <StudentSchedulePanel
-          schedule={schedule}
-          setSchedule={setSchedule}
-          selectedStudent={selectedStudent}
-          setSelectedStudent={setSelectedStudent}
-        />
+                    <ul style={{ margin: 0, paddingLeft: "1.25rem", fontSize: "0.875rem", color: "#334155" }}>
+                      {cand.questions?.map((q) => (
+                        <li key={q.examQuestionId} style={{ marginBottom: "0.25rem" }}>
+                          <strong>Q{q.orderNo}:</strong> {q.questionText}{" "}
+                          <span style={{ fontSize: "0.75rem", color: "#64748b" }}>
+                            [{q.difficulty} &bull; {q.bloomLevel}]
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
+        {/* Sidebar Summary */}
         <aside className="qc-card qc-summary" aria-labelledby="qc-summary-title">
           <h2 className="qc-card__title" id="qc-summary-title">
-            Per student
+            Configuration Summary
           </h2>
 
           {paramsValid ? (
@@ -536,23 +840,25 @@ export default function QuestionConfig() {
               </p>
               <p className="qc-summary__line">
                 {followUps === 0
-                  ? "No follow-ups."
-                  : `Up to ${maxFollowUpTotal} follow-ups (${followUps} per question).`}
+                  ? "No follow-up questions."
+                  : `Up to ${maxFollowUpTotal} follow-ups (${followUps} per main question).`}
               </p>
               <p className="qc-summary__line">
-                At most <strong>{mainCount + maxFollowUpTotal}</strong> questions in total.
+                At most <strong>{mainCount + maxFollowUpTotal}</strong> questions total.
               </p>
               <p className="qc-summary__line">
-                Strategy: <strong>{strategy.title}</strong>
+                Distribution: <strong>{strategy.title}</strong>
               </p>
               <p className="qc-summary__line">
-                Pool: <strong>{selectedIds.length}</strong>{" "}
-                {selectedIds.length === 1 ? "question" : "questions"}
+                Pool selected: <strong>{selectedIds.length}</strong> questions
               </p>
-              {config.strategy === "RANDOM" && selectedIds.length === mainCount && (
-                <p className="qc-summary__note">
-                  The pool is the same size as the main questions, so every student will get the
-                  same set. Add more questions for a different draw per student.
+              <p className="qc-summary__line">
+                Candidates scheduled: <strong>{schedule.length}</strong> students
+              </p>
+
+              {selectedIds.length < mainCount * 2 && selectedIds.length >= mainCount && (
+                <p className="qc-summary__note" style={{ background: "#fffbeb", color: "#b45309" }}>
+                  Tip: A pool of at least {mainCount * 2} questions is recommended to ensure 100% zero-overlap between consecutive candidates.
                 </p>
               )}
             </>
@@ -560,11 +866,17 @@ export default function QuestionConfig() {
             <p className="qc-summary__line">Fix the highlighted fields to see the totals.</p>
           )}
 
-          <p className="qc-summary__status" role="status">
-            {savedAt
-              ? `Configuration is valid (${savedAt.toLocaleTimeString()}). The server cannot store it yet.`
-              : ""}
-          </p>
+          <div style={{ marginTop: "1.5rem" }}>
+            <button
+              type="button"
+              className="qc-btn qc-btn--primary"
+              style={{ width: "100%", justifyContent: "center" }}
+              onClick={handleSave}
+              disabled={!exam || isSaving}
+            >
+              {isSaving ? "Distributing..." : "Save & Generate Sets"}
+            </button>
+          </div>
         </aside>
       </div>
     </Sidebar>

@@ -45,4 +45,28 @@ public class UsersController : ControllerBase
 
         return Ok(new { success = true, message = "Registration successful." });
     }
+
+    /// <summary>GET /api/Users?role=Student</summary>
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromServices] Data.AivesDbContext db, [FromQuery] string? role)
+    {
+        var query = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Include(db.Users, u => u.Role).AsQueryable();
+        if (!string.IsNullOrEmpty(role))
+        {
+            query = query.Where(u => u.Role != null && u.Role.RoleName == role);
+        }
+
+        var users = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync(
+            query.Select(u => new
+            {
+                u.UserId,
+                u.FullName,
+                u.Email,
+                Role = u.Role != null ? u.Role.RoleName : "Unknown",
+                u.Status
+            })
+        );
+
+        return Ok(new { success = true, data = users });
+    }
 }

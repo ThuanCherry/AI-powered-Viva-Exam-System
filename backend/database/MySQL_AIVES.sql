@@ -3,7 +3,8 @@
 -- Host: myteam-prn202.c.aivencloud.com    Database: defaultdb
 -- ------------------------------------------------------
 -- Server version	8.4.8
-
+CREATE DATABASE aives;
+USE aives;
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -338,7 +339,7 @@ CREATE TABLE `exam_sessions` (
   `time_per_student` int NOT NULL,
   `main_question_count` int NOT NULL DEFAULT '3',
   `max_follow_up_count` int NOT NULL DEFAULT '2',
-  `status` enum('Draft','Scheduled','InProgress','Completed','Cancelled') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Draft',
+  `status` enum('Draft','Scheduled','Ready','InProgress','Completed','Cancelled') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Draft',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `question_scope_json` text COLLATE utf8mb4_unicode_ci,
@@ -629,3 +630,111 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-10-15  7:55:16
+
+--
+-- Seed initial roles
+--
+INSERT INTO `roles` (`role_id`, `role_name`, `description`) VALUES
+(1, 'Admin', 'System Administrator'),
+(2, 'Lecturer', 'Course Lecturer'),
+(3, 'Student', 'Candidate Student')
+ON DUPLICATE KEY UPDATE `description` = VALUES(`description`);
+
+--
+-- Seed Users (Default password for all accounts: Password123!)
+-- Hash: $2a$11$/hlOxt0A9jrv8utlMD.7suzl49dz7kl3KM4qPM/U63fxzNkTLTqIe
+--
+INSERT INTO `users` (`user_id`, `role_id`, `full_name`, `email`, `password_hash`, `status`, `created_at`) VALUES
+(1, 2, 'Dr. Tran Van A', 'lecturer@fpt.edu.vn', '$2a$11$/hlOxt0A9jrv8utlMD.7suzl49dz7kl3KM4qPM/U63fxzNkTLTqIe', 'Active', NOW()),
+(2, 1, 'Administrator', 'admin@fpt.edu.vn', '$2a$11$/hlOxt0A9jrv8utlMD.7suzl49dz7kl3KM4qPM/U63fxzNkTLTqIe', 'Active', NOW()),
+(3, 3, 'Nguyen Minh Anh', 'anh.nm@fpt.edu.vn', '$2a$11$/hlOxt0A9jrv8utlMD.7suzl49dz7kl3KM4qPM/U63fxzNkTLTqIe', 'Active', NOW()),
+(4, 3, 'Pham Gia Han', 'han.pg@fpt.edu.vn', '$2a$11$/hlOxt0A9jrv8utlMD.7suzl49dz7kl3KM4qPM/U63fxzNkTLTqIe', 'Active', NOW()),
+(5, 3, 'Le Duc Thinh', 'thinh.ld@fpt.edu.vn', '$2a$11$/hlOxt0A9jrv8utlMD.7suzl49dz7kl3KM4qPM/U63fxzNkTLTqIe', 'Active', NOW()),
+(6, 3, 'Vo Thi Kim Ngan', 'ngan.vtk@fpt.edu.vn', '$2a$11$/hlOxt0A9jrv8utlMD.7suzl49dz7kl3KM4qPM/U63fxzNkTLTqIe', 'Active', NOW()),
+(7, 3, 'Tran Quoc Bao', 'bao.tq@fpt.edu.vn', '$2a$11$/hlOxt0A9jrv8utlMD.7suzl49dz7kl3KM4qPM/U63fxzNkTLTqIe', 'Active', NOW()),
+(8, 3, 'Dang Thu Trang', 'trang.dt@fpt.edu.vn', '$2a$11$/hlOxt0A9jrv8utlMD.7suzl49dz7kl3KM4qPM/U63fxzNkTLTqIe', 'Active', NOW())
+ON DUPLICATE KEY UPDATE `full_name` = VALUES(`full_name`), `password_hash` = VALUES(`password_hash`);
+
+--
+-- Seed Courses
+--
+INSERT INTO `courses` (`course_id`, `course_code`, `course_name`, `description`, `lecturer_id`, `is_active`, `created_at`) VALUES
+(1, 'SWD392', 'Software Architecture & Design', 'Architectural styles, patterns, microservices, and system quality attributes.', 1, 1, NOW()),
+(2, 'DBI202', 'Database Systems', 'Relational data modeling, SQL queries, indexing, and transaction management.', 1, 1, NOW()),
+(3, 'PRN231', 'Cross-Platform Web APIs with .NET', 'ASP.NET Core RESTful APIs, Clean Architecture, Entity Framework Core, and SignalR.', 1, 1, NOW())
+ON DUPLICATE KEY UPDATE `course_name` = VALUES(`course_name`);
+
+--
+-- Seed Academic Classes & Students
+--
+INSERT INTO `academic_classes` (`class_id`, `class_code`, `class_name`, `course_id`, `lecturer_id`, `is_active`, `created_at`) VALUES
+(1, 'SE1801-SWD', 'K18 Software Architecture - Class 01', 1, 1, 1, NOW()),
+(2, 'SE1802-DBI', 'K18 Database Systems - Class 02', 2, 1, 1, NOW())
+ON DUPLICATE KEY UPDATE `class_name` = VALUES(`class_name`);
+
+INSERT INTO `class_students` (`class_id`, `student_id`, `joined_at`) VALUES
+(1, 3, NOW()),
+(1, 4, NOW()),
+(1, 5, NOW()),
+(1, 6, NOW()),
+(1, 7, NOW()),
+(1, 8, NOW()),
+(2, 3, NOW()),
+(2, 4, NOW()),
+(2, 5, NOW())
+ON DUPLICATE KEY UPDATE `joined_at` = VALUES(`joined_at`);
+
+--
+-- Seed Question Pool (Questions for SWD392 to test Anti-Overlap Distribution)
+--
+INSERT INTO `questions` (`question_id`, `course_id`, `source_material_id`, `created_by`, `question_text`, `expected_answer`, `bloom_level`, `difficulty`, `question_type`, `status`, `source`, `created_at`) VALUES
+(1, 1, NULL, 1, 'Explain the Single Responsibility Principle (SRP) and provide an example of violating it.', 'Each class should have only one reason to change, meaning it should focus on a single responsibility.', 'Understand', 'Easy', 'Main', 'Approved', 'Manual', NOW()),
+(2, 1, NULL, 1, 'Compare Monolithic Architecture with Microservices Architecture. When should a team choose one over the other?', 'Monoliths are easier to deploy and test initially, but Microservices scale independently and allow multiple tech stacks.', 'Analyze', 'Medium', 'Main', 'Approved', 'Manual', NOW()),
+(3, 1, NULL, 1, 'What is Dependency Inversion Principle (DIP) and how does it relate to Inversion of Control (IoC) containers?', 'High-level modules should not depend on low-level modules; both should depend on abstractions.', 'Apply', 'Medium', 'Main', 'Approved', 'Manual', NOW()),
+(4, 1, NULL, 1, 'Explain how the Circuit Breaker pattern prevents cascading failures in distributed systems.', 'It wraps calls and trips open when failures reach a threshold, returning fallback responses instead of wasting resources.', 'Understand', 'Hard', 'Main', 'Approved', 'Manual', NOW()),
+(5, 1, NULL, 1, 'Describe the CQRS (Command Query Responsibility Segregation) pattern and its advantages for high-read applications.', 'Separates read operations from update operations to optimize scaling, caching, and schemas independently.', 'Analyze', 'Hard', 'Main', 'Approved', 'Manual', NOW()),
+(6, 1, NULL, 1, 'What is the purpose of an API Gateway in a microservice ecosystem?', 'Handles routing, authentication, rate limiting, and request aggregation for client apps.', 'Understand', 'Easy', 'Main', 'Approved', 'Manual', NOW()),
+(7, 1, NULL, 1, 'Describe how Event-Driven Architecture ensures loose coupling between disparate services.', 'Services publish events to message brokers without direct coupling to consumers, enabling asynchronous handling.', 'Apply', 'Medium', 'Main', 'Approved', 'Manual', NOW()),
+(8, 1, NULL, 1, 'Explain the differences between Pessimistic Locking and Optimistic Locking with concurrency control.', 'Optimistic assumes collisions are rare and verifies with version tokens; pessimistic locks resources up front.', 'Analyze', 'Medium', 'Main', 'Approved', 'Manual', NOW()),
+(9, 1, NULL, 1, 'What are the main tradeoffs when choosing between REST and gRPC for inter-service communication?', 'REST is HTTP/JSON and human-readable; gRPC uses HTTP/2 and Protobuf for high-performance low-latency communication.', 'Analyze', 'Hard', 'Main', 'Approved', 'Manual', NOW()),
+(10, 1, NULL, 1, 'Explain the Repository and Unit of Work patterns and how they abstract data access.', 'Repository mediates between domain and data mapping; Unit of Work maintains a list of objects affected by a business transaction.', 'Understand', 'Easy', 'Main', 'Approved', 'Manual', NOW())
+ON DUPLICATE KEY UPDATE `question_text` = VALUES(`question_text`);
+
+--
+-- Seed Sample Viva Exam Session (Exam 1: Ready status with candidates and anti-overlap questions)
+--
+INSERT INTO `exam_sessions` (`exam_id`, `course_id`, `lecturer_id`, `exam_name`, `description`, `start_time`, `end_time`, `time_per_student`, `main_question_count`, `max_follow_up_count`, `status`, `created_at`, `question_scope_json`) VALUES
+(1, 1, 1, 'Midterm Oral Defense - Software Architecture', 'Viva examination covering SOLID principles, architectural styles, and design patterns.', '2026-10-20 08:00:00', '2026-10-20 17:00:00', 20, 3, 2, 'Ready', NOW(), '{"strategy":"RANDOM","selectedQuestionIds":[1,2,3,4,5,6,7,8,9,10],"totalAssigned":12}')
+ON DUPLICATE KEY UPDATE `exam_name` = VALUES(`exam_name`);
+
+INSERT INTO `exam_viva_settings` (`exam_id`, `seconds_per_question`, `max_follow_ups_per_question`) VALUES
+(1, 120, 2)
+ON DUPLICATE KEY UPDATE `seconds_per_question` = VALUES(`seconds_per_question`);
+
+-- Candidates scheduled for Exam 1
+INSERT INTO `exam_candidates` (`candidate_id`, `exam_id`, `student_id`, `scheduled_time`, `status`, `started_at`, `finished_at`) VALUES
+(1, 1, 3, '2026-10-20 08:00:00', 'Waiting', NULL, NULL),
+(2, 1, 4, '2026-10-20 08:25:00', 'Waiting', NULL, NULL),
+(3, 1, 5, '2026-10-20 08:50:00', 'Waiting', NULL, NULL),
+(4, 1, 6, '2026-10-20 09:15:00', 'Waiting', NULL, NULL)
+ON DUPLICATE KEY UPDATE `scheduled_time` = VALUES(`scheduled_time`);
+
+-- Pre-assigned questions ensuring consecutive candidates don't get the same questions:
+-- Candidate 1 (Student 3): Questions 1, 2, 3
+-- Candidate 2 (Student 4): Questions 4, 5, 6  (0 overlap with Candidate 1!)
+-- Candidate 3 (Student 5): Questions 7, 8, 9  (0 overlap with Candidate 2!)
+-- Candidate 4 (Student 6): Questions 1, 10, 2 (0 overlap with Candidate 3!)
+INSERT INTO `exam_questions` (`exam_question_id`, `exam_id`, `candidate_id`, `question_id`, `order_no`, `is_completed`) VALUES
+(1, 1, 1, 1, 1, 0),
+(2, 1, 1, 2, 2, 0),
+(3, 1, 1, 3, 3, 0),
+(4, 1, 2, 4, 1, 0),
+(5, 1, 2, 5, 2, 0),
+(6, 1, 2, 6, 3, 0),
+(7, 1, 3, 7, 1, 0),
+(8, 1, 3, 8, 2, 0),
+(9, 1, 3, 9, 3, 0),
+(10, 1, 4, 1, 1, 0),
+(11, 1, 4, 10, 2, 0),
+(12, 1, 4, 2, 3, 0)
+ON DUPLICATE KEY UPDATE `question_id` = VALUES(`question_id`);

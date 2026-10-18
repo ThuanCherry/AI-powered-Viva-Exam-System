@@ -1,4 +1,7 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar.jsx";
+import CreateExamModal from "../components/CreateExamModal.jsx";
 import "../styles/Dashboard.css";
 
 const STATS = [
@@ -71,14 +74,29 @@ function StatusPill({ status }) {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const maxCount = Math.max(...STATUS_BREAKDOWN.map((s) => s.count));
+
+  const handleCreateSuccess = (created) => {
+    setIsModalOpen(false);
+    if (created?.examId) {
+      navigate(`/exams/${created.examId}/config`);
+    } else {
+      navigate("/exams");
+    }
+  };
 
   return (
     <Sidebar
       title="Dashboard"
       subtitle="Here's what's happening across your exams today."
       actions={
-        <button type="button" className="btn-primary">
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={() => setIsModalOpen(true)}
+        >
           + New exam
         </button>
       }
@@ -165,6 +183,12 @@ export default function Dashboard() {
           </section>
         </div>
       </div>
+
+      <CreateExamModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleCreateSuccess}
+      />
     </Sidebar>
   );
 }
