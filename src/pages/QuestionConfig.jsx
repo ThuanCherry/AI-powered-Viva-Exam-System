@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar.jsx";
-import DistributionPreview from "../components/DistributePreview.jsx";
+import CandidateQuestionDistribution from "../components/CandidateQuestionDistribution.jsx";
 import QuestionPool from "../components/QuestionPool.jsx";
 import { getExam, assignCandidates, generateExamQuestions, updateExamStatus } from "../api/exams.js";
 import { getQuestions } from "../api/questions.js";
@@ -761,15 +761,7 @@ export default function QuestionConfig() {
             error={showError("pool")}
           />
 
-          {/* Section 3: Distribution Preview */}
-          <DistributionPreview
-            pool={selectedQuestions}
-            mainCount={paramsValid ? mainCount : NaN}
-            maxFollowUps={paramsValid ? followUps : 0}
-            strategy={config.strategy}
-          />
-
-          {/* Section 4: Student Scheduling */}
+          {/* Step 3: Candidate Scheduling & Slots */}
           <StudentSchedulePanel
             schedule={schedule}
             setSchedule={setSchedule}
@@ -779,51 +771,18 @@ export default function QuestionConfig() {
             durationMinutes={exam?.timePerStudent || 20}
           />
 
-          {/* Section 5: Actual Distributed Questions Preview (when Ready or InProgress) */}
-          {exam?.candidates && exam.candidates.some((c) => c.questions && c.questions.length > 0) && (
-            <section className="qc-card" style={{ marginTop: "1.5rem" }}>
-              <h2 className="qc-card__title" style={{ color: "#047857" }}>
-                &check; Verified Anti-Overlap Question Sets ({exam.candidates.length} candidates)
-              </h2>
-              <p className="qc-card__subtitle" style={{ fontSize: "0.875rem", color: "#64748b", margin: "0.25rem 0 1rem" }}>
-                These questions have been locked and assigned into database for each candidate. Notice consecutive candidates have distinct questions.
-              </p>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                {exam.candidates.map((cand, idx) => (
-                  <div
-                    key={cand.candidateId}
-                    style={{
-                      border: "1px solid #e2e8f0",
-                      borderRadius: "0.5rem",
-                      padding: "0.875rem",
-                      background: idx % 2 === 0 ? "#f8fafc" : "#ffffff",
-                    }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                      <span style={{ fontWeight: 600, color: "#1e293b" }}>
-                        #{idx + 1} {cand.studentName} ({cand.studentEmail || "Student"})
-                      </span>
-                      <span style={{ fontSize: "0.8rem", color: "#64748b" }}>
-                        Slot: {cand.scheduledTime ? new Date(cand.scheduledTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "N/A"}
-                      </span>
-                    </div>
-
-                    <ul style={{ margin: 0, paddingLeft: "1.25rem", fontSize: "0.875rem", color: "#334155" }}>
-                      {cand.questions?.map((q) => (
-                        <li key={q.examQuestionId} style={{ marginBottom: "0.25rem" }}>
-                          <strong>Q{q.orderNo}:</strong> {q.questionText}{" "}
-                          <span style={{ fontSize: "0.75rem", color: "#64748b" }}>
-                            [{q.difficulty} &bull; {q.bloomLevel}]
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+          {/* Step 4: Unified Candidate Question Distribution & Anti-Overlap Verification */}
+          <CandidateQuestionDistribution
+            candidates={exam?.candidates || []}
+            schedule={schedule}
+            pool={selectedQuestions}
+            mainCount={paramsValid ? mainCount : 0}
+            maxFollowUps={paramsValid ? followUps : 0}
+            strategy={config.strategy}
+            isLocked={Boolean(exam?.status === "Ready" || exam?.status === "InProgress")}
+            onRegenerate={handleSave}
+            isRegenerating={isSaving}
+          />
         </div>
 
         {/* Sidebar Summary */}
