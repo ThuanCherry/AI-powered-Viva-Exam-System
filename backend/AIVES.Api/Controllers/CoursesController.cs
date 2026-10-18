@@ -16,11 +16,18 @@ public class CoursesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int? lecturerId)
     {
-        var courses = await _db.Courses
+        var query = _db.Courses
             .Include(c => c.Lecturer)
-            .Where(c => c.IsActive)
+            .Where(c => c.IsActive);
+
+        if (lecturerId.HasValue)
+        {
+            query = query.Where(c => c.LecturerId == lecturerId.Value);
+        }
+
+        var courses = await query
             .OrderBy(c => c.CourseName)
             .Select(c => new
             {
@@ -28,7 +35,8 @@ public class CoursesController : ControllerBase
                 c.CourseCode,
                 c.CourseName,
                 c.Description,
-                LecturerName = c.Lecturer!.FullName,
+                c.LecturerId,
+                LecturerName = c.Lecturer != null ? c.Lecturer.FullName : string.Empty,
                 c.CreatedAt
             })
             .ToListAsync();
@@ -61,4 +69,39 @@ public class CoursesController : ControllerBase
             }
         });
     }
+
+    /// <summary>PUT /api/Courses/{id}/assign-lecturer - Phân quyền giảng viên cho môn học</summary>
+    [HttpPut("{id:int}/assign-lecturer")]
+    public async Task<IActionResult> AssignLecturer(int id, [FromBody] AssignLecturerRequest request)
+    {
+        var course = await _db.Courses.FindAsync(id);
+        if (course is null)
+            return NotFound(new { success = false, message = "Course not found." });
+
+        if (request.LecturerId.HasValue)
+        {
+            course.LecturerId = request.LecturerId.Value;
+        }
+
+        course.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+
+        var updated = await _db.Courses.Include(c => c.Lecturer).FirstOrDefaultAsync(c => c.CourseId == id);
+
+        return Ok(new
+        {
+            success = true,
+            message = "Lecturer assigned to course successfully.",
+            data = new
+            {
+                updated?.CourseId,
+                updated?.CourseCode,
+                updated?.CourseName,
+                LecturerName = updated?.Lecturer?.FullName ?? "Unassigned"
+            }
+        });
+    }
 }
+
+public record AssignLecturerRequest(int? LecturerId);
+
