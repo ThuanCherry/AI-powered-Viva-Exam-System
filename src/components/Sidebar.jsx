@@ -6,10 +6,33 @@ const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: IconGrid },
   { to: "/questions", label: "Question Bank", icon: IconBook },
   { to: "/exams", label: "Exam Management", icon: IconCalendar },
+  { to: "/admin", label: "System Admin", icon: IconShield },
   { to: "/viva", label: "Viva Exam", icon: IconMic },
   { to: "/ai-interview", label: "AI Interview", icon: IconSpark },
   { to: "/reports", label: "Reports", icon: IconBars },
 ];
+
+function IconShield() {
+  return (
+    <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+      <path
+        d="M10 2.5 3.5 5.5v5c0 4.2 2.8 7.3 6.5 8.2 3.7-.9 6.5-4 6.5-8.2v-5L10 2.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8 10l1.5 1.5 3-3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 function IconGrid() {
   return (
@@ -120,15 +143,29 @@ function Sidebar() {
     navigate("/login", { replace: true });
   };
 
+  const isAdmin = (session?.role || "").toLowerCase() === "admin";
+  const navItems = isAdmin
+    ? [{ to: "/admin", label: "System Admin", icon: IconShield }]
+    : [
+        { to: "/dashboard", label: "Dashboard", icon: IconGrid },
+        { to: "/questions", label: "Question Bank", icon: IconBook },
+        { to: "/exams", label: "Exam Management", icon: IconCalendar },
+        { to: "/viva", label: "Viva Exam", icon: IconMic },
+        { to: "/ai-interview", label: "AI Interview", icon: IconSpark },
+        { to: "/reports", label: "Reports", icon: IconBars },
+      ];
+
   return (
     <aside className="shell-sidebar">
       <div className="shell-sidebar__brand">
         <span className="shell-sidebar__mark">AIVES</span>
-        <span className="shell-sidebar__mark-sub">Viva Exam System</span>
+        <span className="shell-sidebar__mark-sub">
+          {isAdmin ? "Admin Portal" : "Viva Exam System"}
+        </span>
       </div>
 
       <nav className="shell-sidebar__nav" aria-label="Main">
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+        {navItems.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

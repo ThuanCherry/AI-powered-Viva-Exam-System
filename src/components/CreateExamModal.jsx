@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCourses } from "../api/courses.js";
 import { createExam } from "../api/exams.js";
+import { getSession } from "../auth/session.js";
 import "../styles/CreateExamModal.css";
 
 export default function CreateExamModal({ isOpen, onClose, onSuccess }) {
@@ -31,11 +32,22 @@ export default function CreateExamModal({ isOpen, onClose, onSuccess }) {
     if (!isOpen) return;
     setLoadingCourses(true);
     setError(null);
+    const session = getSession();
+
     getCourses()
       .then((data) => {
-        setCourses(data ?? []);
-        if (data && data.length > 0 && !form.courseId) {
-          setForm((prev) => ({ ...prev, courseId: data[0].courseId }));
+        let available = data ?? [];
+        // Nếu người dùng là Giảng viên (Lecturer), chỉ hiển thị môn học được phân công cho chính họ
+        if (session?.role === "Lecturer" && session?.userId) {
+          available = available.filter(
+            (c) => String(c.lecturerId) === String(session.userId)
+          );
+        }
+        setCourses(available);
+        if (available.length > 0) {
+          setForm((prev) => ({ ...prev, courseId: available[0].courseId }));
+        } else {
+          setForm((prev) => ({ ...prev, courseId: "" }));
         }
       })
       .catch((err) => setError(err.message || "Failed to load courses."))

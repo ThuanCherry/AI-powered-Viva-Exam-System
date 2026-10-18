@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Exams from "./pages/Exams.jsx";
 import QuestionBank from "./pages/QuestionBank.jsx";
 import QuestionConfig from "./pages/QuestionConfig.jsx";
+import AdminManagement from "./pages/AdminManagement.jsx";
 import RequireAuth from "./auth/RequireAuth.jsx";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
       <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
       <Route path="/exams" element={<RequireAuth><Exams /></RequireAuth>} />
       <Route path="/questions" element={<RequireAuth><QuestionBank /></RequireAuth>} />
+      <Route path="/admin" element={<RequireAuth><AdminManagement /></RequireAuth>} />
       <Route
         path="/exams/:examId/config"
         element={<RequireAuth><QuestionConfig /></RequireAuth>}

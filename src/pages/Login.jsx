@@ -97,7 +97,11 @@ export default function Login() {
         rememberMe: form.remember,
       });
       saveSession(user, form.remember);
-      navigate("/dashboard");
+      if (user?.role?.toLowerCase() === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       setServerError(
         error instanceof ApiError
