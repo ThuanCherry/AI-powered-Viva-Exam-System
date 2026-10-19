@@ -143,25 +143,37 @@ function Sidebar() {
     navigate("/login", { replace: true });
   };
 
-  const isAdmin = (session?.role || "").toLowerCase() === "admin";
-  const navItems = isAdmin
-    ? [{ to: "/admin", label: "System Admin", icon: IconShield }]
-    : [
-        { to: "/dashboard", label: "Dashboard", icon: IconGrid },
-        { to: "/questions", label: "Question Bank", icon: IconBook },
-        { to: "/exams", label: "Exam Management", icon: IconCalendar },
-        { to: "/viva", label: "Viva Exam", icon: IconMic },
-        { to: "/ai-interview", label: "AI Interview", icon: IconSpark },
-        { to: "/reports", label: "Reports", icon: IconBars },
-      ];
+  const role = (session?.role || "").toLowerCase();
+  let navItems = [];
+  let brandSub = "Viva Exam System";
+
+  if (role === "admin") {
+    brandSub = "Admin Portal";
+    navItems = [
+      { to: "/admin", label: "System Admin", icon: IconShield },
+    ];
+  } else if (role === "student") {
+    brandSub = "Student Portal";
+    navItems = [
+      { to: "/viva", label: "Viva Exam", icon: IconMic },
+      { to: "/ai-interview", label: "AI Interview", icon: IconSpark },
+    ];
+  } else {
+    // Default to Lecturer role
+    brandSub = "Lecturer Portal";
+    navItems = [
+      { to: "/dashboard", label: "Dashboard", icon: IconGrid },
+      { to: "/questions", label: "Question Bank", icon: IconBook },
+      { to: "/exams", label: "Exam Management", icon: IconCalendar },
+      { to: "/reports", label: "Reports", icon: IconBars },
+    ];
+  }
 
   return (
     <aside className="shell-sidebar">
       <div className="shell-sidebar__brand">
         <span className="shell-sidebar__mark">AIVES</span>
-        <span className="shell-sidebar__mark-sub">
-          {isAdmin ? "Admin Portal" : "Viva Exam System"}
-        </span>
+        <span className="shell-sidebar__mark-sub">{brandSub}</span>
       </div>
 
       <nav className="shell-sidebar__nav" aria-label="Main">

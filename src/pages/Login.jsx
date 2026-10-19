@@ -97,8 +97,11 @@ export default function Login() {
         rememberMe: form.remember,
       });
       saveSession(user, form.remember);
-      if (user?.role?.toLowerCase() === "admin") {
+      const role = (user?.role || "").toLowerCase();
+      if (role === "admin") {
         navigate("/admin");
+      } else if (role === "student") {
+        navigate("/viva");
       } else {
         navigate("/dashboard");
       }
