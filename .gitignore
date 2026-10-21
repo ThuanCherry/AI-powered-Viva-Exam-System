@@ -34,3 +34,6 @@ appsettings.*.local.json
 .vs/
 artifacts/
 App_Data/
+# ASP.NET Core configuration
+backend/AIVES.Api/appsettings.json
+backend/AIVES.Api/appsettings.Development.json
