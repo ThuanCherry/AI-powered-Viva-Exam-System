@@ -1,0 +1,191 @@
+.exams-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.exams-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.exams-search {
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  min-width: 240px;
+  outline: none;
+  background: #ffffff;
+}
+
+.exams-search:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.exams-select {
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  background: #ffffff;
+  outline: none;
+  color: #334155;
+}
+
+.exams-table-wrap {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.exams-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.exams-table th {
+  background: #f8fafc;
+  padding: 0.875rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.exams-table td {
+  padding: 1rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+  vertical-align: middle;
+}
+
+.exams-table tr:last-child td {
+  border-bottom: none;
+}
+
+.exams-table tr:hover td {
+  background: #f8fafc;
+}
+
+.exam-cell-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.exam-cell-title {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.exam-cell-desc {
+  font-size: 0.8rem;
+  color: #64748b;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge-status {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-status.is-draft {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.badge-status.is-scheduled {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.badge-status.is-ready {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-status.is-inprogress {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.badge-status.is-completed {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.badge-status.is-cancelled {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.exams-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.action-btn-link {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  background: #2563eb;
+  color: #ffffff;
+  border-radius: 0.375rem;
+  font-size: 0.825rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.action-btn-link:hover {
+  background: #1d4ed8;
+}
+
+.action-btn-cancel {
+  padding: 0.375rem 0.625rem;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  border-radius: 0.375rem;
+  font-size: 0.825rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.action-btn-cancel:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.exams-empty {
+  padding: 3rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.exams-empty p {
+  margin: 0.5rem 0 1rem;
+}
