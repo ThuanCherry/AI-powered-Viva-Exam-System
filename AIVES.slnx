@@ -1,7 +1,5 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/AIVES.BusinessLogicLayer/AIVES.BusinessLogicLayer.csproj" />
-    <Project Path="src/AIVES.DataAccessLayer/AIVES.DataAccessLayer.csproj" />
-    <Project Path="src/AIVES.PresentationLayer/AIVES.PresentationLayer.csproj" />
+  <Folder Name="/backend/">
+    <Project Path="backend/AIVES.Api/AIVES.Api.csproj" />
   </Folder>
 </Solution>

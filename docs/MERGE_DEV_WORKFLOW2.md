@@ -35,3 +35,5 @@ Không chạy test provider/voice thật. Các ca cũ về giờ kết thúc th�
 
 ## Hoàn tất trên dev local
 Hai commit dev riêng (`68ae7b6`, `26584ba`) được bảo toàn khi merge; không reset nhánh dev theo remote. `.gitignore` kết hợp quy tắc hai phía, README chọn hướng dẫn React + monolith hiện hành và giữ ghi chú các project 3-layer cũ. Các project cũ và sơ đồ cũ được giữ file, không đưa vào luồng frontend. Nhánh nguồn chỉ được xóa sau khi merge thành công vào dev.
+
+Cập nhật sau merge theo yêu cầu: đã xóa ba thư mục project 3-layer trong `src/` và sửa `AIVES.slnx` sang backend Monolithic. Nội dung trên mô tả quyết định tại thời điểm merge; lịch sử các project vẫn có trong Git.

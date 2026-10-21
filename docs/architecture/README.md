@@ -21,4 +21,4 @@ Chỉ hai nhãn mũi tên **Request / Response**. Mỗi ranh giới có một c�
 
 API key nằm ở backend. LLM sau khi Nộp đang tắt mặc định; hình thể hiện tích hợp có trong code, không khẳng định key/model/hạn mức đã được kiểm tra bằng request thật. Không vẽ Claude, Azure, Redis, queue hoặc lưu trữ cloud vì chúng không nằm trong luồng runtime hiện tại.
 
-Những project 3-layer độc lập trong `src/AIVES.*` nếu có được giữ lại để bảo toàn lịch sử; React đang trỏ tới `backend/AIVES.Api`, không gọi các project đó. Sơ đồ này mô tả runtime React + monolith hiện hành.
+Ba project 3-layer cũ đã được xóa theo yêu cầu: `src/` chỉ dành cho React, `backend/AIVES.Api` là backend Monolithic duy nhất. Solution `AIVES.slnx` trỏ tới backend này. Sơ đồ không thay đổi vì trước đó đã mô tả đúng runtime hiện hành.

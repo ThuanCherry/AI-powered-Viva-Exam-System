@@ -24,4 +24,4 @@ npm run dev
 Hai lệnh cuối chạy trong hai terminal riêng. Mở http://localhost:5173.
 Không tự import SQL dump: dump chứa DROP TABLE. Xem hướng dẫn chạy trước khi thao tác DB.
 
-Các project `src/AIVES.PresentationLayer`, `src/AIVES.BusinessLogicLayer`, `src/AIVES.DataAccessLayer` được giữ từ lịch sử dev. Ứng dụng React hiện tại dùng backend `backend/AIVES.Api`; không chạy đồng thời backend 3-layer thay thế khi test luồng này. Xem [kiến trúc runtime hiện tại](docs/architecture/README.md).
+`src/` chỉ chứa frontend React; backend Monolithic nằm tại `backend/AIVES.Api`. Mở `AIVES.slnx` trong Visual Studio để làm việc với backend. Xem [kiến trúc runtime hiện tại](docs/architecture/README.md).
