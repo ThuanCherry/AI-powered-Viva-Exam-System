@@ -191,7 +191,7 @@ public class WorkflowTests
         Assert.Contains(await f.Db.ExamLogs.ToListAsync(), l => l.Action == "ProviderError");
     }
     [Theory]
-    [InlineData(0, 15, 1)] [InlineData(15, 0, 1)] [InlineData(15, 15, 2)]
+    [InlineData(0, 15, 1)] [InlineData(181, 15, 1)] [InlineData(15, 15, 0)]
     public void ValidateRejectsInvalidSlots(int slot, int window, int students)
     {
         var start = DateTimeOffset.UtcNow;
@@ -259,9 +259,10 @@ public class WorkflowTests
     [Fact] public async Task DraftEditPreservesLegacyScopePropertiesAndPublishRejectsExistingAssignment()
     {
         await using var f = await Fixture.Create();
-        var exam = await f.Flow.Save(f.Input(), 1, null, default);
+        var future = f.Input() with { StartTime = f.Clock.Value.AddMinutes(1) };
+        var exam = await f.Flow.Save(future, 1, null, default);
         exam.QuestionScopeJson = "{\"existingBankFilter\":\"keep\"}"; await f.Db.SaveChangesAsync();
-        await f.Flow.Save(f.Input() with { Strategy = "Adaptive" }, 1, exam.ExamId, default);
+        await f.Flow.Save(future with { Strategy = "Adaptive" }, 1, exam.ExamId, default);
         Assert.Contains("existingBankFilter", exam.QuestionScopeJson);
         var candidate = await f.Db.ExamCandidates.FirstAsync();
         f.Db.ExamQuestions.Add(new ExamQuestion { ExamId = exam.ExamId, CandidateId = candidate.CandidateId, QuestionId = 1, OrderNo = 1 }); await f.Db.SaveChangesAsync();

@@ -2,6 +2,9 @@
 
 React JSX + ASP.NET Core monolith + MySQL hiện có.
 
+- [Kiến trúc hiện tại — draw.io chỉnh sửa được](docs/architecture/AIVES_ARCHITECTURE.drawio) · [Xem SVG](docs/architecture/AIVES_ARCHITECTURE.svg)
+- [Kết quả tích hợp dev và kiểm thử workflow 2](docs/MERGE_DEV_WORKFLOW2.md)
+
 - [Workflow giảng viên, API và demo cô lập không gọi AI](docs/LECTURER_WORKFLOW.md)
 - [Chạy thật, tài khoản demo và kiểm thử](docs/RUN_AND_TEST.md)
 - [Workflow lịch thi và AI vấn đáp, API, states](docs/AIVES_WORKFLOW_2_3.md)

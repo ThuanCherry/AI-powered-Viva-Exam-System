@@ -28,6 +28,7 @@ public class ExamsController : ControllerBase
             .Include(e => e.Course)
             .Include(e => e.Lecturer)
             .Include(e => e.VivaSettings)
+            .Include(e => e.ExamQuestions).ThenInclude(q => q.Question)
             .Include(e => e.Candidates)
                 .ThenInclude(c => c.Student)
             .FirstOrDefaultAsync(e => e.ExamId == id);
@@ -76,6 +77,11 @@ public class ExamsController : ControllerBase
                     c.CandidateId,
                     c.StudentId,
                     StudentName = c.Student?.FullName,
+                    StudentEmail = c.Student?.Email,
+                    Questions = User.IsInRole("Lecturer") ? exam.ExamQuestions.Where(q => q.CandidateId == c.CandidateId && q.ParentExamQuestionId == null).OrderBy(q => q.OrderNo).Select(q => new {
+                        q.ExamQuestionId, q.QuestionId, q.OrderNo, QuestionText = q.Question!.QuestionText,
+                        q.Question.Difficulty, q.Question.BloomLevel
+                    }) : null,
                     ScheduledTime = c.ScheduledTime.HasValue ? WorkflowService.Iso(c.ScheduledTime.Value) : null,
                     ScheduledEndTime = c.ScheduledTime.HasValue ? WorkflowService.Iso(c.ScheduledTime.Value.AddMinutes(exam.TimePerStudent)) : null,
                     c.Status,

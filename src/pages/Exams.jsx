@@ -10,6 +10,7 @@ import ExamDateTimePicker from '../components/ExamDateTimePicker.jsx';
 import { buildExamSchedule, suggestExamStart } from '../lib/examSchedule.js';
 import { examSaveIssues } from '../lib/examValidation.js';
 import { SCHEDULE_CHANGED } from '../hooks/useScheduleRealtime.js';
+import CandidateQuestionDistribution from '../components/CandidateQuestionDistribution.jsx';
 
 const labels = { Draft: 'Bản nháp', Scheduled: 'Đã công bố', InProgress: 'Đang thi', Completed: 'Hoàn thành', Cancelled: 'Đã hủy', Waiting: 'Chờ thi', Absent: 'Vắng thi' };
 export function Status({ value }) { return <span className={`wf-status wf-status-${value}`}>{labels[value] || value}</span>; }
@@ -153,5 +154,6 @@ export function ExamEditor() {
         {exam && ['Draft', 'Scheduled'].includes(exam.status) && <button type="button" className="wf-button wf-secondary" disabled={busy} onClick={() => action('cancel')}>Hủy kỳ thi</button>}
       </aside>
     </form>}
+    {exam && exam.status !== 'Draft' && <CandidateQuestionDistribution candidates={exam.candidates} mainCount={exam.mainQuestionCount} />}
   </div></AppShell>;
 }

@@ -97,7 +97,14 @@ export default function Login() {
         rememberMe: form.remember,
       });
       saveSession(user, form.remember);
-      navigate("/dashboard");
+      const role = (user?.role || "").toLowerCase();
+      if (role === "admin") {
+        navigate("/admin");
+      } else if (role === "student") {
+        navigate("/viva");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       setServerError(
         error instanceof ApiError

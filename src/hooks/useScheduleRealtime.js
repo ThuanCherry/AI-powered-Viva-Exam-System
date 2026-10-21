@@ -7,7 +7,8 @@ import { watchSchedule } from '../lib/scheduleRealtime.js';
 export const SCHEDULE_CHANGED = 'aives:schedule-changed';
 export function useScheduleRealtime() {
   const [status, setStatus] = useState('Đang kết nối SignalR…');
-  const token = getSession()?.token;
+  const session = getSession();
+  const token = ['Lecturer', 'Student'].includes(session?.role) ? session.token : null;
   useEffect(() => {
     if (!token) return;
     const refresh = event => window.dispatchEvent(new CustomEvent(SCHEDULE_CHANGED, { detail: event || {} }));

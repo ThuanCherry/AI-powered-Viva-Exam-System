@@ -22,3 +22,11 @@ export async function login({ email, password, rememberMe }) {
 export function register({ fullName, email, password, confirmPassword }) {
   return api.post("/api/Users/register", { fullName, email, password, confirmPassword });
 }
+
+export function getUsers({ role } = {}, signal) {
+  return api.get(role ? `/api/Users?role=${encodeURIComponent(role)}` : '/api/Users', { signal });
+}
+
+export function getStudents(signal) {
+  return getUsers({ role: 'Student' }, signal);
+}

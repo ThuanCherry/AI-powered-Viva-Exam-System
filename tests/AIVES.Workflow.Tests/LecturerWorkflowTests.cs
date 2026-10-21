@@ -57,6 +57,10 @@ public class LecturerWorkflowTests
         var preview = await Call(s, HttpMethod.Get, $"/api/Exams/{exam}"); Assert.Equal(section, preview.GetProperty("classId").GetInt32()); Assert.Single(preview.GetProperty("candidates").EnumerateArray());
         await Call(s, HttpMethod.Put, $"/api/Exams/{exam}", Exam(course, section));
         await Call(s, HttpMethod.Post, $"/api/Exams/{exam}/publish");
+        var assigned = await Call(s, HttpMethod.Get, $"/api/Exams/{exam}");
+        Assert.Equal(2, assigned.GetProperty("candidates")[0].GetProperty("questions").GetArrayLength());
+        var studentView = await Call(s, HttpMethod.Get, $"/api/Exams/{exam}", user: 2, role: "Student");
+        Assert.Equal(JsonValueKind.Null, studentView.GetProperty("candidates")[0].GetProperty("questions").ValueKind);
         var schedule = await Call(s, HttpMethod.Get, "/api/schedule/mine", user: 2, role: "Student"); Assert.Single(schedule.EnumerateArray());
         var otherSchedule = await Call(s, HttpMethod.Get, "/api/schedule/mine", user: 3, role: "Student"); Assert.Empty(otherSchedule.EnumerateArray());
         await Call(s, HttpMethod.Get, $"/api/Exams/{exam}", user: 3, role: "Student", expected: HttpStatusCode.Forbidden);
@@ -74,6 +78,11 @@ public class LecturerWorkflowTests
         await using var s = await LecturerSandbox.Create(); var course = await Course(s); var a = await Class(s, course); var b = await Class(s, course, "SE02");
         await Call(s, HttpMethod.Post, $"/api/lecturer/classes/{a}/students/2"); await Call(s, HttpMethod.Post, $"/api/lecturer/classes/{b}/students/3"); await Question(s, course);
         await Call(s, HttpMethod.Get, "/api/lecturer/dashboard", user: 0, expected: HttpStatusCode.Unauthorized);
+        await Call(s, HttpMethod.Get, "/api/Users", user: 0, expected: HttpStatusCode.Unauthorized);
+        await Call(s, HttpMethod.Put, "/api/Users/2", new { role = "Admin" }, user: 0, expected: HttpStatusCode.Unauthorized);
+        await Call(s, HttpMethod.Put, "/api/Users/2", new { role = "Admin" }, expected: HttpStatusCode.Forbidden);
+        await Call(s, HttpMethod.Put, "/api/Users/2/status", expected: HttpStatusCode.Forbidden);
+        await Call(s, HttpMethod.Put, $"/api/Courses/{course}/assign-lecturer", new { lecturerId = 4 }, expected: HttpStatusCode.Forbidden);
         await Call(s, HttpMethod.Get, "/api/lecturer/dashboard", user: 2, role: "Student", expected: HttpStatusCode.Forbidden);
         await Call(s, HttpMethod.Get, "/api/lecturer/dashboard", user: 1, role: "Admin", expected: HttpStatusCode.Forbidden);
         await Call(s, HttpMethod.Put, $"/api/lecturer/courses/{course}", new { courseCode = "X", courseName = "Other" }, user: 4, expected: HttpStatusCode.Forbidden);

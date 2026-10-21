@@ -12,6 +12,7 @@ using AIVES.Api.Middleware;
 using AIVES.Api.Models;
 using AIVES.Api.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -51,6 +52,7 @@ public sealed class LecturerSandbox : IAsyncDisposable
     public readonly NoExternalHttp Network = new();
     public string Storage { get; private set; } = "";
     private SqliteConnection connection = null!;
+    private string? ownedTestDirectory;
 
     public static async Task<LecturerSandbox> Create(string? url = null, string? file = null)
     {
@@ -58,7 +60,9 @@ public sealed class LecturerSandbox : IAsyncDisposable
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "LecturerTest", ApplicationName = typeof(CoursesController).Assembly.GetName().Name });
         // Never read User Secrets, appsettings, MySQL environment or vendor keys for these tests.
         builder.Configuration.Sources.Clear();
+        builder.Services.AddDataProtection().UseEphemeralDataProtectionProvider();
         sandbox.Storage = Path.GetFullPath(Path.Combine("artifacts", "lecturer-sandbox", file == null ? Guid.NewGuid().ToString("N") : "preview", "documents"));
+        if (file == null) sandbox.ownedTestDirectory = Path.GetDirectoryName(sandbox.Storage);
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> {
             ["Jwt:Key"] = JwtKey, ["Jwt:Issuer"] = "LecturerTest", ["Jwt:Audience"] = "LecturerTest",
             ["Documents:StorageRoot"] = sandbox.Storage, ["AI:Provider"] = "Disabled", ["Speech:Provider"] = "Disabled" });
@@ -116,6 +120,15 @@ public sealed class LecturerSandbox : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         Http.Dispose(); await App.StopAsync(); await App.DisposeAsync(); await connection.DisposeAsync(); Network.Dispose();
+        // Only remove the uniquely generated directory owned by this in-memory test run.
+        if (ownedTestDirectory != null && Directory.Exists(ownedTestDirectory))
+        {
+            var root = Path.GetFullPath(Path.Combine("artifacts", "lecturer-sandbox")) + Path.DirectorySeparatorChar;
+            if (!ownedTestDirectory.StartsWith(root, StringComparison.OrdinalIgnoreCase)
+                || !Guid.TryParseExact(Path.GetFileName(ownedTestDirectory), "N", out _))
+                throw new InvalidOperationException("Unsafe test cleanup path.");
+            Directory.Delete(ownedTestDirectory, recursive: true);
+        }
         if (Ai.Calls != 0 || Network.Calls != 0) throw new InvalidOperationException("Kiểm thử đã chạm tích hợp AI/ngoại vi bị cấm.");
     }
 }

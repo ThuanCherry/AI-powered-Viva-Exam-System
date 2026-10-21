@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { to: "/viva", label: "Phòng vấn đáp", icon: IconMic },
   { to: "/ai-interview", label: "AI Interview", icon: IconSpark },
   { to: "/reports", label: "Reports", icon: IconBars },
+  { to: "/admin", label: "Quản trị hệ thống", icon: IconGrid },
 ];
 
 function IconGrid() {
@@ -132,7 +133,7 @@ function Sidebar() {
       </div>
 
       <nav className="shell-sidebar__nav" aria-label="Điều hướng chính">
-        {NAV_ITEMS.filter(item => session?.role === 'Lecturer' ? ['/dashboard', '/courses', '/classes', '/documents', '/questions', '/exams'].includes(item.to) : ['/classes', '/exams', '/viva'].includes(item.to)).map(({ to, label, icon: Icon }) => (
+        {NAV_ITEMS.filter(item => session?.role === 'Admin' ? item.to === '/admin' : session?.role === 'Lecturer' ? ['/dashboard', '/courses', '/classes', '/documents', '/questions', '/exams'].includes(item.to) : ['/classes', '/exams', '/viva'].includes(item.to)).map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

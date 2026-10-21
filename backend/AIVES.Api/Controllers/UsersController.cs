@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AIVES.Api.Features.Auth;
 
@@ -45,4 +47,100 @@ public class UsersController : ControllerBase
 
         return Ok(new { success = true, message = "Registration successful." });
     }
+
+    /// <summary>GET /api/Users?role=Student</summary>
+    [HttpGet]
+    [Authorize(Roles = "Admin,Lecturer")]
+    public async Task<IActionResult> GetAll([FromServices] Data.AivesDbContext db, [FromQuery] string? role)
+    {
+        if (!User.IsInRole("Admin")) role = "Student";
+        var query = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Include(db.Users, u => u.Role).AsQueryable();
+        if (!string.IsNullOrEmpty(role))
+        {
+            query = query.Where(u => u.Role != null && u.Role.RoleName == role);
+        }
+
+        var users = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync(
+            query.Select(u => new
+            {
+                u.UserId,
+                u.FullName,
+                u.Email,
+                Role = u.Role != null ? u.Role.RoleName : "Unknown",
+                u.Status
+            })
+        );
+
+        return Ok(new { success = true, data = users });
+    }
+
+    /// <summary>PUT /api/Users/{id} - Cập nhật thông tin & vai trò (Role) người dùng</summary>
+    [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request, [FromServices] Data.AivesDbContext db)
+    {
+        var user = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Include(db.Users, u => u.Role)
+            .FirstOrDefaultAsync(u => u.UserId == id);
+
+        if (user is null)
+            return NotFound(new { success = false, message = "User not found." });
+
+        if (!string.IsNullOrWhiteSpace(request.FullName))
+        {
+            user.FullName = request.FullName.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Status))
+        {
+            user.Status = request.Status.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Role))
+        {
+            var roleName = request.Role.Trim();
+            var role = await db.Roles.FirstOrDefaultAsync(r => r.RoleName.ToLower() == roleName.ToLower());
+            if (role != null)
+            {
+                user.RoleId = role.RoleId;
+            }
+        }
+
+        user.UpdatedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+
+        // Reload updated role
+        await db.Entry(user).Reference(u => u.Role).LoadAsync();
+
+        return Ok(new
+        {
+            success = true,
+            message = "User updated successfully.",
+            data = new
+            {
+                user.UserId,
+                user.FullName,
+                user.Email,
+                Role = user.Role != null ? user.Role.RoleName : "Unknown",
+                user.Status
+            }
+        });
+    }
+
+    /// <summary>PUT /api/Users/{id}/status - Khóa / Mở khóa tài khoản</summary>
+    [HttpPut("{id:int}/status")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ToggleStatus(int id, [FromServices] Data.AivesDbContext db)
+    {
+        var user = await db.Users.FindAsync(id);
+        if (user is null)
+            return NotFound(new { success = false, message = "User not found." });
+
+        user.Status = user.Status == "Active" ? "Inactive" : "Active";
+        user.UpdatedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+
+        return Ok(new { success = true, message = $"Status updated to {user.Status}.", status = user.Status });
+    }
 }
+
+public record UpdateUserRequest(string? FullName, string? Role, string? Status);
