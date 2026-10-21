@@ -1,0 +1,1 @@
+export const vnTime = value => value ? new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(/Z|[+-]\d\d:\d\d$/.test(value) ? value : `${value}Z`)) : 'Chưa xếp';

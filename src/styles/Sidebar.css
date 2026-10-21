@@ -206,4 +206,4 @@
   .shell-sidebar__user-info {
     display: none;
   }
-}
+}.shell-realtime{display:inline-block;margin-top:8px;font-size:11px;color:#527661;padding:4px 8px;background:#eef5ef;border-radius:6px}

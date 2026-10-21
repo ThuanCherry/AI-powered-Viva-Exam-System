@@ -8,6 +8,7 @@ function toUser(payload, fallbackEmail) {
     fullName: raw.fullName ?? raw.name ?? null,
     email: raw.email ?? fallbackEmail,
     role: raw.role ?? null,
+    token: raw.token ?? payload?.token ?? null,
   };
 }
 

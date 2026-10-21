@@ -28,3 +28,9 @@ bin/
 obj/
 *.user
 appsettings.*.local.json
+.env
+.env.*
+!.env.example
+.vs/
+artifacts/
+App_Data/

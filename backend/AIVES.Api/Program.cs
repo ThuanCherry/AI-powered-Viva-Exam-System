@@ -9,15 +9,42 @@ using AIVES.Api.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using AIVES.Api.Features.Workflow;
+using AIVES.Api.Integrations;
+using AIVES.Api.Features.Lecturer;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.local.json", optional: true);
+LocalConfiguration.AddLocalSecrets(builder.Configuration, builder.Environment);
+builder.Configuration.AddEnvironmentVariables();
+
+// Uses the exact runtime configuration, without starting workers or touching exam data.
+if (args.Contains("--check-database"))
+{
+    await DatabaseDiagnostics.Check(builder.Configuration);
+    return;
+}
+
+// Local diagnostic only: never starts the server, opens MySQL, or calls an AI provider.
+if (args.Contains("--check-configuration"))
+{
+    var aiStatus = new ProviderStatus(builder.Configuration, builder.Environment);
+    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new {
+        environment = builder.Environment.EnvironmentName,
+        apiKeyPresent = !string.IsNullOrWhiteSpace(builder.Configuration["AI:ApiKey"]),
+        aiProvider = builder.Configuration["AI:Provider"],
+        speechProvider = builder.Configuration["Speech:Provider"],
+        providers = aiStatus.View
+    }));
+    return;
+}
 
 // ---------- Database ----------
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<AivesDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 0))));
 
 // ---------- Authentication (JWT) ----------
 var jwtKey = builder.Configuration["Jwt:Key"]
@@ -57,9 +84,23 @@ builder.Services.AddAuthorization();
 
 // ---------- Services ----------
 builder.Services.AddScoped<AuthService>();
-builder.Services.AddSingleton<ILlmService, PlaceholderLlmService>();
-builder.Services.AddSingleton<ISttService, PlaceholderSttService>();
-builder.Services.AddSingleton<ITtsService, PlaceholderTtsService>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<WorkflowService>();
+builder.Services.AddScoped<ScheduleNotifications>();
+builder.Services.AddScoped<LecturerService>();
+builder.Services.AddScoped<DocumentStore>();
+builder.Services.AddScoped<VivaEngine>();
+builder.Services.AddSingleton<ProviderStatus>();
+builder.Services.AddHttpClient("providers");
+builder.Services.AddSingleton<ProviderHttp>();
+builder.Services.AddSingleton<GeminiModelCatalog>();
+builder.Services.AddScoped<IVivaLlm, GeminiViva>();
+builder.Services.AddSingleton<IGeminiSocketFactory, GeminiSocketFactory>();
+builder.Services.AddSingleton<IGeminiLiveTranscriber, GeminiLiveTranscriber>();
+builder.Services.AddSingleton<LiveStreamLimits>();
+builder.Services.AddSingleton<LiveAttemptService>();
+builder.Services.AddScoped<IVivaSpeech, GeminiVivaSpeech>();
+builder.Services.AddHostedService<DeadlineWorker>();
 
 // ---------- Controllers + SignalR ----------
 builder.Services.AddControllers()
@@ -68,7 +109,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
     });
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options => { options.MaximumReceiveMessageSize = 16384; options.StreamBufferCapacity = 10; });
 
 // ---------- Swagger / OpenAPI ----------
 builder.Services.AddEndpointsApiExplorer();
@@ -84,6 +125,7 @@ builder.Services.AddCors(options =>
     {
         var origins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
             ?? ["http://localhost:5173"];
+        origins = FrontendOrigins.Resolve(origins, builder.Environment.IsDevelopment());
 
         policy.WithOrigins(origins)
               .AllowAnyHeader()
@@ -93,6 +135,9 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+var configuredProviders = app.Services.GetRequiredService<ProviderStatus>();
+if (!configuredProviders.Llm || !configuredProviders.Speech)
+    app.Logger.LogWarning("AI configuration incomplete in {Environment}. Use --check-configuration to see missing field names; no provider request was made.", app.Environment.EnvironmentName);
 
 // ---------- Middleware Pipeline ----------
 app.UseMiddleware<ExceptionMiddleware>();
@@ -109,6 +154,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/health", async (AivesDbContext db, CancellationToken ct) =>
+{
+    try { return await db.Database.CanConnectAsync(ct) ? Results.Ok(new { database = "Connected" }) : Results.Json(new { database = "Unavailable" }, statusCode: 503); }
+    catch { return Results.Json(new { database = "Unavailable" }, statusCode: 503); }
+});
 app.MapHub<ExamHub>("/hubs/exam");
 
 app.Run();

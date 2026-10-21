@@ -1,5 +1,5 @@
 // Lưu thông tin người dùng sau khi đăng nhập.
-// Backend hiện chưa phát token (OpenAPI không có JWT), nên đây chỉ là thông tin hiển thị, không phải bảo mật thật.
+// JWT được gửi qua Authorization; backend kiểm tra quyền trên mỗi request.
 const KEY = "aives.session";
 
 function stores() {

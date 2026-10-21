@@ -1,10 +1,14 @@
 using AIVES.Api.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using AIVES.Api.Features.Workflow;
 
 namespace AIVES.Api.Controllers;
 
 [ApiController]
+[Authorize(Roles = "Lecturer,Student")]
 [Route("api/[controller]")]
 public class ExamsController : ControllerBase
 {
@@ -19,6 +23,7 @@ public class ExamsController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
+        var user = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var exam = await _db.ExamSessions
             .Include(e => e.Course)
             .Include(e => e.Lecturer)
@@ -29,6 +34,7 @@ public class ExamsController : ControllerBase
 
         if (exam is null)
             return NotFound(new { success = false, message = "Exam not found." });
+        if (User.IsInRole("Lecturer") ? exam.LecturerId != user : exam.Status == "Draft" || !exam.Candidates.Any(c => c.StudentId == user && c.Status != "Cancelled")) return Forbid();
 
         return Ok(new
         {
@@ -38,8 +44,11 @@ public class ExamsController : ControllerBase
                 exam.ExamId,
                 exam.ExamName,
                 exam.Description,
-                exam.StartTime,
-                exam.EndTime,
+                StartTime = WorkflowService.Iso(exam.StartTime),
+                EndTime = WorkflowService.Iso(exam.EndTime),
+                exam.CourseId,
+                ClassId = WorkflowService.Config(exam).ClassId,
+                Strategy = WorkflowService.Config(exam).Strategy,
                 exam.TimePerStudent,
                 exam.MainQuestionCount,
                 exam.MaxFollowUpCount,
@@ -62,12 +71,13 @@ public class ExamsController : ControllerBase
                     exam.VivaSettings.SecondsPerQuestion,
                     exam.VivaSettings.MaxFollowUpsPerQuestion
                 },
-                Candidates = exam.Candidates.Select(c => new
+                Candidates = exam.Candidates.Where(c => c.Status != "Cancelled" && (User.IsInRole("Lecturer") || c.StudentId == user)).OrderBy(c => c.ScheduledTime).Select(c => new
                 {
                     c.CandidateId,
                     c.StudentId,
                     StudentName = c.Student?.FullName,
-                    c.ScheduledTime,
+                    ScheduledTime = c.ScheduledTime.HasValue ? WorkflowService.Iso(c.ScheduledTime.Value) : null,
+                    ScheduledEndTime = c.ScheduledTime.HasValue ? WorkflowService.Iso(c.ScheduledTime.Value.AddMinutes(exam.TimePerStudent)) : null,
                     c.Status,
                     c.StartedAt,
                     c.FinishedAt
@@ -78,11 +88,14 @@ public class ExamsController : ControllerBase
 
     /// <summary>GET /api/Exams</summary>
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int? classId = null)
     {
+        var user = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var lecturer = User.IsInRole("Lecturer");
         var exams = await _db.ExamSessions
             .Include(e => e.Course)
             .Include(e => e.Lecturer)
+            .Where(e => lecturer ? e.LecturerId == user : e.Status != "Draft" && e.Candidates.Any(c => c.StudentId == user && c.Status != "Cancelled"))
             .OrderByDescending(e => e.CreatedAt)
             .Select(e => new
             {
@@ -91,11 +104,14 @@ public class ExamsController : ControllerBase
                 e.Status,
                 e.StartTime,
                 e.EndTime,
+                e.QuestionScopeJson,
                 CourseName = e.Course!.CourseName,
                 LecturerName = e.Lecturer!.FullName
             })
             .ToListAsync();
 
-        return Ok(new { success = true, data = exams });
+        var result = exams.Select(e => new { e.ExamId, e.ExamName, e.Status, e.StartTime, e.EndTime, e.CourseName, e.LecturerName,
+            ClassId = WorkflowService.Config(new Models.ExamSession { QuestionScopeJson = e.QuestionScopeJson }).ClassId });
+        return Ok(new { success = true, data = result.Where(e => !classId.HasValue || e.ClassId == classId) });
     }
 }

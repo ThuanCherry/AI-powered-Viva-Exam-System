@@ -1,12 +1,16 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { clearSession, getSession } from "../auth/session.js";
 import "../styles/Sidebar.css";
+import { useScheduleRealtime } from '../hooks/useScheduleRealtime.js';
 
 const NAV_ITEMS = [
-  { to: "/dashboard", label: "Dashboard", icon: IconGrid },
-  { to: "/questions", label: "Question Bank", icon: IconBook },
-  { to: "/exams", label: "Exam Management", icon: IconCalendar },
-  { to: "/viva", label: "Viva Exam", icon: IconMic },
+  { to: "/dashboard", label: "Tổng quan", icon: IconGrid },
+  { to: "/courses", label: "Môn học", icon: IconBook },
+  { to: "/classes", label: "Lớp học phần", icon: IconGrid },
+  { to: "/documents", label: "Tài liệu", icon: IconBook },
+  { to: "/questions", label: "Ngân hàng câu hỏi", icon: IconBook },
+  { to: "/exams", label: "Kỳ thi & lịch thi", icon: IconCalendar },
+  { to: "/viva", label: "Phòng vấn đáp", icon: IconMic },
   { to: "/ai-interview", label: "AI Interview", icon: IconSpark },
   { to: "/reports", label: "Reports", icon: IconBars },
 ];
@@ -124,11 +128,11 @@ function Sidebar() {
     <aside className="shell-sidebar">
       <div className="shell-sidebar__brand">
         <span className="shell-sidebar__mark">AIVES</span>
-        <span className="shell-sidebar__mark-sub">Viva Exam System</span>
+        <span className="shell-sidebar__mark-sub">Hệ thống thi vấn đáp</span>
       </div>
 
-      <nav className="shell-sidebar__nav" aria-label="Main">
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+      <nav className="shell-sidebar__nav" aria-label="Điều hướng chính">
+        {NAV_ITEMS.filter(item => session?.role === 'Lecturer' ? ['/dashboard', '/courses', '/classes', '/documents', '/questions', '/exams'].includes(item.to) : ['/classes', '/exams', '/viva'].includes(item.to)).map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
@@ -146,12 +150,12 @@ function Sidebar() {
         <span className="shell-sidebar__avatar">{initialsOf(displayName)}</span>
         <div className="shell-sidebar__user-info">
           <span className="shell-sidebar__user-name">{displayName}</span>
-          {session?.role && <span className="shell-sidebar__user-role">{session.role}</span>}
+          {session?.role && <span className="shell-sidebar__user-role">{session.role === 'Lecturer' ? 'Giảng viên' : session.role === 'Student' ? 'Sinh viên' : session.role}</span>}
         </div>
         <button
           type="button"
           className="shell-sidebar__signout"
-          aria-label="Sign out"
+          aria-label="Đăng xuất"
           onClick={handleSignOut}
         >
           <svg viewBox="0 0 20 20" width="17" height="17" aria-hidden="true">
@@ -171,6 +175,7 @@ function Sidebar() {
 }
 
 export default function AppShell({ title, subtitle, actions, children }) {
+  const realtime = useScheduleRealtime();
   return (
     <div className="shell">
       <Sidebar />
@@ -179,6 +184,7 @@ export default function AppShell({ title, subtitle, actions, children }) {
           <div>
             <h1 className="shell-topbar__title">{title}</h1>
             {subtitle && <p className="shell-topbar__subtitle">{subtitle}</p>}
+            <span className="shell-realtime" role="status">{realtime}</span>
           </div>
           {actions && <div className="shell-topbar__actions">{actions}</div>}
         </header>

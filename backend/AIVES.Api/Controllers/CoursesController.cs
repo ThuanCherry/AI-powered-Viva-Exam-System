@@ -1,10 +1,13 @@
 using AIVES.Api.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace AIVES.Api.Controllers;
 
 [ApiController]
+[Authorize(Roles = "Lecturer,Student")]
 [Route("api/[controller]")]
 public class CoursesController : ControllerBase
 {
@@ -18,9 +21,11 @@ public class CoursesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
+        var user = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var teacher = User.IsInRole("Lecturer");
         var courses = await _db.Courses
             .Include(c => c.Lecturer)
-            .Where(c => c.IsActive)
+            .Where(c => c.IsActive && (teacher ? c.LecturerId == user : _db.ClassStudents.Any(s => s.StudentId == user && s.AcademicClass!.CourseId == c.CourseId && s.AcademicClass.IsActive)))
             .OrderBy(c => c.CourseName)
             .Select(c => new
             {
@@ -39,12 +44,14 @@ public class CoursesController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
+        var user = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var course = await _db.Courses
             .Include(c => c.Lecturer)
             .FirstOrDefaultAsync(c => c.CourseId == id);
 
         if (course is null)
-            return NotFound(new { success = false, message = "Course not found." });
+            return NotFound(new { success = false, message = "Không tìm thấy môn học." });
+        if (User.IsInRole("Lecturer") ? course.LecturerId != user : !await _db.ClassStudents.AnyAsync(s => s.StudentId == user && s.AcademicClass!.CourseId == id && s.AcademicClass.IsActive)) return Forbid();
 
         return Ok(new
         {

@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using AIVES.Api.Features.Workflow;
 
 namespace AIVES.Api.Middleware;
 
@@ -24,6 +25,15 @@ public class ExceptionMiddleware
         {
             await _next(context);
         }
+        catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
+        {
+            if (!context.Response.HasStarted) context.Response.StatusCode = 499;
+        }
+        catch (WorkflowException ex)
+        {
+            context.Response.StatusCode = ex.Status;
+            await context.Response.WriteAsJsonAsync(new { success = false, message = ex.Message });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception on {Method} {Path}", context.Request.Method, context.Request.Path);
@@ -34,10 +44,8 @@ public class ExceptionMiddleware
             var response = new
             {
                 success = false,
-                message = "An unexpected error occurred.",
-                details = context.RequestServices.GetService<IWebHostEnvironment>()?.IsDevelopment() == true
-                    ? ex.ToString()
-                    : null
+                message = "Có lỗi khi xử lý yêu cầu. Vui lòng thử lại hoặc liên hệ người phụ trách.",
+                details = (string?)null
             };
 
             await context.Response.WriteAsync(
