@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AIVES — AI-powered Viva Exam System
 
 ASP.NET Core MVC / Razor, .NET 10, EF Core, and MySQL. Function 2 manages viva exams, participants, schedules, question pools, pre-selection and publication.
@@ -78,3 +79,32 @@ python tests/e2e_function2.py
 ```
 
 The Python acceptance test uses the connection in appsettings.json and a MySQL CLI installed at the standard Windows location. It adds uniquely named QA accounts/exams and preserves all existing records. See [implementation and verification notes](docs/FUNCTION2_IMPLEMENTATION.md).
+=======
+# AI-powered-Viva-Exam-System
+
+React JSX + ASP.NET Core monolith + MySQL hiện có.
+
+- [Kiến trúc hiện tại — draw.io chỉnh sửa được](docs/architecture/AIVES_ARCHITECTURE.drawio) · [Xem SVG](docs/architecture/AIVES_ARCHITECTURE.svg)
+- [Kết quả tích hợp dev và kiểm thử workflow 2](docs/MERGE_DEV_WORKFLOW2.md)
+
+- [Workflow giảng viên, API và demo cô lập không gọi AI](docs/LECTURER_WORKFLOW.md)
+- [Chạy thật, tài khoản demo và kiểm thử](docs/RUN_AND_TEST.md)
+- [Workflow lịch thi và AI vấn đáp, API, states](docs/AIVES_WORKFLOW_2_3.md)
+- [Cấu hình keys Gemini/Azure ở backend](docs/AI_KEYS_AND_SETUP.md)
+- [Gemini Live Transcribe + TTS + LLM: cấu hình và demo hiện tại](docs/GEMINI_SETUP.md)
+
+Tại root repo, sau khi MySQL đang chạy và cấu hình connection/JWT:
+
+Máy mới: nếu chưa có `backend/AIVES.Api/appsettings.json`, sao chép từ `appsettings.example.json` cùng thư mục và điền MySQL/JWT. Không ghi đè cấu hình local có sẵn. API key thật chỉ nằm trong file local bị Git bỏ qua hoặc User Secrets.
+
+```powershell
+npm ci
+dotnet run --project backend/AIVES.Api
+npm run dev
+```
+
+Hai lệnh cuối chạy trong hai terminal riêng. Mở http://localhost:5173.
+Không tự import SQL dump: dump chứa DROP TABLE. Xem hướng dẫn chạy trước khi thao tác DB.
+
+`src/` chỉ chứa frontend React; backend Monolithic nằm tại `backend/AIVES.Api`. Mở `AIVES.slnx` trong Visual Studio để làm việc với backend. Xem [kiến trúc runtime hiện tại](docs/architecture/README.md).
+>>>>>>> 439d0a1b8da74ba41acba8d03bc971c895af2f4e
