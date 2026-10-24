@@ -84,7 +84,7 @@ public class LecturerWorkflowTests
         await Call(s, HttpMethod.Put, "/api/Users/2/status", expected: HttpStatusCode.Forbidden);
         await Call(s, HttpMethod.Put, $"/api/Courses/{course}/assign-lecturer", new { lecturerId = 4 }, expected: HttpStatusCode.Forbidden);
         await Call(s, HttpMethod.Get, "/api/lecturer/dashboard", user: 2, role: "Student", expected: HttpStatusCode.Forbidden);
-        await Call(s, HttpMethod.Get, "/api/lecturer/dashboard", user: 1, role: "Admin", expected: HttpStatusCode.Forbidden);
+        await Call(s, HttpMethod.Get, "/api/lecturer/dashboard", user: 100, role: "Admin", expected: HttpStatusCode.Forbidden);
         await Call(s, HttpMethod.Put, $"/api/lecturer/courses/{course}", new { courseCode = "X", courseName = "Other" }, user: 4, expected: HttpStatusCode.Forbidden);
         await Call(s, HttpMethod.Post, $"/api/lecturer/classes/{a}/students/3", user: 4, expected: HttpStatusCode.Forbidden);
         await Call(s, HttpMethod.Get, $"/api/lecturer/classes/{a}/students", user: 2, role: "Student", expected: HttpStatusCode.Forbidden);
@@ -114,7 +114,7 @@ public class LecturerWorkflowTests
         await Call(s, HttpMethod.Post, $"/api/lecturer/classes/{section}/students/import", valid);
         var retry = await Call(s, HttpMethod.Post, $"/api/lecturer/classes/{section}/students/import", valid); Assert.Equal(0, retry.GetProperty("added").GetInt32()); Assert.Equal(2, retry.GetProperty("alreadyEnrolled").GetInt32());
         await Call(s, HttpMethod.Post, $"/api/lecturer/classes/{section}/students/2"); Assert.Equal(2, (await Call(s, HttpMethod.Get, $"/api/lecturer/classes/{section}/students")).GetArrayLength());
-        using var scope = s.App.Services.CreateScope(); var db = scope.ServiceProvider.GetRequiredService<AivesDbContext>(); Assert.Equal(4, await db.Users.CountAsync());
+        using var scope = s.App.Services.CreateScope(); var db = scope.ServiceProvider.GetRequiredService<AivesDbContext>(); Assert.Equal(new[] { 1, 2, 3, 4, 100 }, await db.Users.OrderBy(u => u.UserId).Select(u => u.UserId).ToArrayAsync());
     }
 
     [Fact] public async Task DocumentsArePrivateValidatedAndArchivedWithoutDeletingBytes()

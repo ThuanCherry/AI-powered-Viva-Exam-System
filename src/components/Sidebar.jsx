@@ -185,7 +185,7 @@ export default function AppShell({ title, subtitle, actions, children }) {
           <div>
             <h1 className="shell-topbar__title">{title}</h1>
             {subtitle && <p className="shell-topbar__subtitle">{subtitle}</p>}
-            <span className="shell-realtime" role="status">{realtime}</span>
+            {['Lecturer', 'Student'].includes(getSession()?.role) && <span className="shell-realtime" role="status">{realtime}</span>}
           </div>
           {actions && <div className="shell-topbar__actions">{actions}</div>}
         </header>

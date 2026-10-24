@@ -1,38 +1,28 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
+## Current architecture
 
-`AIVES.slnx` contains three .NET 10 projects under `src/`:
+React frontend lives in `src/`. `AIVES.slnx` contains the single ASP.NET Core .NET 10 backend project at `backend/AIVES.Api`.
 
-- `AIVES.PresentationLayer`: MVC/API controllers, Razor `Views/`, request `ViewModels/`, middleware, and static assets in `wwwroot/`.
-- `AIVES.BusinessLogicLayer`: service contracts in `Interfaces/`, implementations in `Services/`, shared `ServiceResult<T>`, and dependency registration in `ServiceCollectionExtensions.cs`.
-- `AIVES.DataAccessLayer`: EF Core `AivesDbContext`, entity `Models/`, repositories, unit of work, and material-file storage.
+Request flow: Controllers → application services in `Features/` → `Data/AivesDbContext` / EF Core → existing MySQL. Keep authorization, validation and transactions in services; controllers bind HTTP requests and return responses. No DbContext in controllers or SignalR hubs. Do not restore the obsolete three-project backend under `src`.
 
-Keep request handling in controllers, business rules in services, and persistence in the data layer. Architecture diagrams live in `docs/`. No automated test project currently exists.
+## Build and test
 
-## Build, Test, and Development Commands
+- `dotnet build AIVES.slnx`
+- `npm run build`
+- `npm run lint`
+- Isolated backend tests: `dotnet test tests/AIVES.Workflow.Tests` with a filter selecting the relevant suites; use `AdminWorkflowTests`, `LayeringTests`, `LecturerWorkflowTests`, `ScheduleTimingTests`, `RealtimeScheduleTests` for admin/lecturer changes.
+- `tests/LecturerHarness` uses SQLite and blocks AI/external HTTP. Do not run MySQL acceptance scripts or provider probes without explicit authorization.
+- `tests/AIVES.Tests` is legacy and is not part of the active solution.
 
-Run from the repository root with the .NET 10 SDK installed:
+## Configuration and safety
 
-- `dotnet restore AIVES.slnx`: restore NuGet dependencies.
-- `dotnet build AIVES.slnx`: compile all three projects.
-- `dotnet run --project src/AIVES.PresentationLayer --launch-profile http`: start the development server at `http://localhost:5234`.
-- `dotnet watch --project src/AIVES.PresentationLayer run`: run with automatic reload during development.
+Backend: `dotnet run --project backend/AIVES.Api --launch-profile AIVES.Api`; frontend: `npm run dev`. See README for Git Bash environment variables and docs/GEMINI_SETUP.md for private provider configuration.
 
-Development exposes the OpenAPI document at `/openapi/v1.json`. Use `src/AIVES.PresentationLayer/AIVES.PresentationLayer.http` for manual API requests.
+Keep appsettings secrets, local environment files, uploads and artifacts out of Git. Do not print keys or passwords. Never reset the real MySQL database, rerun SQL dumps containing DROP statements, or delete user files without a clear request.
 
-## Coding Style & Naming Conventions
+## Conventions
 
-Follow existing C# conventions: four-space indentation, braces on separate lines, file-scoped namespaces, and nullable reference types. Use PascalCase for types, methods, and properties; camelCase for parameters and locals; `_camelCase` for private fields. Prefix interfaces with `I` and asynchronous methods with `Async`. Match namespaces to project folders and use descriptive suffixes such as `Controller`, `Service`, and `ViewModel`. No repository-specific formatter or lint configuration is present; follow neighboring code.
+Follow adjacent C# style, nullable reference types, PascalCase types/methods and cancellation tokens for asynchronous operations. Keep React pages concise and Vietnamese UI consistent. Use scoped CSS and show API failures rather than faking success in localStorage.
 
-## Testing Guidelines
-
-No testing framework or coverage threshold is configured. Build before submitting changes and manually verify affected MVC pages and API endpoints, including validation failures. If adding automated tests, place them under `tests/`, use descriptive names such as `CreateAsync_DuplicateCourseCode_ReturnsFailure`, and run `dotnet test AIVES.slnx` after adding the test project to the solution.
-
-## Commit & Pull Request Guidelines
-
-Recent commits use `feat:` and `fix:` prefixes. Follow that pattern with a concise description. PRs should explain the behavior change, link relevant issues, record validation commands and results, and include screenshots for UI changes. Call out database or configuration changes explicitly.
-
-## Security & Configuration Tips
-
-Current dependency registration uses MySQL through `ConnectionStrings:DefaultConnection`. Override credentials locally with environment variables such as `ConnectionStrings__DefaultConnection`; never commit secrets. Configure `MaterialStorage:BasePath` for local uploads and keep uploaded materials and audio out of commits.
+Architecture diagrams are in `docs/architecture`. Keep run instructions aligned with the monolithic backend. Commit messages use concise `feat:` / `fix:` descriptions. Include meaningful build/test evidence in reviews.

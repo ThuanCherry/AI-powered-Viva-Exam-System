@@ -84,10 +84,10 @@ public sealed class LecturerSandbox : IAsyncDisposable
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o => o.TokenValidationParameters = new() {
             ValidateIssuer = true, ValidateAudience = true, ValidateLifetime = true, ValidateIssuerSigningKey = true,
             ValidIssuer = "LecturerTest", ValidAudience = "LecturerTest", IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtKey)) });
-        builder.Services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, o => o.Events = new JwtBearerEvents { OnMessageReceived = context => {
+        builder.Services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, o => o.Events.OnMessageReceived = context => {
             if (context.Request.Path.StartsWithSegments("/hubs") && context.Request.Query.TryGetValue("access_token", out var token)) context.Token = token;
             return Task.CompletedTask;
-        } });
+        });
         builder.Services.AddAuthorization(); builder.Services.AddSignalR();
         builder.Services.AddControllers().AddApplicationPart(typeof(CoursesController).Assembly);
         builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.WithOrigins(FrontendOrigins.Resolve([], true)).AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
@@ -101,11 +101,20 @@ public sealed class LecturerSandbox : IAsyncDisposable
             await db.Database.EnsureCreatedAsync(); // Guarded SQLite connection above, never MySQL.
             if (!await db.Users.AnyAsync())
             {
-                db.Roles.AddRange(new Role { RoleId = 1, RoleName = "Lecturer" }, new Role { RoleId = 2, RoleName = "Student" });
+                db.Roles.AddRange(new Role { RoleId = 1, RoleName = "Lecturer" }, new Role { RoleId = 2, RoleName = "Student" }, new Role { RoleId = 3, RoleName = "Admin" });
                 db.Users.AddRange(new User { UserId = 1, RoleId = 1, Email = "lecturer@lecturer-test.invalid", FullName = "Giảng viên kiểm thử", PasswordHash = BCrypt.Net.BCrypt.HashPassword(Password) },
                     new User { UserId = 2, RoleId = 2, Email = "student1@lecturer-test.invalid", FullName = "Sinh viên kiểm thử 1", PasswordHash = BCrypt.Net.BCrypt.HashPassword(Password) },
                     new User { UserId = 3, RoleId = 2, Email = "student2@lecturer-test.invalid", FullName = "Sinh viên kiểm thử 2", PasswordHash = BCrypt.Net.BCrypt.HashPassword(Password) },
                     new User { UserId = 4, RoleId = 1, Email = "other@lecturer-test.invalid", FullName = "Giảng viên khác", PasswordHash = BCrypt.Net.BCrypt.HashPassword(Password) });
+                await db.SaveChangesAsync();
+            }
+            // Separate real Admin identity for permission tests; do not grant fake role claims to lecturers.
+            if (!await db.Users.AnyAsync(u => u.Email == "admin@lecturer-test.invalid"))
+            {
+                var adminRole = await db.Roles.FirstOrDefaultAsync(r => r.RoleName == "Admin");
+                if (adminRole == null) { adminRole = new Role { RoleName = "Admin" }; db.Roles.Add(adminRole); }
+                db.Users.Add(new User { UserId = 100, Role = adminRole, Email = "admin@lecturer-test.invalid", FullName = "Quản trị viên kiểm thử",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(Password), CreatedAt = DateTime.UtcNow });
                 await db.SaveChangesAsync();
             }
         }

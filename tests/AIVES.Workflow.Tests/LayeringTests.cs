@@ -110,29 +110,29 @@ public class LayeringTests
             Assert.Equal("Student", student.GetProperty("role").GetString());
             Assert.False(student.TryGetProperty("passwordHash", out _));
         });
-        var lecturers = await Call(s, HttpMethod.Get, "/api/Users?role=Lecturer", role: "Admin");
+        var lecturers = await Call(s, HttpMethod.Get, "/api/Users?role=Lecturer", user: 100, role: "Admin");
         Assert.Equal(2, lecturers.GetArrayLength());
         await Call(s, HttpMethod.Put, "/api/Users/2", new { fullName = "Không được sửa" }, expected: HttpStatusCode.Forbidden);
-        var updated = await Call(s, HttpMethod.Put, "/api/Users/2", new { fullName = "Sinh viên đã cập nhật", role = "Student", status = "Active" }, role: "Admin");
+        var updated = await Call(s, HttpMethod.Put, "/api/Users/2", new { fullName = "Sinh viên đã cập nhật", role = "Student", status = "Active" }, user: 100, role: "Admin");
         Assert.Equal("Sinh viên đã cập nhật", updated.GetProperty("fullName").GetString());
         Assert.Equal("Student", updated.GetProperty("role").GetString());
-        var status = await Call(s, HttpMethod.Put, "/api/Users/2/status", role: "Admin");
+        var status = await Call(s, HttpMethod.Put, "/api/Users/2/status", user: 100, role: "Admin");
         Assert.Equal("Inactive", status.GetProperty("status").GetString());
-        await Call(s, HttpMethod.Put, "/api/Users/99999/status", role: "Admin", expected: HttpStatusCode.NotFound);
-        await Call(s, HttpMethod.Put, "/api/Users/99999", new { fullName = "Missing" }, role: "Admin", expected: HttpStatusCode.NotFound);
+        await Call(s, HttpMethod.Put, "/api/Users/99999/status", user: 100, role: "Admin", expected: HttpStatusCode.NotFound);
+        await Call(s, HttpMethod.Put, "/api/Users/99999", new { fullName = "Missing" }, user: 100, role: "Admin", expected: HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task CourseAssignmentStillValidatesLecturerAndPreservesExistingWorkflow()
     {
         await using var s = await LecturerSandbox.Create(); var course = await Course(s);
-        await Call(s, HttpMethod.Put, $"/api/Courses/{course}/assign-lecturer", new { lecturerId = 2 }, role: "Admin", expected: HttpStatusCode.BadRequest);
-        var assigned = await Call(s, HttpMethod.Put, $"/api/Courses/{course}/assign-lecturer", new { lecturerId = 4 }, role: "Admin");
+        await Call(s, HttpMethod.Put, $"/api/Courses/{course}/assign-lecturer", new { lecturerId = 2 }, user: 100, role: "Admin", expected: HttpStatusCode.BadRequest);
+        var assigned = await Call(s, HttpMethod.Put, $"/api/Courses/{course}/assign-lecturer", new { lecturerId = 4 }, user: 100, role: "Admin");
         Assert.Equal(4, assigned.GetProperty("lecturerId").GetInt32());
         Assert.Equal("Giảng viên khác", assigned.GetProperty("lecturerName").GetString());
         await Call(s, HttpMethod.Get, $"/api/Courses/{course}", expected: HttpStatusCode.Forbidden);
         await Call(s, HttpMethod.Post, "/api/lecturer/classes", new { courseId = course, classCode = "LAY1", className = "Lớp" }, user: 4);
-        await Call(s, HttpMethod.Put, $"/api/Courses/{course}/assign-lecturer", new { lecturerId = 1 }, role: "Admin", expected: HttpStatusCode.Conflict);
+        await Call(s, HttpMethod.Put, $"/api/Courses/{course}/assign-lecturer", new { lecturerId = 1 }, user: 100, role: "Admin", expected: HttpStatusCode.Conflict);
     }
 
     [Fact]

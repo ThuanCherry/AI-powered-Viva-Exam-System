@@ -25,3 +25,5 @@ Hai lệnh cuối chạy trong hai terminal riêng. Mở http://localhost:5173.
 Không tự import SQL dump: dump chứa DROP TABLE. Xem hướng dẫn chạy trước khi thao tác DB.
 
 `src/` chỉ chứa frontend React; backend Monolithic nằm tại `backend/AIVES.Api`. Mở `AIVES.slnx` trong Visual Studio để làm việc với backend. Xem [kiến trúc runtime hiện tại](docs/architecture/README.md).
+
+Quản trị hệ thống: xem [hướng dẫn và kết quả kiểm thử Admin](docs/SYSTEM_ADMIN_REVIEW.md). Phân tầng backend: xem [báo cáo review](docs/BACKEND_LAYERING_REVIEW.md).

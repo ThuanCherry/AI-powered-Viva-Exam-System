@@ -1,4 +1,6 @@
 using AIVES.Api.Features.Auth;
+using AIVES.Api.Features.Admin;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using AIVES.Api.Features.Catalog;
 using AIVES.Api.Features.Common;
 using AIVES.Api.Features.Exams;
@@ -13,6 +15,10 @@ public static class ApplicationServices
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<AuthService>();
+        services.AddScoped<AdminSettingsService>();
+        services.AddScoped<AccountSessionValidator>();
+        services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+            options.Events.OnTokenValidated = AccountSessionValidator.ValidateToken);
         services.AddScoped<UserManagementService>();
         services.AddScoped<CourseCatalogService>();
         services.AddScoped<ClassQueryService>();

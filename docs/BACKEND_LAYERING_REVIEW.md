@@ -46,3 +46,5 @@ LayeringTests kiểm tra dependency bằng reflection và quét implementation H
 Không gọi Gemini/STT/TTS, không mở server với cấu hình production, không ghi dữ liệu MySQL thật. Kết quả giới hạn ở build và bộ test ứng dụng Monolithic được chọn, không phải kiểm thử AI thật hoặc các project test 3-layer cũ.
 
 Kết quả lần chạy cuối: **build đạt, 0 warning / 0 error; 47/47 test đạt**. Hai file `AIVES.slnx` và `README.md` có sửa từ lượt trước được giữ nguyên trạng thái, không reset hoặc ghi đè trong lần refactor này. Chưa commit/push.
+
+Cập nhật 24/10/2026: refactor đã được commit trong `5f9e85f`; tích hợp Admin bổ sung controller/service và kiểm thử quyền tài khoản hiện tại. Xem `SYSTEM_ADMIN_REVIEW.md` cho kết quả mới 55/55 test và giới hạn kiểm thử.
