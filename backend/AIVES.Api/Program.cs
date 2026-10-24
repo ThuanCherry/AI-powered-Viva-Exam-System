@@ -12,6 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using AIVES.Api.Features.Workflow;
 using AIVES.Api.Integrations;
 using AIVES.Api.Features.Lecturer;
+using AIVES.Api.Features;
+using AIVES.Api.Features.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.local.json", optional: true);
@@ -83,13 +85,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 // ---------- Services ----------
-builder.Services.AddScoped<AuthService>();
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddScoped<WorkflowService>();
-builder.Services.AddScoped<ScheduleNotifications>();
-builder.Services.AddScoped<LecturerService>();
-builder.Services.AddScoped<DocumentStore>();
-builder.Services.AddScoped<VivaEngine>();
+builder.Services.AddApplicationServices();
 builder.Services.AddSingleton<ProviderStatus>();
 builder.Services.AddHttpClient("providers");
 builder.Services.AddSingleton<ProviderHttp>();
@@ -154,10 +151,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGet("/health", async (AivesDbContext db, CancellationToken ct) =>
+app.MapGet("/health", async (DatabaseHealthService service, CancellationToken ct) =>
 {
-    try { return await db.Database.CanConnectAsync(ct) ? Results.Ok(new { database = "Connected" }) : Results.Json(new { database = "Unavailable" }, statusCode: 503); }
-    catch { return Results.Json(new { database = "Unavailable" }, statusCode: 503); }
+    return await service.CheckAsync(ct) ? Results.Ok(new { database = "Connected" }) : Results.Json(new { database = "Unavailable" }, statusCode: 503);
 });
 app.MapHub<ExamHub>("/hubs/exam");
 

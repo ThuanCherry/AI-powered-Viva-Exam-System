@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using AIVES.Api.Data;
-using Microsoft.EntityFrameworkCore;
+using AIVES.Api.Features.Common;
+using AIVES.Api.Features.Exams;
 using System.Threading.Channels;
 using System.Runtime.CompilerServices;
 using AIVES.Api.Features.Workflow;
@@ -14,7 +14,7 @@ namespace AIVES.Api.Hubs;
 /// Students and lecturers join exam-specific groups.
 /// </summary>
 [Authorize(Roles = "Student,Lecturer")]
-public class ExamHub(AivesDbContext db, IServiceProvider services) : Hub
+public class ExamHub(ExamQueryService exams, IServiceProvider services) : Hub
 {
     public override async Task OnConnectedAsync()
     {
@@ -58,9 +58,8 @@ public class ExamHub(AivesDbContext db, IServiceProvider services) : Hub
     public async Task JoinExam(int examId)
     {
         var user = int.Parse(Context.User!.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var allowed = Context.User!.IsInRole("Lecturer")
-            ? await db.ExamSessions.AnyAsync(e => e.ExamId == examId && e.LecturerId == user)
-            : await db.ExamCandidates.AnyAsync(c => c.ExamId == examId && c.StudentId == user && c.Status != "Cancelled" && c.ExamSession!.Status != "Draft");
+        var caller = new Caller(user, Context.User!.FindFirstValue(ClaimTypes.Role) ?? "");
+        var allowed = await exams.CanJoinAsync(examId, caller, Context.ConnectionAborted);
         if (!allowed) throw new HubException("Không có quyền truy cập kỳ thi.");
         await Groups.AddToGroupAsync(Context.ConnectionId, $"student-{user}-exam-{examId}");
         await Clients.Caller.SendAsync("ServerTime", DateTimeOffset.UtcNow);

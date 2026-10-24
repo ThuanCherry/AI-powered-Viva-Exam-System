@@ -187,4 +187,36 @@ public class WorkflowService(AivesDbContext db, TimeProvider clock, ScheduleNoti
 
     public void Log(int exam, int? candidate, string action, string? description = null) => db.ExamLogs.Add(new()
         { ExamId = exam, CandidateId = candidate, Action = action, Description = description, Timestamp = Now });
+
+    public async Task<string> CancelAsync(int id, int lecturer, CancellationToken ct)
+    {
+        await using var tx = await LockSchedule(ct);
+        // Lock exam too, following schedule->exam lock ordering used by publication.
+        if (db.Database.IsMySql()) await db.ExamSessions.FromSqlInterpolated($"SELECT * FROM exam_sessions WHERE exam_id={id} FOR UPDATE").ToListAsync(ct);
+        var exam = await Owned(id, lecturer, ct);
+        WorkflowRules.Require(exam.Status is "Draft" or "Scheduled", "Chỉ hủy nháp hoặc lịch chưa bắt đầu.", 409);
+        exam.Status = "Cancelled";
+        foreach (var c in exam.Candidates) c.Status = "Cancelled";
+        await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); await Notify(id, "cancelled", ct); return exam.Status;
+    }
+    public async Task<object> ScheduleAsync(int student, CancellationToken ct)
+    {
+        var rows = await db.ExamCandidates.Where(c => c.StudentId == student && c.Status != "Cancelled" && c.ExamSession!.Status != "Draft" && c.ExamSession.Status != "Cancelled")
+            .OrderBy(c => c.ScheduledTime).Select(c => new { c.ExamId, c.CandidateId, c.Status, c.ScheduledTime,
+                c.ExamSession!.ExamName, c.ExamSession.TimePerStudent, CourseName = c.ExamSession.Course!.CourseName }).ToListAsync(ct);
+        return rows.Select(c => new { c.ExamId, c.CandidateId, c.Status, c.ExamName, c.TimePerStudent, c.CourseName,
+            scheduledTime = c.ScheduledTime.HasValue ? WorkflowService.Iso(c.ScheduledTime.Value) : null }).ToArray();
+    }
+    public async Task<object> CatalogAsync(int lecturer, CancellationToken ct) => await db.Courses
+        .Where(c => c.LecturerId == lecturer && c.IsActive)
+        .Select(c => new { c.CourseId, c.CourseCode, c.CourseName, poolSize = db.Questions.Count(q => q.CourseId == c.CourseId && q.Status == "Approved" && q.QuestionType == "Main") }).ToListAsync(ct);
+
+    public async Task<object> CourseStudentsAsync(int id, int lecturer, CancellationToken ct)
+    {
+        Require(await db.Courses.AnyAsync(c => c.CourseId == id && c.LecturerId == lecturer, ct), "Bạn không quản lý môn học này.", 403);
+        var ids = await Students(id, ct);
+        return await db.Users.Where(u => ids.Contains(u.UserId)).OrderBy(u => u.FullName)
+            .Select(u => new { u.UserId, u.FullName, u.Email }).ToListAsync(ct);
+    }
+
 }

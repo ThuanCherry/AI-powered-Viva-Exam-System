@@ -1,16 +1,5 @@
 <Solution>
-<<<<<<< HEAD
-  <Folder Name="/src/">
-    <File Path="docs/AIVES_DB.txt" />
-    <Project Path="src/AIVES.BusinessLogicLayer/AIVES.BusinessLogicLayer.csproj" />
-    <Project Path="src/AIVES.DataAccessLayer/AIVES.DataAccessLayer.csproj" />
-    <Project Path="src/AIVES.PresentationLayer/AIVES.PresentationLayer.csproj" />
-=======
   <Folder Name="/backend/">
     <Project Path="backend/AIVES.Api/AIVES.Api.csproj" />
->>>>>>> 439d0a1b8da74ba41acba8d03bc971c895af2f4e
-  </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/AIVES.Tests/AIVES.Tests.csproj" />
   </Folder>
 </Solution>

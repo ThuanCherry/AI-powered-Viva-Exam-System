@@ -5,6 +5,7 @@ using System.Text;
 using AIVES.Api.Controllers;
 using AIVES.Api.Data;
 using AIVES.Api.Features.Auth;
+using AIVES.Api.Features;
 using AIVES.Api.Features.Lecturer;
 using AIVES.Api.Features.Workflow;
 using AIVES.Api.Integrations;
@@ -76,8 +77,7 @@ public sealed class LecturerSandbox : IAsyncDisposable
             else o.UseSqlite(sandbox.connection.ConnectionString); // Separate connections for concurrent browser requests.
         });
         builder.Services.AddSingleton(TimeProvider.System);
-        builder.Services.AddScoped<WorkflowService>(); builder.Services.AddScoped<ScheduleNotifications>(); builder.Services.AddScoped<LecturerService>(); builder.Services.AddScoped<DocumentStore>();
-        builder.Services.AddScoped<AuthService>(); builder.Services.AddScoped<VivaEngine>();
+        builder.Services.AddApplicationServices();
         builder.Services.AddSingleton<ProviderStatus>(); builder.Services.AddSingleton<ProviderHttp>(); builder.Services.AddSingleton<GeminiModelCatalog>();
         builder.Services.AddSingleton<IVivaLlm>(sandbox.Ai); builder.Services.AddSingleton<IVivaSpeech>(sandbox.Ai);
         builder.Services.AddSingleton<IHttpClientFactory>(sandbox.Network);

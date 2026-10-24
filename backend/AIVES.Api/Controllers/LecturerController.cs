@@ -1,31 +1,19 @@
-using System.Security.Claims;
-using AIVES.Api.Data;
 using AIVES.Api.Features.Lecturer;
 using AIVES.Api.Features.Workflow;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace AIVES.Api.Controllers;
 
 [ApiController, Authorize(Roles = "Lecturer"), Route("api/lecturer")]
-public class LecturerController(AivesDbContext db, LecturerService service, WorkflowService flow, DocumentStore documents) : ControllerBase
+public class LecturerController(LecturerService service, DocumentStore documents) : ApiControllerBase
 {
-    private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-    private IActionResult Data(object data) => Ok(new { success = true, data });
 
     [HttpGet("dashboard")]
     public async Task<IActionResult> Dashboard(CancellationToken ct)
     {
-        var courses = db.Courses.Where(c => c.LecturerId == UserId && c.IsActive);
-        var classes = db.AcademicClasses.Where(c => c.LecturerId == UserId && c.Course!.LecturerId == UserId && c.IsActive);
-        return Data(new { courseCount = await courses.CountAsync(ct), classCount = await classes.CountAsync(ct),
-            studentCount = await db.ClassStudents.Where(s => classes.Select(c => c.ClassId).Contains(s.ClassId)).Select(s => s.StudentId).Distinct().CountAsync(ct),
-            questionCount = await db.Questions.CountAsync(q => q.Course!.LecturerId == UserId && q.Status != "Archived", ct),
-            documentCount = await db.Documents.CountAsync(d => d.Course!.LecturerId == UserId && d.Status != "Archived", ct),
-            upcomingCount = await db.ExamSessions.CountAsync(e => e.LecturerId == UserId && (e.Status == "Scheduled" || e.Status == "InProgress") && e.EndTime > flow.Now, ct),
-            upcoming = await db.ExamSessions.Where(e => e.LecturerId == UserId && (e.Status == "Scheduled" || e.Status == "InProgress") && e.EndTime > flow.Now).OrderBy(e => e.StartTime).Take(5)
-                .Select(e => new { e.ExamId, e.ExamName, e.StartTime, e.EndTime, e.Status, courseName = e.Course!.CourseName }).ToListAsync(ct) });
+        return Data(await service.DashboardAsync(UserId, ct));
     }
     [HttpPost("courses")]
     public async Task<IActionResult> CreateCourse(CourseInput input, CancellationToken ct) => Data(new { courseId = await service.SaveCourse(null, UserId, input, ct) });
@@ -39,17 +27,12 @@ public class LecturerController(AivesDbContext db, LecturerService service, Work
     [HttpGet("students/search")]
     public async Task<IActionResult> Search([FromQuery] string? q, CancellationToken ct, [FromQuery] int page = 1)
     {
-        var term = q?.Trim() ?? "";
-        WorkflowRules.Require(term is { Length: >= 2 and <= 100 } && page is > 0 and <= 1000, "Nhập ít nhất 2 ký tự tên/email; trang cần lớn hơn 0.");
-        return Data(await db.Users.Where(u => u.Role!.RoleName == "Student" && u.Status == "Active" && (u.Email.Contains(term) || u.FullName.Contains(term)))
-            .OrderBy(u => u.FullName).ThenBy(u => u.UserId).Skip((page - 1) * 30).Take(30).Select(u => new { u.UserId, u.FullName, u.Email }).ToListAsync(ct));
+        return Data(await service.SearchStudentsAsync(q, page, ct));
     }
     [HttpGet("classes/{id:int}/students")]
     public async Task<IActionResult> Students(int id, CancellationToken ct)
     {
-        await service.Class(id, UserId, ct);
-        return Data(await db.ClassStudents.Where(s => s.ClassId == id).OrderBy(s => s.Student!.FullName)
-            .Select(s => new { s.StudentId, userId = s.StudentId, s.Student!.FullName, s.Student.Email, s.Student.Status, s.JoinedAt }).ToListAsync(ct));
+        return Data(await service.ClassStudentsAsync(id, UserId, ct));
     }
     [HttpPost("classes/{id:int}/students/{student:int}")]
     public async Task<IActionResult> Enroll(int id, int student, CancellationToken ct) { await service.Enroll(id, UserId, student, ct); return Data(new { message = "Đã ghi danh sinh viên." }); }

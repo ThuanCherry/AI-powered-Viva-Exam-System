@@ -60,4 +60,20 @@ public class DocumentStore(IConfiguration config, IWebHostEnvironment env, Aives
         await lecturer.Course(doc.CourseId, user, ct); doc.Status = "Archived"; await db.SaveChangesAsync(ct);
         // Keep private bytes and metadata; no physical delete, no AI processing.
     }
+
+    public async Task<object> ListAsync(int courseId, int user, bool isLecturer, CancellationToken ct)
+    {
+        if (isLecturer) await lecturer.Course(courseId, user, ct);
+        else Require(await db.ClassStudents.AnyAsync(s => s.StudentId == user && s.AcademicClass!.CourseId == courseId && s.AcademicClass.IsActive, ct), "Bạn chưa ghi danh môn học này.", 403);
+        return await db.Documents.Where(d => d.CourseId == courseId && d.Status != "Archived").OrderByDescending(d => d.CreatedAt)
+            .Select(d => new { d.DocumentId, d.CourseId, d.FileName, d.ContentType, d.FileSize, d.CreatedAt, d.Status }).ToListAsync(ct);
+    }
+    public async Task<DocumentDownload> DownloadAsync(int id, int user, bool isLecturer, CancellationToken ct)
+    {
+        var doc = await Accessible(id, user, isLecturer, ct);
+        return new DocumentDownload(FilePath(doc), doc.ContentType, doc.FileName);
+    }
+
 }
+
+public record DocumentDownload(string Path, string ContentType, string FileName);

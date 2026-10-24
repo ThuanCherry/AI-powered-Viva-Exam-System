@@ -143,4 +143,31 @@ public class LecturerService(AivesDbContext db, WorkflowService flow, ScheduleNo
         try { await db.SaveChangesAsync(ct); }
         catch (DbUpdateException) { throw new WorkflowException(409, "Dữ liệu bị trùng hoặc ràng buộc đã thay đổi. Vui lòng tải lại."); }
     }
+
+    public async Task<object> DashboardAsync(int lecturer, CancellationToken ct)
+    {
+        var courses = db.Courses.Where(c => c.LecturerId == lecturer && c.IsActive);
+        var classes = db.AcademicClasses.Where(c => c.LecturerId == lecturer && c.Course!.LecturerId == lecturer && c.IsActive);
+        return new { courseCount = await courses.CountAsync(ct), classCount = await classes.CountAsync(ct),
+            studentCount = await db.ClassStudents.Where(s => classes.Select(c => c.ClassId).Contains(s.ClassId)).Select(s => s.StudentId).Distinct().CountAsync(ct),
+            questionCount = await db.Questions.CountAsync(q => q.Course!.LecturerId == lecturer && q.Status != "Archived", ct),
+            documentCount = await db.Documents.CountAsync(d => d.Course!.LecturerId == lecturer && d.Status != "Archived", ct),
+            upcomingCount = await db.ExamSessions.CountAsync(e => e.LecturerId == lecturer && (e.Status == "Scheduled" || e.Status == "InProgress") && e.EndTime > flow.Now, ct),
+            upcoming = await db.ExamSessions.Where(e => e.LecturerId == lecturer && (e.Status == "Scheduled" || e.Status == "InProgress") && e.EndTime > flow.Now).OrderBy(e => e.StartTime).Take(5)
+                .Select(e => new { e.ExamId, e.ExamName, e.StartTime, e.EndTime, e.Status, courseName = e.Course!.CourseName }).ToListAsync(ct) };
+    }
+    public async Task<object> SearchStudentsAsync(string? q, int page, CancellationToken ct)
+    {
+        var term = q?.Trim() ?? "";
+        WorkflowRules.Require(term is { Length: >= 2 and <= 100 } && page is > 0 and <= 1000, "Nhập ít nhất 2 ký tự tên/email; trang cần lớn hơn 0.");
+        return await db.Users.Where(u => u.Role!.RoleName == "Student" && u.Status == "Active" && (u.Email.Contains(term) || u.FullName.Contains(term)))
+            .OrderBy(u => u.FullName).ThenBy(u => u.UserId).Skip((page - 1) * 30).Take(30).Select(u => new { u.UserId, u.FullName, u.Email }).ToListAsync(ct);
+    }
+    public async Task<object> ClassStudentsAsync(int id, int lecturer, CancellationToken ct)
+    {
+        await Class(id, lecturer, ct);
+        return await db.ClassStudents.Where(s => s.ClassId == id).OrderBy(s => s.Student!.FullName)
+            .Select(s => new { s.StudentId, userId = s.StudentId, s.Student!.FullName, s.Student.Email, s.Student.Status, s.JoinedAt }).ToListAsync(ct);
+    }
+
 }
