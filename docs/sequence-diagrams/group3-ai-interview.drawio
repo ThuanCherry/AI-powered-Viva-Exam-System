@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="AIVES UML Architect" version="24.7.17">
+  <diagram id="aives-group3-ai-interview" name="UML Sequence Diagram: Group 3 – AI Interview Engine">
+    <mxGraphModel dx="1760" dy="4425" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1760" pageHeight="4425" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="c_113" value="UML Sequence Diagram: Group 3 – AI Interview Engine" style="text;html=0;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=20;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1"><mxGeometry x="40" y="24" width="1680" height="32" as="geometry"/></mxCell>
+        <mxCell id="c_114" value="Actor: Student  |  Real-time STT Live Streaming + TTS Question Delivery + LLM Adaptive Follow-up" style="text;html=0;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#64748b;" vertex="1" parent="1"><mxGeometry x="40" y="58" width="1680" height="20" as="geometry"/></mxCell>
+        <mxCell id="c_21" value="alt&#xa;[Slot Invalid or Not Scheduled or Time Expired]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=290;fillColor=#f8fafc;fillOpacity=15;strokeColor=#64748b;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="30" y="525" width="1700" height="360" as="geometry"/></mxCell>
+        <mxCell id="c_30" value="loop&#xa;[For each Main Question: while questions remain and within deadline]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=400;fillColor=#f0fdf4;fillOpacity=15;strokeColor=#16a34a;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="30" y="925" width="1700" height="3160" as="geometry"/></mxCell>
+        <mxCell id="c_31" value="break&#xa;[Session Deadline Expired or Slot Expired]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=300;fillColor=#fef2f2;fillOpacity=15;strokeColor=#ef4444;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="50" y="970" width="1660" height="185" as="geometry"/></mxCell>
+        <mxCell id="c_36" value="opt&#xa;[Student clicks Listen to Question for TTS]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=290;fillColor=#faf5ff;fillOpacity=15;strokeColor=#a855f7;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="50" y="1195" width="1660" height="535" as="geometry"/></mxCell>
+        <mxCell id="c_43" value="alt&#xa;[TTS Synthesis Success]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=190;fillColor=#f8fafc;fillOpacity=15;strokeColor=#64748b;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="70" y="1380" width="1620" height="315" as="geometry"/></mxCell>
+        <mxCell id="c_57" value="loop&#xa;[Streaming audio frames every 100ms]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=280;fillColor=#f0fdf4;fillOpacity=15;strokeColor=#16a34a;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="50" y="1960" width="1660" height="525" as="geometry"/></mxCell>
+        <mxCell id="c_60" value="alt&#xa;[Interim speech detected]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=190;fillColor=#f8fafc;fillOpacity=15;strokeColor=#64748b;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="70" y="2090" width="1620" height="360" as="geometry"/></mxCell>
+        <mxCell id="c_68" value="opt&#xa;[STT Connection Drop or Error]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=240;fillColor=#fef2f2;fillOpacity=15;strokeColor=#ef4444;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="50" y="2525" width="1660" height="175" as="geometry"/></mxCell>
+        <mxCell id="c_72" value="opt&#xa;[Manual Edit or Fallback Typing]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=240;fillColor=#fffbeb;fillOpacity=15;strokeColor=#f59e0b;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="50" y="2735" width="1660" height="85" as="geometry"/></mxCell>
+        <mxCell id="c_81" value="opt&#xa;[AI Follow-up Enabled and followUpsUsed &lt; maxFollowUp and within deadline]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=480;fillColor=#eff6ff;fillOpacity=15;strokeColor=#3b82f6;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="50" y="3050" width="1660" height="1000" as="geometry"/></mxCell>
+        <mxCell id="c_87" value="alt&#xa;[LLM Error or Timeout]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=180;fillColor=#f8fafc;fillOpacity=15;strokeColor=#64748b;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="70" y="3240" width="1620" height="780" as="geometry"/></mxCell>
+        <mxCell id="c_94" value="alt&#xa;[needsFollowUp == true and followUpsPerQuestion &lt; maxPerQuestion]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=390;fillColor=#f8fafc;fillOpacity=15;strokeColor=#64748b;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="90" y="3510" width="1580" height="480" as="geometry"/></mxCell>
+        <mxCell id="c_24" value="[Slot Valid: scheduledTime &lt;= serverTime &lt; scheduledTime + slot]" style="line;strokeWidth=1.2;dashed=1;labelPosition=right;align=left;verticalAlign=middle;spacingLeft=10;html=1;strokeColor=#94a3b8;fontFamily=Arial;fontSize=11;fontStyle=2;fontColor=#475569;" vertex="1" parent="1"><mxGeometry x="30" y="665" width="1700" height="10" as="geometry"/></mxCell>
+        <mxCell id="c_47" value="[TTS Timeout or Error]" style="line;strokeWidth=1.2;dashed=1;labelPosition=right;align=left;verticalAlign=middle;spacingLeft=10;html=1;strokeColor=#94a3b8;fontFamily=Arial;fontSize=11;fontStyle=2;fontColor=#475569;" vertex="1" parent="1"><mxGeometry x="70" y="1565" width="1620" height="10" as="geometry"/></mxCell>
+        <mxCell id="c_64" value="[Final transcript chunk confirmed]" style="line;strokeWidth=1.2;dashed=1;labelPosition=right;align=left;verticalAlign=middle;spacingLeft=10;html=1;strokeColor=#94a3b8;fontFamily=Arial;fontSize=11;fontStyle=2;fontColor=#475569;" vertex="1" parent="1"><mxGeometry x="70" y="2265" width="1620" height="10" as="geometry"/></mxCell>
+        <mxCell id="c_92" value="[LLM Success: JSON Decision Received]" style="line;strokeWidth=1.2;dashed=1;labelPosition=right;align=left;verticalAlign=middle;spacingLeft=10;html=1;strokeColor=#94a3b8;fontFamily=Arial;fontSize=11;fontStyle=2;fontColor=#475569;" vertex="1" parent="1"><mxGeometry x="70" y="3430" width="1620" height="10" as="geometry"/></mxCell>
+        <mxCell id="c_103" value="[needsFollowUp == false or follow-up limit reached]" style="line;strokeWidth=1.2;dashed=1;labelPosition=right;align=left;verticalAlign=middle;spacingLeft=10;html=1;strokeColor=#94a3b8;fontFamily=Arial;fontSize=11;fontStyle=2;fontColor=#475569;" vertex="1" parent="1"><mxGeometry x="90" y="3845" width="1580" height="10" as="geometry"/></mxCell>
+        <mxCell id="c_2" value="Student" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;participant=umlActor;fillColor=#ffffff;strokeColor=#334155;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1"><mxGeometry x="40" y="95" width="70" height="4245" as="geometry"/></mxCell>
+        <mxCell id="c_3" value=":React UI" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;rounded=1;arcSize=10;fillColor=#eff6ff;strokeColor=#3b82f6;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#1e3a8a;" vertex="1" parent="1"><mxGeometry x="160" y="95" width="150" height="4245" as="geometry"/></mxCell>
+        <mxCell id="c_4" value=":ExamHub" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;rounded=1;arcSize=10;fillColor=#f1f5f9;strokeColor=#475569;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1"><mxGeometry x="370" y="95" width="160" height="4245" as="geometry"/></mxCell>
+        <mxCell id="c_5" value=":InterviewService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;rounded=1;arcSize=10;fillColor=#f8fafc;strokeColor=#64748b;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1"><mxGeometry x="590" y="95" width="170" height="4245" as="geometry"/></mxCell>
+        <mxCell id="c_6" value=":Database" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;rounded=1;arcSize=10;fillColor=#f0fdfa;strokeColor=#14b8a6;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#0f766e;" vertex="1" parent="1"><mxGeometry x="820" y="95" width="160" height="4245" as="geometry"/></mxCell>
+        <mxCell id="c_7" value=":TTS Service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;rounded=1;arcSize=10;fillColor=#faf5ff;strokeColor=#a855f7;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#6b21a8;" vertex="1" parent="1"><mxGeometry x="1040" y="95" width="160" height="4245" as="geometry"/></mxCell>
+        <mxCell id="c_8" value=":STT Service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;rounded=1;arcSize=10;fillColor=#fefce8;strokeColor=#eab308;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#854d0e;" vertex="1" parent="1"><mxGeometry x="1260" y="95" width="170" height="4245" as="geometry"/></mxCell>
+        <mxCell id="c_9" value=":LLM Service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;rounded=1;arcSize=10;fillColor=#fff1f2;strokeColor=#f43f5e;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#9f1239;" vertex="1" parent="1"><mxGeometry x="1500" y="95" width="160" height="4245" as="geometry"/></mxCell>
+        <mxCell id="c_10" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="229" y="180" width="12" height="675" as="geometry"/></mxCell>
+        <mxCell id="c_11" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="444" y="230" width="12" height="65" as="geometry"/></mxCell>
+        <mxCell id="c_12" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="669" y="380" width="12" height="430" as="geometry"/></mxCell>
+        <mxCell id="c_13" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="894" y="430" width="12" height="65" as="geometry"/></mxCell>
+        <mxCell id="c_25" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="894" y="700" width="12" height="65" as="geometry"/></mxCell>
+        <mxCell id="c_32" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="894" y="1010" width="12" height="15" as="geometry"/></mxCell>
+        <mxCell id="c_37" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="229" y="1235" width="12" height="295" as="geometry"/></mxCell>
+        <mxCell id="c_38" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="669" y="1285" width="12" height="200" as="geometry"/></mxCell>
+        <mxCell id="c_39" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1114" y="1335" width="12" height="100" as="geometry"/></mxCell>
+        <mxCell id="c_50" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="229" y="1765" width="12" height="640" as="geometry"/></mxCell>
+        <mxCell id="c_51" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="444" y="1815" width="12" height="545" as="geometry"/></mxCell>
+        <mxCell id="c_52" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1339" y="1865" width="12" height="450" as="geometry"/></mxCell>
+        <mxCell id="c_74" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="229" y="2855" width="12" height="805" as="geometry"/></mxCell>
+        <mxCell id="c_75" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="669" y="2905" width="12" height="1050" as="geometry"/></mxCell>
+        <mxCell id="c_76" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="894" y="2955" width="12" height="65" as="geometry"/></mxCell>
+        <mxCell id="c_82" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="894" y="3095" width="12" height="65" as="geometry"/></mxCell>
+        <mxCell id="c_83" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1574" y="3195" width="12" height="285" as="geometry"/></mxCell>
+        <mxCell id="c_88" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="894" y="3325" width="12" height="15" as="geometry"/></mxCell>
+        <mxCell id="c_95" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="894" y="3550" width="12" height="15" as="geometry"/></mxCell>
+        <mxCell id="c_101" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="894" y="3800" width="12" height="15" as="geometry"/></mxCell>
+        <mxCell id="c_106" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="669" y="4120" width="12" height="110" as="geometry"/></mxCell>
+        <mxCell id="c_107" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="894" y="4170" width="12" height="15" as="geometry"/></mxCell>
+        <mxCell id="c_108" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="229" y="4215" width="12" height="60" as="geometry"/></mxCell>
+        <mxCell id="c_14" value="1. accessVivaRoom: examId" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="75" y="185" as="sourcePoint"/>
+            <mxPoint x="235" y="185" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_15" value="2. Connect and JoinExam: examId with JWT" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="235" as="sourcePoint"/>
+            <mxPoint x="450" y="235" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_16" value="ServerTime: utcNow, JoinedGroup student-exam" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="450" y="285" as="sourcePoint"/>
+            <mxPoint x="235" y="285" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_17" value="3. click Start Exam" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="75" y="335" as="sourcePoint"/>
+            <mxPoint x="235" y="335" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_18" value="4. POST /api/Exams/attempt/start" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="385" as="sourcePoint"/>
+            <mxPoint x="675" y="385" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_19" value="5. LockExam: id, Query Candidate, Session, VivaSettings" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="435" as="sourcePoint"/>
+            <mxPoint x="900" y="435" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_20" value="candidateRecord: status, scheduledTime, timePerStudent" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="485" as="sourcePoint"/>
+            <mxPoint x="675" y="485" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_22" value="409 Conflict: Slot not started or expired" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="575" as="sourcePoint"/>
+            <mxPoint x="235" y="575" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_23" value="Display waiting message or slot status error" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="625" as="sourcePoint"/>
+            <mxPoint x="75" y="625" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_26" value="6. Update Candidate Status InProgress, StartedAt now" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="705" as="sourcePoint"/>
+            <mxPoint x="900" y="705" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_27" value="Updated" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="755" as="sourcePoint"/>
+            <mxPoint x="675" y="755" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_28" value="200 OK: candidateState, turnId, firstQuestion" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="800" as="sourcePoint"/>
+            <mxPoint x="235" y="800" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_29" value="Render exam screen and first question" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="845" as="sourcePoint"/>
+            <mxPoint x="75" y="845" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_33" value="7. Mark Candidate Status Completed, FinishedAt now" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="1015" as="sourcePoint"/>
+            <mxPoint x="900" y="1015" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_34" value="409 AttemptCompleted: Time expired, session closed" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="1065" as="sourcePoint"/>
+            <mxPoint x="235" y="1065" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_35" value="Display Exam Time Expired and disable inputs" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="1115" as="sourcePoint"/>
+            <mxPoint x="75" y="1115" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_40" value="8. click Listen to Question" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="75" y="1240" as="sourcePoint"/>
+            <mxPoint x="235" y="1240" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_41" value="9. GET /api/Exams/attempt/tts: turnId" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="1290" as="sourcePoint"/>
+            <mxPoint x="675" y="1290" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_42" value="10. POST /v1beta/interactions: text, voice Kore" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="1340" as="sourcePoint"/>
+            <mxPoint x="1120" y="1340" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_44" value="200 OK: audio WAV binary" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1120" y="1425" as="sourcePoint"/>
+            <mxPoint x="675" y="1425" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_45" value="audio WAV stream" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="1475" as="sourcePoint"/>
+            <mxPoint x="235" y="1475" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_46" value="Play audio question via Web Audio" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="1525" as="sourcePoint"/>
+            <mxPoint x="75" y="1525" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_48" value="502 or 504 Provider Error" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1120" y="1605" as="sourcePoint"/>
+            <mxPoint x="675" y="1605" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_49" value="502 Error: TTS unavailable, read text on screen" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="1655" as="sourcePoint"/>
+            <mxPoint x="235" y="1655" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_53" value="11. click Answer with Mic and speak" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="75" y="1770" as="sourcePoint"/>
+            <mxPoint x="235" y="1770" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_54" value="12. Call Transcribe: examId, turnId, audioChannel" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="1820" as="sourcePoint"/>
+            <mxPoint x="450" y="1820" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_55" value="13. WSS Connect and Setup: PCM16, 16kHz, vi-VN" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="450" y="1870" as="sourcePoint"/>
+            <mxPoint x="1345" y="1870" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_56" value="setupComplete: ready" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1345" y="1920" as="sourcePoint"/>
+            <mxPoint x="450" y="1920" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_58" value="14. Stream PCM audio frame" style="html=1;verticalAlign=bottom;endArrow=open;curved=0;rounded=0;strokeColor=#2563eb;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#2563eb;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="2005" as="sourcePoint"/>
+            <mxPoint x="450" y="2005" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_59" value="15. Send realtimeInput audio frame" style="html=1;verticalAlign=bottom;endArrow=open;curved=0;rounded=0;strokeColor=#2563eb;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#2563eb;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="450" y="2050" as="sourcePoint"/>
+            <mxPoint x="1345" y="2050" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_61" value="emit interimText" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1345" y="2135" as="sourcePoint"/>
+            <mxPoint x="450" y="2135" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_62" value="push interimText" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="450" y="2180" as="sourcePoint"/>
+            <mxPoint x="235" y="2180" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_63" value="Display real-time interim caption" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="2225" as="sourcePoint"/>
+            <mxPoint x="75" y="2225" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_65" value="emit finalText" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1345" y="2305" as="sourcePoint"/>
+            <mxPoint x="450" y="2305" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_66" value="push finalText" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="450" y="2350" as="sourcePoint"/>
+            <mxPoint x="235" y="2350" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_67" value="Append to transcript textarea" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;edgeStyle=orthogonalEdgeStyle;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="2395" as="sourcePoint"/>
+            <mxPoint x="235" y="2423" as="targetPoint"/>
+            <Array as="points">
+              <mxPoint x="277" y="2395"/>
+              <mxPoint x="277" y="2423"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_69" value="WebSocket closed or error" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1345" y="2570" as="sourcePoint"/>
+            <mxPoint x="450" y="2570" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_70" value="HubException: Live STT disconnected, fallback to text" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="450" y="2615" as="sourcePoint"/>
+            <mxPoint x="235" y="2615" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_71" value="Notify: Microphone disconnected, edit or type manually" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="2660" as="sourcePoint"/>
+            <mxPoint x="75" y="2660" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_73" value="16. Edit transcript or type manual answer in textarea" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="75" y="2780" as="sourcePoint"/>
+            <mxPoint x="235" y="2780" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_77" value="17. click Submit Answer or secondsPerQuestion expires" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="75" y="2860" as="sourcePoint"/>
+            <mxPoint x="235" y="2860" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_78" value="18. POST /api/Exams/attempt/answer: turnId, transcript" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="2910" as="sourcePoint"/>
+            <mxPoint x="675" y="2910" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_79" value="19. LockExam: id, Verify TurnId, Persist Answer" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="2960" as="sourcePoint"/>
+            <mxPoint x="900" y="2960" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_80" value="Answer saved" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="3010" as="sourcePoint"/>
+            <mxPoint x="675" y="3010" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_84" value="20. Fetch Question, ExpectedAnswer, Rubric, AnswerHistory" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="3100" as="sourcePoint"/>
+            <mxPoint x="900" y="3100" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_85" value="questionContext" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="3150" as="sourcePoint"/>
+            <mxPoint x="675" y="3150" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_86" value="21. POST generateContent: Context, Expected, Rubric, Transcript" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="3200" as="sourcePoint"/>
+            <mxPoint x="1580" y="3200" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_89" value="502 or 504 Provider Error" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1580" y="3285" as="sourcePoint"/>
+            <mxPoint x="675" y="3285" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_90" value="Log ExamLog: ProviderError, message" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="3330" as="sourcePoint"/>
+            <mxPoint x="900" y="3330" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_91" value="Bypass follow-up, proceed to next main question" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;edgeStyle=orthogonalEdgeStyle;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="3375" as="sourcePoint"/>
+            <mxPoint x="675" y="3403" as="targetPoint"/>
+            <Array as="points">
+              <mxPoint x="717" y="3375"/>
+              <mxPoint x="717" y="3403"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_93" value="FollowUpDecision: needsFollowUp, question, reason" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1580" y="3470" as="sourcePoint"/>
+            <mxPoint x="675" y="3470" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_96" value="22. Insert FollowUpQuestion: QuestionText, OrderNo, Reason, AskedAt" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="3555" as="sourcePoint"/>
+            <mxPoint x="900" y="3555" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_97" value="200 OK: nextTurn followUp, text followUpQuestion" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="3605" as="sourcePoint"/>
+            <mxPoint x="235" y="3605" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_98" value="Display follow-up question, prompt for follow-up answer" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="3655" as="sourcePoint"/>
+            <mxPoint x="75" y="3655" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_99" value="23. Answer follow-up: voice or text" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="75" y="3705" as="sourcePoint"/>
+            <mxPoint x="235" y="3705" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_100" value="24. POST /api/Exams/attempt/answer: followUpTurnId, transcript" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="3755" as="sourcePoint"/>
+            <mxPoint x="675" y="3755" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_102" value="Update FollowUpQuestion AnswerTranscript, Close turn" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="3805" as="sourcePoint"/>
+            <mxPoint x="900" y="3805" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_104" value="Close turn for current main question" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;edgeStyle=orthogonalEdgeStyle;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="3885" as="sourcePoint"/>
+            <mxPoint x="675" y="3913" as="targetPoint"/>
+            <Array as="points">
+              <mxPoint x="717" y="3885"/>
+              <mxPoint x="717" y="3913"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_105" value="200 OK: TurnCompleted, advance to next question or complete" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="3945" as="sourcePoint"/>
+            <mxPoint x="235" y="3945" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_109" value="25. Update Candidate Status Completed, FinishedAt now" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="4125" as="sourcePoint"/>
+            <mxPoint x="900" y="4125" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_110" value="SessionFinished" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="900" y="4175" as="sourcePoint"/>
+            <mxPoint x="675" y="4175" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_111" value="200 OK: status Completed, history answers" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="4220" as="sourcePoint"/>
+            <mxPoint x="235" y="4220" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_112" value="Render exam completed summary screen" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="4265" as="sourcePoint"/>
+            <mxPoint x="75" y="4265" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

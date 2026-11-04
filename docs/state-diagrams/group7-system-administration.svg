@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="480" viewBox="0 0 1400 480">
+  <defs>
+    <marker id="vp-arr" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto">
+      <polygon points="0,0 8,3.5 0,7" fill="#ff0000"/>
+    </marker>
+  </defs>
+  <rect width="1400" height="480" fill="#ffffff"/>
+  <!-- Initial State -->
+  <circle cx="52" cy="190" r="12" fill="#000000"/>
+  <!-- State: Idle -->
+  <rect x="130" y="165" width="130" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="195" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Idle</text>
+  <!-- State: Managing -->
+  <rect x="360" y="165" width="140" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="430" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Managing</text>
+  <!-- State: Validating -->
+  <rect x="590" y="165" width="140" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="660" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Validating</text>
+  <!-- State: Saving -->
+  <rect x="820" y="165" width="140" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="890" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Saving</text>
+  <!-- State: Completed -->
+  <rect x="1050" y="165" width="140" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="1120" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Completed</text>
+  <!-- Final State -->
+  <circle cx="1294" cy="190" r="14" fill="#ffffff" stroke="#ff0000" stroke-width="2"/>
+  <circle cx="1294" cy="190" r="8" fill="#000000"/>
+  <!-- State: Access Denied -->
+  <rect x="360" y="310" width="140" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="430" y="339" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Access Denied</text>
+  <!-- State: Validation Failed -->
+  <rect x="590" y="310" width="150" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="665" y="339" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Validation Failed</text>
+  <!-- Transition: Admin login -->
+  <path d="M64,190 L130,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="61.099999999999994" y="171" width="71.8" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="97" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Admin login</text>
+  <!-- Transition: Select task: Accounts, Permissions, or Speech -->
+  <path d="M260,190 L360,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="175.5" y="171" width="269" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="310" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Select task: Accounts, Permissions, or Speech</text>
+  <!-- Transition: Cancel task -->
+  <path d="M430,165 L430,105 L195,105 L195,165" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="159.1" y="86" width="71.8" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="195" y="97" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Cancel task</text>
+  <!-- Transition: Submit request -->
+  <path d="M500,190 L590,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="500.4" y="171" width="89.2" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="545" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Submit request</text>
+  <!-- Transition: Valid request -->
+  <path d="M730,190 L820,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="733.3" y="171" width="83.39999999999999" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="775" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Valid request</text>
+  <!-- Transition: Invalid input -->
+  <path d="M660,215 L665,310" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="620.8" y="243.5" width="83.39999999999999" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="662.5" y="254.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Invalid input</text>
+  <!-- Transition: Caller is not admin -->
+  <path d="M660,215 L660,255 L430,255 L430,310" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="370.9" y="236" width="118.2" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="430" y="247" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Caller is not admin</text>
+  <!-- Transition: Edit request -->
+  <path d="M590,335 L590,335 L500,335 L500,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="461.2" y="316" width="77.6" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="500" y="327" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Edit request</text>
+  <!-- Transition: Dismiss alert -->
+  <path d="M360,335 L360,335 L195,335 L195,215" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="153.3" y="316" width="83.39999999999999" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="195" y="327" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Dismiss alert</text>
+  <!-- Transition: Changes saved successfully -->
+  <path d="M960,190 L1050,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="925.6" y="171" width="158.79999999999998" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="1005" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Changes saved successfully</text>
+  <!-- Transition: Save error -->
+  <path d="M890,215 L890,245 L470,245 L430,215" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="437" y="226" width="66" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="470" y="237" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Save error</text>
+  <!-- Transition: Finish task -->
+  <path d="M1190,190 L1280,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="1199.1" y="171" width="71.8" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="1235" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Finish task</text>
+  <!-- Transition: Continue managing -->
+  <path d="M1120,215 L1120,405 L195,405 L195,215" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="141.7" y="386" width="106.6" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="195" y="397" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Continue managing</text>
+  <!-- Transition: Admin logout -->
+  <path d="M195,215 L195,440 L1294,440 L1294,204" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="1255.2" y="421" width="77.6" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="1294" y="432" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Admin logout</text>
+</svg>
