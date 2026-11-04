@@ -1,0 +1,350 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="4425" viewBox="0 0 1760 4425">
+  <defs>
+    <marker id="sync-arr" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polygon points="0,0 9,4 0,8" fill="#0f172a"/>
+    </marker>
+    <marker id="async-arr" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polyline points="1,1 9,4 1,7" fill="none" stroke="#2563eb" stroke-width="1.8"/>
+    </marker>
+    <marker id="return-arr" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polyline points="1,1 9,4 1,7" fill="none" stroke="#64748b" stroke-width="1.8"/>
+    </marker>
+  </defs>
+  <rect width="1760" height="4425" fill="#ffffff"/>
+
+  <!-- Title & Subtitle -->
+  <text x="40" y="45" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#0f172a">UML Sequence Diagram: Group 3 – AI Interview Engine</text>
+  <text x="40" y="70" font-family="Arial, sans-serif" font-size="12" fill="#64748b">Actor: Student  |  Real-time STT Live Streaming + TTS Question Delivery + LLM Adaptive Follow-up</text>
+  <!-- Frame: alt
+[Slot Invalid or Not Scheduled or Time Expired] -->
+  <rect x="30" y="525" width="1700" height="360" fill="#f8fafc" fill-opacity="0.10" stroke="#64748b" stroke-width="1.5"/>
+  <path d="M30,525 h290 l12,14 v11 h-302 z" fill="#64748b" fill-opacity="0.18"/>
+  <text x="38" y="541" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">alt</text>
+  <text x="38" y="557" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[Slot Invalid or Not Scheduled or Time Expired]</text>
+  <!-- Frame: loop
+[For each Main Question: while questions remain and within deadline] -->
+  <rect x="30" y="925" width="1700" height="3160" fill="#f0fdf4" fill-opacity="0.10" stroke="#16a34a" stroke-width="1.5"/>
+  <path d="M30,925 h400 l12,14 v11 h-412 z" fill="#16a34a" fill-opacity="0.18"/>
+  <text x="38" y="941" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">loop</text>
+  <text x="38" y="957" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[For each Main Question: while questions remain and within deadline]</text>
+  <!-- Frame: break
+[Session Deadline Expired or Slot Expired] -->
+  <rect x="50" y="970" width="1660" height="185" fill="#fef2f2" fill-opacity="0.10" stroke="#ef4444" stroke-width="1.5"/>
+  <path d="M50,970 h300 l12,14 v11 h-312 z" fill="#ef4444" fill-opacity="0.18"/>
+  <text x="58" y="986" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">break</text>
+  <text x="58" y="1002" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[Session Deadline Expired or Slot Expired]</text>
+  <!-- Frame: opt
+[Student clicks Listen to Question for TTS] -->
+  <rect x="50" y="1195" width="1660" height="535" fill="#faf5ff" fill-opacity="0.10" stroke="#a855f7" stroke-width="1.5"/>
+  <path d="M50,1195 h290 l12,14 v11 h-302 z" fill="#a855f7" fill-opacity="0.18"/>
+  <text x="58" y="1211" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">opt</text>
+  <text x="58" y="1227" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[Student clicks Listen to Question for TTS]</text>
+  <!-- Frame: alt
+[TTS Synthesis Success] -->
+  <rect x="70" y="1380" width="1620" height="315" fill="#f8fafc" fill-opacity="0.10" stroke="#64748b" stroke-width="1.5"/>
+  <path d="M70,1380 h190 l12,14 v11 h-202 z" fill="#64748b" fill-opacity="0.18"/>
+  <text x="78" y="1396" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">alt</text>
+  <text x="78" y="1412" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[TTS Synthesis Success]</text>
+  <!-- Frame: loop
+[Streaming audio frames every 100ms] -->
+  <rect x="50" y="1960" width="1660" height="525" fill="#f0fdf4" fill-opacity="0.10" stroke="#16a34a" stroke-width="1.5"/>
+  <path d="M50,1960 h280 l12,14 v11 h-292 z" fill="#16a34a" fill-opacity="0.18"/>
+  <text x="58" y="1976" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">loop</text>
+  <text x="58" y="1992" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[Streaming audio frames every 100ms]</text>
+  <!-- Frame: alt
+[Interim speech detected] -->
+  <rect x="70" y="2090" width="1620" height="360" fill="#f8fafc" fill-opacity="0.10" stroke="#64748b" stroke-width="1.5"/>
+  <path d="M70,2090 h190 l12,14 v11 h-202 z" fill="#64748b" fill-opacity="0.18"/>
+  <text x="78" y="2106" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">alt</text>
+  <text x="78" y="2122" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[Interim speech detected]</text>
+  <!-- Frame: opt
+[STT Connection Drop or Error] -->
+  <rect x="50" y="2525" width="1660" height="175" fill="#fef2f2" fill-opacity="0.10" stroke="#ef4444" stroke-width="1.5"/>
+  <path d="M50,2525 h240 l12,14 v11 h-252 z" fill="#ef4444" fill-opacity="0.18"/>
+  <text x="58" y="2541" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">opt</text>
+  <text x="58" y="2557" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[STT Connection Drop or Error]</text>
+  <!-- Frame: opt
+[Manual Edit or Fallback Typing] -->
+  <rect x="50" y="2735" width="1660" height="85" fill="#fffbeb" fill-opacity="0.10" stroke="#f59e0b" stroke-width="1.5"/>
+  <path d="M50,2735 h240 l12,14 v11 h-252 z" fill="#f59e0b" fill-opacity="0.18"/>
+  <text x="58" y="2751" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">opt</text>
+  <text x="58" y="2767" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[Manual Edit or Fallback Typing]</text>
+  <!-- Frame: opt
+[AI Follow-up Enabled and followUpsUsed &lt; maxFollowUp and within deadline] -->
+  <rect x="50" y="3050" width="1660" height="1000" fill="#eff6ff" fill-opacity="0.10" stroke="#3b82f6" stroke-width="1.5"/>
+  <path d="M50,3050 h480 l12,14 v11 h-492 z" fill="#3b82f6" fill-opacity="0.18"/>
+  <text x="58" y="3066" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">opt</text>
+  <text x="58" y="3082" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[AI Follow-up Enabled and followUpsUsed &lt; maxFollowUp and within deadline]</text>
+  <!-- Frame: alt
+[LLM Error or Timeout] -->
+  <rect x="70" y="3240" width="1620" height="780" fill="#f8fafc" fill-opacity="0.10" stroke="#64748b" stroke-width="1.5"/>
+  <path d="M70,3240 h180 l12,14 v11 h-192 z" fill="#64748b" fill-opacity="0.18"/>
+  <text x="78" y="3256" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">alt</text>
+  <text x="78" y="3272" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[LLM Error or Timeout]</text>
+  <!-- Frame: alt
+[needsFollowUp == true and followUpsPerQuestion &lt; maxPerQuestion] -->
+  <rect x="90" y="3510" width="1580" height="480" fill="#f8fafc" fill-opacity="0.10" stroke="#64748b" stroke-width="1.5"/>
+  <path d="M90,3510 h390 l12,14 v11 h-402 z" fill="#64748b" fill-opacity="0.18"/>
+  <text x="98" y="3526" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e293b">alt</text>
+  <text x="98" y="3542" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[needsFollowUp == true and followUpsPerQuestion &lt; maxPerQuestion]</text>
+  <line x1="30" y1="665" x2="1730" y2="665" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <text x="42" y="659" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[Slot Valid: scheduledTime &lt;= serverTime &lt; scheduledTime + slot]</text>
+  <line x1="70" y1="1565" x2="1690" y2="1565" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <text x="82" y="1559" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[TTS Timeout or Error]</text>
+  <line x1="70" y1="2265" x2="1690" y2="2265" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <text x="82" y="2259" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[Final transcript chunk confirmed]</text>
+  <line x1="70" y1="3430" x2="1690" y2="3430" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <text x="82" y="3424" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[LLM Success: JSON Decision Received]</text>
+  <line x1="90" y1="3845" x2="1670" y2="3845" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <text x="102" y="3839" font-family="Arial, sans-serif" font-size="10" font-style="italic" fill="#475569">[needsFollowUp == false or follow-up limit reached]</text>
+  <!-- Participant: Student -->
+  <line x1="75" y1="145" x2="75" y2="4340" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,5"/>
+  <g transform="translate(60, 95)">
+    <circle cx="15" cy="10" r="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+    <line x1="15" y1="18" x2="15" y2="34" stroke="#334155" stroke-width="1.5"/>
+    <line x1="4" y1="24" x2="26" y2="24" stroke="#334155" stroke-width="1.5"/>
+    <line x1="15" y1="34" x2="6" y2="48" stroke="#334155" stroke-width="1.5"/>
+    <line x1="15" y1="34" x2="24" y2="48" stroke="#334155" stroke-width="1.5"/>
+  </g>
+  <text x="75" y="158" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#0f172a">Student</text>
+  <!-- Participant: :React UI -->
+  <line x1="235" y1="135" x2="235" y2="4340" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,5"/>
+  <rect x="160" y="95" width="150" height="40" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="235" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1e3a8a">:React UI</text>
+  <!-- Participant: :ExamHub -->
+  <line x1="450" y1="135" x2="450" y2="4340" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,5"/>
+  <rect x="370" y="95" width="160" height="40" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="1.5"/>
+  <text x="450" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#0f172a">:ExamHub</text>
+  <!-- Participant: :InterviewService -->
+  <line x1="675" y1="135" x2="675" y2="4340" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,5"/>
+  <rect x="590" y="95" width="170" height="40" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text x="675" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#0f172a">:InterviewService</text>
+  <!-- Participant: :Database -->
+  <line x1="900" y1="135" x2="900" y2="4340" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,5"/>
+  <rect x="820" y="95" width="160" height="40" rx="8" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1.5"/>
+  <text x="900" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#0f766e">:Database</text>
+  <!-- Participant: :TTS Service -->
+  <line x1="1120" y1="135" x2="1120" y2="4340" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,5"/>
+  <rect x="1040" y="95" width="160" height="40" rx="8" fill="#faf5ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="1120" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#6b21a8">:TTS Service</text>
+  <!-- Participant: :STT Service -->
+  <line x1="1345" y1="135" x2="1345" y2="4340" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,5"/>
+  <rect x="1260" y="95" width="170" height="40" rx="8" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+  <text x="1345" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#854d0e">:STT Service</text>
+  <!-- Participant: :LLM Service -->
+  <line x1="1580" y1="135" x2="1580" y2="4340" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,5"/>
+  <rect x="1500" y="95" width="160" height="40" rx="8" fill="#fff1f2" stroke="#f43f5e" stroke-width="1.5"/>
+  <text x="1580" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#9f1239">:LLM Service</text>
+  <rect x="229" y="180" width="12" height="675" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="444" y="230" width="12" height="65" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="669" y="380" width="12" height="430" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="894" y="430" width="12" height="65" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="894" y="700" width="12" height="65" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="894" y="1010" width="12" height="15" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="229" y="1235" width="12" height="295" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="669" y="1285" width="12" height="200" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="1114" y="1335" width="12" height="100" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="229" y="1765" width="12" height="640" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="444" y="1815" width="12" height="545" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="1339" y="1865" width="12" height="450" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="229" y="2855" width="12" height="805" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="669" y="2905" width="12" height="1050" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="894" y="2955" width="12" height="65" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="894" y="3095" width="12" height="65" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="1574" y="3195" width="12" height="285" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="894" y="3325" width="12" height="15" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="894" y="3550" width="12" height="15" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="894" y="3800" width="12" height="15" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="669" y="4120" width="12" height="110" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="894" y="4170" width="12" height="15" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <rect x="229" y="4215" width="12" height="60" fill="#e2e8f0" stroke="#475569" stroke-width="1"/>
+  <line x1="75" y1="185" x2="235" y2="185" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="73.5" y="170" width="163" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">1. accessVivaRoom: examId</text>
+  <line x1="235" y1="235" x2="450" y2="235" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="214.5" y="220" width="256" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="342.5" y="232" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">2. Connect and JoinExam: examId with JWT</text>
+  <line x1="450" y1="285" x2="235" y2="285" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="202.1" y="270" width="280.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="342.5" y="282" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">ServerTime: utcNow, JoinedGroup student-exam</text>
+  <line x1="75" y1="335" x2="235" y2="335" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="92.1" y="320" width="125.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="332" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">3. click Start Exam</text>
+  <line x1="235" y1="385" x2="675" y2="385" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="351.8" y="370" width="206.4" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="455" y="382" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">4. POST /api/Exams/attempt/start</text>
+  <line x1="675" y1="435" x2="900" y2="435" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="613" y="420" width="349" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="432" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">5. LockExam: id, Query Candidate, Session, VivaSettings</text>
+  <line x1="900" y1="485" x2="675" y2="485" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="616.1" y="470" width="342.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="482" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">candidateRecord: status, scheduledTime, timePerStudent</text>
+  <line x1="675" y1="575" x2="235" y2="575" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="323.9" y="560" width="262.20000000000005" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="455" y="572" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">409 Conflict: Slot not started or expired</text>
+  <line x1="235" y1="625" x2="75" y2="625" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="14.599999999999994" y="610" width="280.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="622" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">Display waiting message or slot status error</text>
+  <line x1="675" y1="705" x2="900" y2="705" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="622.3" y="690" width="330.40000000000003" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="702" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">6. Update Candidate Status InProgress, StartedAt now</text>
+  <line x1="900" y1="755" x2="675" y2="755" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="761.8" y="740" width="51.4" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="752" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">Updated</text>
+  <line x1="675" y1="800" x2="235" y2="800" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="311.5" y="785" width="287" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="455" y="797" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">200 OK: candidateState, turnId, firstQuestion</text>
+  <line x1="235" y1="845" x2="75" y2="845" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="36.3" y="830" width="237.4" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="842" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">Render exam screen and first question</text>
+  <line x1="675" y1="1015" x2="900" y2="1015" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="628.5" y="1000" width="318" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="1012" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">7. Mark Candidate Status Completed, FinishedAt now</text>
+  <line x1="675" y1="1065" x2="235" y2="1065" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="296" y="1050" width="318" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="455" y="1062" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">409 AttemptCompleted: Time expired, session closed</text>
+  <line x1="235" y1="1115" x2="75" y2="1115" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="14.599999999999994" y="1100" width="280.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="1112" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">Display Exam Time Expired and disable inputs</text>
+  <line x1="75" y1="1240" x2="235" y2="1240" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="67.3" y="1225" width="175.4" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="1237" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">8. click Listen to Question</text>
+  <line x1="235" y1="1290" x2="675" y2="1290" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="336.3" y="1275" width="237.4" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="455" y="1287" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">9. GET /api/Exams/attempt/tts: turnId</text>
+  <line x1="675" y1="1340" x2="1120" y2="1340" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="747.8" y="1325" width="299.40000000000003" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="897.5" y="1337" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">10. POST /v1beta/interactions: text, voice Kore</text>
+  <line x1="1120" y1="1425" x2="675" y2="1425" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="819.1" y="1410" width="156.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="897.5" y="1422" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">200 OK: audio WAV binary</text>
+  <line x1="675" y1="1475" x2="235" y2="1475" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="401.4" y="1460" width="107.2" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="455" y="1472" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">audio WAV stream</text>
+  <line x1="235" y1="1525" x2="75" y2="1525" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="48.7" y="1510" width="212.6" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="1522" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">Play audio question via Web Audio</text>
+  <line x1="1120" y1="1605" x2="675" y2="1605" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="816" y="1590" width="163" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="897.5" y="1602" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">502 or 504 Provider Error</text>
+  <line x1="675" y1="1655" x2="235" y2="1655" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="305.29999999999995" y="1640" width="299.40000000000003" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="455" y="1652" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">502 Error: TTS unavailable, read text on screen</text>
+  <line x1="75" y1="1770" x2="235" y2="1770" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="42.5" y="1755" width="225" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="1767" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">11. click Answer with Mic and speak</text>
+  <line x1="235" y1="1820" x2="450" y2="1820" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="186.6" y="1805" width="311.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="342.5" y="1817" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">12. Call Transcribe: examId, turnId, audioChannel</text>
+  <line x1="450" y1="1870" x2="1345" y2="1870" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="750.9" y="1855" width="293.2" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="897.5" y="1867" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">13. WSS Connect and Setup: PCM16, 16kHz, vi-VN</text>
+  <line x1="1345" y1="1920" x2="450" y2="1920" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="831.5" y="1905" width="132" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="897.5" y="1917" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">setupComplete: ready</text>
+  <line x1="235" y1="2005" x2="450" y2="2005" stroke="#2563eb" stroke-width="1.5"  marker-end="url(#async-arr)"/>
+  <rect x="257.9" y="1990" width="169.20000000000002" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="342.5" y="2002" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#2563eb">14. Stream PCM audio frame</text>
+  <line x1="450" y1="2050" x2="1345" y2="2050" stroke="#2563eb" stroke-width="1.5"  marker-end="url(#async-arr)"/>
+  <rect x="788.1" y="2035" width="218.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="897.5" y="2047" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#2563eb">15. Send realtimeInput audio frame</text>
+  <line x1="1345" y1="2135" x2="450" y2="2135" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="843.9" y="2120" width="107.2" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="897.5" y="2132" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">emit interimText</text>
+  <line x1="450" y1="2180" x2="235" y2="2180" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="288.9" y="2165" width="107.2" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="342.5" y="2177" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">push interimText</text>
+  <line x1="235" y1="2225" x2="75" y2="2225" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="48.7" y="2210" width="212.6" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="2222" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">Display real-time interim caption</text>
+  <line x1="1345" y1="2305" x2="450" y2="2305" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="850.1" y="2290" width="94.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="897.5" y="2302" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">emit finalText</text>
+  <line x1="450" y1="2350" x2="235" y2="2350" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="295.1" y="2335" width="94.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="342.5" y="2347" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">push finalText</text>
+  <path d="M235,2395 h40 v28 h-40" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sync-arr)"/>
+  <rect x="241" y="2380" width="196.5" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="245" y="2392" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">Append to transcript textarea</text>
+  <line x1="1345" y1="2570" x2="450" y2="2570" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="816" y="2555" width="163" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="897.5" y="2567" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">WebSocket closed or error</text>
+  <line x1="450" y1="2615" x2="235" y2="2615" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="174.2" y="2600" width="336.6" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="342.5" y="2612" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">HubException: Live STT disconnected, fallback to text</text>
+  <line x1="235" y1="2660" x2="75" y2="2660" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="-16.400000000000006" y="2645" width="342.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="2657" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">Notify: Microphone disconnected, edit or type manually</text>
+  <line x1="75" y1="2780" x2="235" y2="2780" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="-13.300000000000011" y="2765" width="336.6" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="2777" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">16. Edit transcript or type manual answer in textarea</text>
+  <line x1="75" y1="2860" x2="235" y2="2860" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="-13.300000000000011" y="2845" width="336.6" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="2857" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">17. click Submit Answer or secondsPerQuestion expires</text>
+  <line x1="235" y1="2910" x2="675" y2="2910" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="283.6" y="2895" width="342.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="455" y="2907" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">18. POST /api/Exams/attempt/answer: turnId, transcript</text>
+  <line x1="675" y1="2960" x2="900" y2="2960" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="637.8" y="2945" width="299.40000000000003" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="2957" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">19. LockExam: id, Verify TurnId, Persist Answer</text>
+  <line x1="900" y1="3010" x2="675" y2="3010" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="746.3" y="2995" width="82.4" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="3007" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">Answer saved</text>
+  <line x1="675" y1="3100" x2="900" y2="3100" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="606.8" y="3085" width="361.40000000000003" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="3097" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">20. Fetch Question, ExpectedAnswer, Rubric, AnswerHistory</text>
+  <line x1="900" y1="3150" x2="675" y2="3150" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="737" y="3135" width="101" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="3147" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">questionContext</text>
+  <line x1="675" y1="3200" x2="1580" y2="3200" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="928.2" y="3185" width="398.6" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="1127.5" y="3197" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">21. POST generateContent: Context, Expected, Rubric, Transcript</text>
+  <line x1="1580" y1="3285" x2="675" y2="3285" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="1046" y="3270" width="163" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="1127.5" y="3282" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">502 or 504 Provider Error</text>
+  <line x1="675" y1="3330" x2="900" y2="3330" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="675" y="3315" width="225" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="3327" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">Log ExamLog: ProviderError, message</text>
+  <path d="M675,3375 h40 v28 h-40" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sync-arr)"/>
+  <rect x="681" y="3360" width="313.5" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="685" y="3372" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">Bypass follow-up, proceed to next main question</text>
+  <line x1="1580" y1="3470" x2="675" y2="3470" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="971.6" y="3455" width="311.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="1127.5" y="3467" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">FollowUpDecision: needsFollowUp, question, reason</text>
+  <line x1="675" y1="3555" x2="900" y2="3555" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="575.8" y="3540" width="423.40000000000003" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="3552" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">22. Insert FollowUpQuestion: QuestionText, OrderNo, Reason, AskedAt</text>
+  <line x1="675" y1="3605" x2="235" y2="3605" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="302.2" y="3590" width="305.6" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="455" y="3602" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">200 OK: nextTurn followUp, text followUpQuestion</text>
+  <line x1="235" y1="3655" x2="75" y2="3655" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="-19.5" y="3640" width="349" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="3652" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">Display follow-up question, prompt for follow-up answer</text>
+  <line x1="75" y1="3705" x2="235" y2="3705" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="42.5" y="3690" width="225" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="3702" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">23. Answer follow-up: voice or text</text>
+  <line x1="235" y1="3755" x2="675" y2="3755" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="258.79999999999995" y="3740" width="392.40000000000003" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="455" y="3752" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">24. POST /api/Exams/attempt/answer: followUpTurnId, transcript</text>
+  <line x1="675" y1="3805" x2="900" y2="3805" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="622.3" y="3790" width="330.40000000000003" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="3802" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">Update FollowUpQuestion AnswerTranscript, Close turn</text>
+  <path d="M675,3885 h40 v28 h-40" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sync-arr)"/>
+  <rect x="681" y="3870" width="242" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="685" y="3882" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">Close turn for current main question</text>
+  <line x1="675" y1="3945" x2="235" y2="3945" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="268.1" y="3930" width="373.8" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="455" y="3942" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">200 OK: TurnCompleted, advance to next question or complete</text>
+  <line x1="675" y1="4125" x2="900" y2="4125" stroke="#0f172a" stroke-width="1.5"  marker-end="url(#sync-arr)"/>
+  <rect x="619.2" y="4110" width="336.6" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="4122" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#0f172a">25. Update Candidate Status Completed, FinishedAt now</text>
+  <line x1="900" y1="4175" x2="675" y2="4175" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="737" y="4160" width="101" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="787.5" y="4172" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">SessionFinished</text>
+  <line x1="675" y1="4220" x2="235" y2="4220" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="323.9" y="4205" width="262.20000000000005" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="455" y="4217" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">200 OK: status Completed, history answers</text>
+  <line x1="235" y1="4265" x2="75" y2="4265" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#return-arr)"/>
+  <rect x="39.39999999999999" y="4250" width="231.20000000000002" height="15" fill="#ffffff" opacity="0.95"/>
+  <text x="155" y="4262" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#64748b">Render exam completed summary screen</text>
+</svg>

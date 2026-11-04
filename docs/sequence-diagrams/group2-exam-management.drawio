@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="AIVES UML Architect" version="24.7.17">
+  <diagram id="aives-group2-exam-management" name="UML Sequence Diagram: Group 2 – Exam and Schedule Management">
+    <mxGraphModel dx="1480" dy="3465" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1480" pageHeight="3465" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="c_90" value="UML Sequence Diagram: Group 2 – Exam and Schedule Management" style="text;html=0;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=20;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1"><mxGeometry x="40" y="24" width="1400" height="32" as="geometry"/></mxCell>
+        <mxCell id="c_91" value="Actor: Lecturer  |  Monolithic Architecture: React UI + ASP.NET Core Monolith + MySQL" style="text;html=0;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#64748b;" vertex="1" parent="1"><mxGeometry x="40" y="58" width="1400" height="20" as="geometry"/></mxCell>
+        <mxCell id="c_17" value="alt&#xa;[Authorized: Lecturer has assigned courses]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=270;fillColor=#f8fafc;fillOpacity=15;strokeColor=#64748b;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="35" y="425" width="1410" height="325" as="geometry"/></mxCell>
+        <mxCell id="c_42" value="alt&#xa;[Invalid Configuration or Schedule Conflict]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=290;fillColor=#f8fafc;fillOpacity=15;strokeColor=#64748b;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="35" y="1400" width="1410" height="460" as="geometry"/></mxCell>
+        <mxCell id="c_63" value="alt&#xa;[Question Pool &lt; mainQuestionCount]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=260;fillColor=#f8fafc;fillOpacity=15;strokeColor=#64748b;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="35" y="2195" width="1410" height="1120" as="geometry"/></mxCell>
+        <mxCell id="c_68" value="opt&#xa;[Question Pool &lt; 3 * mainQuestionCount]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=270;fillColor=#fffbeb;fillOpacity=15;strokeColor=#f59e0b;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="60" y="2420" width="1360" height="95" as="geometry"/></mxCell>
+        <mxCell id="c_73" value="loop&#xa;[For each candidate in sequential slot order]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=290;fillColor=#f0fdf4;fillOpacity=15;strokeColor=#16a34a;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="60" y="2645" width="1360" height="400" as="geometry"/></mxCell>
+        <mxCell id="c_74" value="alt&#xa;[Strategy == Random]" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=0;collapsible=0;width=180;fillColor=#f8fafc;fillOpacity=15;strokeColor=#64748b;strokeWidth=1.5;dashed=0;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#1e293b;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="80" y="2690" width="1320" height="270" as="geometry"/></mxCell>
+        <mxCell id="c_21" value="[Unauthorized: No managed courses]" style="line;strokeWidth=1.2;dashed=1;labelPosition=right;align=left;verticalAlign=middle;spacingLeft=10;html=1;strokeColor=#94a3b8;fontFamily=Arial;fontSize=11;fontStyle=2;fontColor=#475569;" vertex="1" parent="1"><mxGeometry x="35" y="615" width="1410" height="10" as="geometry"/></mxCell>
+        <mxCell id="c_46" value="[Valid Configuration and Free Slots]" style="line;strokeWidth=1.2;dashed=1;labelPosition=right;align=left;verticalAlign=middle;spacingLeft=10;html=1;strokeColor=#94a3b8;fontFamily=Arial;fontSize=11;fontStyle=2;fontColor=#475569;" vertex="1" parent="1"><mxGeometry x="35" y="1590" width="1410" height="10" as="geometry"/></mxCell>
+        <mxCell id="c_67" value="[Question Pool &gt;= mainQuestionCount]" style="line;strokeWidth=1.2;dashed=1;labelPosition=right;align=left;verticalAlign=middle;spacingLeft=10;html=1;strokeColor=#94a3b8;fontFamily=Arial;fontSize=11;fontStyle=2;fontColor=#475569;" vertex="1" parent="1"><mxGeometry x="35" y="2385" width="1410" height="10" as="geometry"/></mxCell>
+        <mxCell id="c_78" value="[Strategy == Adaptive Difficulty Balanced]" style="line;strokeWidth=1.2;dashed=1;labelPosition=right;align=left;verticalAlign=middle;spacingLeft=10;html=1;strokeColor=#94a3b8;fontFamily=Arial;fontSize=11;fontStyle=2;fontColor=#475569;" vertex="1" parent="1"><mxGeometry x="80" y="2830" width="1320" height="10" as="geometry"/></mxCell>
+        <mxCell id="c_2" value="Lecturer" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;participant=umlActor;fillColor=#ffffff;strokeColor=#334155;strokeWidth=1.5;fontFamily=Arial;fontSize=13;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1"><mxGeometry x="50" y="95" width="70" height="3285" as="geometry"/></mxCell>
+        <mxCell id="c_3" value=":React UI" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;rounded=1;arcSize=10;fillColor=#eff6ff;strokeColor=#3b82f6;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#1e3a8a;" vertex="1" parent="1"><mxGeometry x="190" y="95" width="150" height="3285" as="geometry"/></mxCell>
+        <mxCell id="c_4" value=":WorkflowController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;rounded=1;arcSize=10;fillColor=#f8fafc;strokeColor=#64748b;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1"><mxGeometry x="420" y="95" width="160" height="3285" as="geometry"/></mxCell>
+        <mxCell id="c_5" value=":WorkflowService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;rounded=1;arcSize=10;fillColor=#f8fafc;strokeColor=#64748b;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1"><mxGeometry x="670" y="95" width="160" height="3285" as="geometry"/></mxCell>
+        <mxCell id="c_6" value=":QuestionSelectionService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;rounded=1;arcSize=10;fillColor=#fdf4ff;strokeColor=#c084fc;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#6b21a8;" vertex="1" parent="1"><mxGeometry x="920" y="95" width="190" height="3285" as="geometry"/></mxCell>
+        <mxCell id="c_7" value=":AivesDbContext" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;rounded=1;arcSize=10;fillColor=#f0fdfa;strokeColor=#14b8a6;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#0f766e;" vertex="1" parent="1"><mxGeometry x="1200" y="95" width="160" height="3285" as="geometry"/></mxCell>
+        <mxCell id="c_8" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="259" y="180" width="12" height="535" as="geometry"/></mxCell>
+        <mxCell id="c_9" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="494" y="230" width="12" height="435" as="geometry"/></mxCell>
+        <mxCell id="c_10" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="744" y="280" width="12" height="320" as="geometry"/></mxCell>
+        <mxCell id="c_11" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1274" y="330" width="12" height="65" as="geometry"/></mxCell>
+        <mxCell id="c_24" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="259" y="785" width="12" height="225" as="geometry"/></mxCell>
+        <mxCell id="c_30" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="259" y="1045" width="12" height="785" as="geometry"/></mxCell>
+        <mxCell id="c_31" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="494" y="1095" width="12" height="690" as="geometry"/></mxCell>
+        <mxCell id="c_32" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="744" y="1145" width="12" height="595" as="geometry"/></mxCell>
+        <mxCell id="c_33" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1274" y="1195" width="12" height="20" as="geometry"/></mxCell>
+        <mxCell id="c_34" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1274" y="1305" width="12" height="65" as="geometry"/></mxCell>
+        <mxCell id="c_47" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1274" y="1625" width="12" height="65" as="geometry"/></mxCell>
+        <mxCell id="c_53" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="259" y="1900" width="12" height="1380" as="geometry"/></mxCell>
+        <mxCell id="c_54" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="494" y="1950" width="12" height="1285" as="geometry"/></mxCell>
+        <mxCell id="c_55" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="744" y="2000" width="12" height="1190" as="geometry"/></mxCell>
+        <mxCell id="c_56" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1274" y="2050" width="12" height="115" as="geometry"/></mxCell>
+        <mxCell id="c_70" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1274" y="2550" width="12" height="65" as="geometry"/></mxCell>
+        <mxCell id="c_75" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1009" y="2735" width="12" height="65" as="geometry"/></mxCell>
+        <mxCell id="c_79" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1009" y="2865" width="12" height="65" as="geometry"/></mxCell>
+        <mxCell id="c_82" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1274" y="2995" width="12" height="20" as="geometry"/></mxCell>
+        <mxCell id="c_84" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;rounded=0;fillColor=#e2e8f0;strokeColor=#475569;strokeWidth=1;" vertex="1" parent="1"><mxGeometry x="1274" y="3080" width="12" height="65" as="geometry"/></mxCell>
+        <mxCell id="c_12" value="1. openCreateExamModal" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="85" y="185" as="sourcePoint"/>
+            <mxPoint x="265" y="185" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_13" value="2. GET /api/workflow/catalog" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="235" as="sourcePoint"/>
+            <mxPoint x="500" y="235" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_14" value="3. CatalogAsync: lecturerId" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="285" as="sourcePoint"/>
+            <mxPoint x="750" y="285" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_15" value="4. Query courses and classes by lecturerId" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="335" as="sourcePoint"/>
+            <mxPoint x="1280" y="335" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_16" value="coursesList, activeClasses, poolSizes" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1280" y="385" as="sourcePoint"/>
+            <mxPoint x="750" y="385" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_18" value="CatalogData: courses, activeClasses, poolSize" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="475" as="sourcePoint"/>
+            <mxPoint x="500" y="475" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_19" value="200 OK: CatalogData" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="525" as="sourcePoint"/>
+            <mxPoint x="265" y="525" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_20" value="Display course, class, student selector" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="575" as="sourcePoint"/>
+            <mxPoint x="85" y="575" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_22" value="403 Forbidden: Unauthorized access to catalog" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="655" as="sourcePoint"/>
+            <mxPoint x="265" y="655" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_23" value="Show access denied alert" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="705" as="sourcePoint"/>
+            <mxPoint x="85" y="705" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_25" value="5. selectCourseAndClass: courseId, classId" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="85" y="790" as="sourcePoint"/>
+            <mxPoint x="265" y="790" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_26" value="6. selectStudents: studentIds" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="85" y="840" as="sourcePoint"/>
+            <mxPoint x="265" y="840" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_27" value="7. configureExamParams: timePerStudent, questionCount, strategy" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="85" y="890" as="sourcePoint"/>
+            <mxPoint x="265" y="890" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_28" value="calculatePreview: sequentialSlots" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;edgeStyle=orthogonalEdgeStyle;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="940" as="sourcePoint"/>
+            <mxPoint x="265" y="968" as="targetPoint"/>
+            <Array as="points">
+              <mxPoint x="307" y="940"/>
+              <mxPoint x="307" y="968"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_29" value="Render sequential slot preview table" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="1000" as="sourcePoint"/>
+            <mxPoint x="85" y="1000" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_35" value="8. click Save Draft" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="85" y="1050" as="sourcePoint"/>
+            <mxPoint x="265" y="1050" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_36" value="9. POST /api/Exams: examInput" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="1100" as="sourcePoint"/>
+            <mxPoint x="500" y="1100" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_37" value="10. Save: input, lecturerId" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="1150" as="sourcePoint"/>
+            <mxPoint x="750" y="1150" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_38" value="11. LockSchedule: SELECT FOR UPDATE on roles" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="1200" as="sourcePoint"/>
+            <mxPoint x="1280" y="1200" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_39" value="12. ValidateSchedule: input, lecturerId" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;edgeStyle=orthogonalEdgeStyle;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="1250" as="sourcePoint"/>
+            <mxPoint x="750" y="1278" as="targetPoint"/>
+            <Array as="points">
+              <mxPoint x="792" y="1250"/>
+              <mxPoint x="792" y="1278"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_40" value="13. Check conflicts for lecturer, class, students" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="1310" as="sourcePoint"/>
+            <mxPoint x="1280" y="1310" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_41" value="conflictCheckResults" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1280" y="1360" as="sourcePoint"/>
+            <mxPoint x="750" y="1360" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_43" value="400 Bad Request or 409 Conflict" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="1450" as="sourcePoint"/>
+            <mxPoint x="500" y="1450" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_44" value="409 Conflict: Error description" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="1500" as="sourcePoint"/>
+            <mxPoint x="265" y="1500" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_45" value="Display validation or conflict warning alert" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="1550" as="sourcePoint"/>
+            <mxPoint x="85" y="1550" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_48" value="14. Insert ExamSession Draft, ExamCandidates Waiting" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="1630" as="sourcePoint"/>
+            <mxPoint x="1280" y="1630" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_49" value="SavedChanges: examId" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1280" y="1680" as="sourcePoint"/>
+            <mxPoint x="750" y="1680" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_50" value="ExamSession: examId" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="1730" as="sourcePoint"/>
+            <mxPoint x="500" y="1730" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_51" value="200 OK: examId, previewSlots" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="1775" as="sourcePoint"/>
+            <mxPoint x="265" y="1775" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_52" value="Show Draft Saved with preview and Publish button" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="1820" as="sourcePoint"/>
+            <mxPoint x="85" y="1820" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_57" value="15. click Publish Exam" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="85" y="1905" as="sourcePoint"/>
+            <mxPoint x="265" y="1905" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_58" value="16. POST /api/Exams/publish" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="1955" as="sourcePoint"/>
+            <mxPoint x="500" y="1955" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_59" value="17. Publish: examId, lecturerId" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="2005" as="sourcePoint"/>
+            <mxPoint x="750" y="2005" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_60" value="18. LockExam: examId" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="2055" as="sourcePoint"/>
+            <mxPoint x="1280" y="2055" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_61" value="19. Fetch Question Pool: Status Approved, Type Main" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="2105" as="sourcePoint"/>
+            <mxPoint x="1280" y="2105" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_62" value="questionPool: size M" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1280" y="2155" as="sourcePoint"/>
+            <mxPoint x="750" y="2155" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_64" value="400 Bad Request: Insufficient approved questions" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="2245" as="sourcePoint"/>
+            <mxPoint x="500" y="2245" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_65" value="400 Bad Request" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="2295" as="sourcePoint"/>
+            <mxPoint x="265" y="2295" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_66" value="Display Question bank insufficient error" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="2345" as="sourcePoint"/>
+            <mxPoint x="85" y="2345" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_69" value="Add warning: Small question pool" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;edgeStyle=orthogonalEdgeStyle;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="2465" as="sourcePoint"/>
+            <mxPoint x="750" y="2493" as="targetPoint"/>
+            <Array as="points">
+              <mxPoint x="792" y="2465"/>
+              <mxPoint x="792" y="2493"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_71" value="20. Fetch past 1000 assignments for course" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="2555" as="sourcePoint"/>
+            <mxPoint x="1280" y="2555" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_72" value="pastAssignments: usageCount, last2Candidates" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1280" y="2605" as="sourcePoint"/>
+            <mxPoint x="750" y="2605" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_76" value="AllocateRandom: pool, count, usageStats" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="2740" as="sourcePoint"/>
+            <mxPoint x="1015" y="2740" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_77" value="selectedQuestions" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1015" y="2790" as="sourcePoint"/>
+            <mxPoint x="750" y="2790" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_80" value="AllocateBalanced: difficulty and usageStats" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="2870" as="sourcePoint"/>
+            <mxPoint x="1015" y="2870" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_81" value="selectedQuestions" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1015" y="2920" as="sourcePoint"/>
+            <mxPoint x="750" y="2920" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_83" value="21. Insert ExamQuestions for Candidate: OrderNo 1..N" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="3000" as="sourcePoint"/>
+            <mxPoint x="1280" y="3000" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_85" value="22. Update ExamSession Scheduled, Commit Transaction" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#0f172a;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#0f172a;endFill=1;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="3085" as="sourcePoint"/>
+            <mxPoint x="1280" y="3085" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_86" value="TransactionCommitted" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1280" y="3135" as="sourcePoint"/>
+            <mxPoint x="750" y="3135" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_87" value="warnings" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="750" y="3180" as="sourcePoint"/>
+            <mxPoint x="500" y="3180" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_88" value="200 OK: success, warnings" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="3225" as="sourcePoint"/>
+            <mxPoint x="265" y="3225" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_89" value="Display Exam Scheduled Successfully and published slots" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;strokeColor=#64748b;strokeWidth=1.5;fontSize=11;fontFamily=Arial;fontColor=#475569;labelBackgroundColor=#ffffff;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="3270" as="sourcePoint"/>
+            <mxPoint x="85" y="3270" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="AIVES State Machine Architect" version="24.7.17">
+  <diagram id="aives-state-group3-ai-interview" name="Group 3: AI Interview Engine">
+    <mxGraphModel dx="1480" dy="460" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1480" pageHeight="460" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="e_2" value="" style="ellipse;fillColor=#000000;strokeColor=none;html=1;" vertex="1" parent="1"><mxGeometry x="40" y="178" width="24" height="24" as="geometry"/></mxCell>
+        <mxCell id="e_3" value="Waiting" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffcc;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#000000;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="130" y="165" width="140" height="50" as="geometry"/></mxCell>
+        <mxCell id="e_4" value="Asking Question" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffcc;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#000000;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="360" y="165" width="160" height="50" as="geometry"/></mxCell>
+        <mxCell id="e_5" value="Listening" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffcc;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#000000;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="610" y="165" width="150" height="50" as="geometry"/></mxCell>
+        <mxCell id="e_6" value="Processing Answer" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffcc;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#000000;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="850" y="165" width="160" height="50" as="geometry"/></mxCell>
+        <mxCell id="e_7" value="Evaluating Answer" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffcc;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#000000;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="1100" y="165" width="160" height="50" as="geometry"/></mxCell>
+        <mxCell id="e_8" value="Completed" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffcc;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#000000;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="1100" y="310" width="160" height="50" as="geometry"/></mxCell>
+        <mxCell id="e_9" value="Absent" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#ffffcc;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=12;fontStyle=1;fontColor=#000000;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="130" y="310" width="140" height="50" as="geometry"/></mxCell>
+        <mxCell id="e_10" value="" style="ellipse;html=1;aspect=fixed;strokeWidth=2;fillColor=#ffffff;strokeColor=#ff0000;" vertex="1" parent="1"><mxGeometry x="1370" y="321" width="28" height="28" as="geometry"/></mxCell>
+        <mxCell id="e_24" value="" style="ellipse;html=1;aspect=fixed;strokeColor=none;fillColor=#000000;" vertex="1" parent="1"><mxGeometry x="1376" y="327" width="16" height="16" as="geometry"/></mxCell>
+        <mxCell id="e_11" value="Schedule slot" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_2" target="e_3">
+        <mxGeometry relative="1" as="geometry"></mxGeometry>
+      </mxCell>
+        <mxCell id="e_12" value="Candidate starts exam" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_3" target="e_4">
+        <mxGeometry relative="1" as="geometry"></mxGeometry>
+      </mxCell>
+        <mxCell id="e_13" value="Slot time expired" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_3" target="e_9">
+        <mxGeometry relative="1" as="geometry"></mxGeometry>
+      </mxCell>
+        <mxCell id="e_14" value="Close slot record" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_9" target="e_10">
+        <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="200" y="405"/><mxPoint x="1384" y="405"/></Array></mxGeometry>
+      </mxCell>
+        <mxCell id="e_15" value="Play question audio" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_4" target="e_5">
+        <mxGeometry relative="1" as="geometry"></mxGeometry>
+      </mxCell>
+        <mxCell id="e_16" value="Stream speech audio" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_5" target="e_5">
+        <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="655" y="115"/><mxPoint x="715" y="115"/></Array></mxGeometry>
+      </mxCell>
+        <mxCell id="e_17" value="Submit answer or time limit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_5" target="e_6">
+        <mxGeometry relative="1" as="geometry"></mxGeometry>
+      </mxCell>
+        <mxCell id="e_18" value="Check completeness" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_6" target="e_7">
+        <mxGeometry relative="1" as="geometry"></mxGeometry>
+      </mxCell>
+        <mxCell id="e_19" value="Adaptive follow-up" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_7" target="e_4">
+        <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1180" y="60"/><mxPoint x="440" y="60"/></Array></mxGeometry>
+      </mxCell>
+        <mxCell id="e_20" value="Next main question" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_7" target="e_4">
+        <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1180" y="105"/><mxPoint x="440" y="105"/></Array></mxGeometry>
+      </mxCell>
+        <mxCell id="e_21" value="All questions finished" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_7" target="e_8">
+        <mxGeometry relative="1" as="geometry"></mxGeometry>
+      </mxCell>
+        <mxCell id="e_22" value="Exam timeout" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_5" target="e_8">
+        <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="685" y="335"/></Array></mxGeometry>
+      </mxCell>
+        <mxCell id="e_23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#ff0000;strokeWidth=1.5;fontFamily=Arial;fontSize=11;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="e_8" target="e_10">
+        <mxGeometry relative="1" as="geometry"></mxGeometry>
+      </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
