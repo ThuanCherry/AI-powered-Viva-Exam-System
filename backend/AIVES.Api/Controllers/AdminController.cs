@@ -14,4 +14,7 @@ public class AdminController(UserManagementService users, AdminSettingsService s
 
     [HttpGet("settings")]
     public IActionResult Settings() => Data(settings.Read(Caller));
+
+    [HttpPut("speech")]
+    public IActionResult UpdateSpeech(UpdateSpeechRequest request) => Data(settings.UpdateSpeech(request, Caller));
 }

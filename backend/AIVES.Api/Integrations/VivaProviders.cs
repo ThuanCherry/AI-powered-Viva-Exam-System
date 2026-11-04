@@ -20,9 +20,18 @@ public interface IVivaSpeech
 
 public class ProviderStatus(IConfiguration config, IHostEnvironment? environment = null)
 {
+    private string? _languageOverride;
+    private string? _voiceOverride;
+
     public string LiveModel => config["Speech:LiveModel"] ?? "gemini-3.5-transcribe-live";
     public string TtsModel => config["Speech:TtsModel"] ?? "gemini-3.8-flash-tts";
-    public string Voice => config["Speech:Voice"] ?? "Kore";
+    public string Voice => _voiceOverride ?? config["Speech:Voice"] ?? "Kore";
+    public string Language => _languageOverride ?? config["Speech:Language"] ?? "vi-VN";
+    public void UpdateSpeech(string language, string voice)
+    {
+        _languageOverride = language;
+        _voiceOverride = voice;
+    }
     public bool KeyConfigured => config["AI:Provider"] == "Gemini" && !string.IsNullOrWhiteSpace(config["AI:ApiKey"]);
     public bool Llm => config["AI:Provider"] == "Gemini" && !string.IsNullOrWhiteSpace(config["AI:ApiKey"]) && !string.IsNullOrWhiteSpace(config["AI:Model"]);
     public bool Speech => KeyConfigured && (config["Speech:Provider"] ?? "Gemini") == "Gemini"
@@ -30,6 +39,7 @@ public class ProviderStatus(IConfiguration config, IHostEnvironment? environment
     public static bool ValidModel(string value) => Regex.IsMatch(value, "^[a-zA-Z0-9.-]{1,100}$");
     public object View => new { llm = Llm ? "Configured" : "NotConfigured", stt = Speech ? "Configured" : "NotConfigured",
         tts = Speech ? "Configured" : "NotConfigured", speechProvider = "Gemini", liveModel = LiveModel, ttsModel = TtsModel,
+        language = Language, voice = Voice,
         audioMode = "Gemini Live Transcribe; PCM16 mono 16kHz, 100ms frames; interim + final", manualFallback = true,
         availability = "ConfigurationOnly; verify models and project quota with ProviderProbe / AI Studio",
         configurationEnvironment = environment?.EnvironmentName ?? "Unknown",
@@ -132,10 +142,13 @@ public class GeminiVivaSpeech(IConfiguration config, ProviderStatus status, Prov
         Check();
         // Gemini 3.8 TTS uses Interactions and treats text as a verbatim transcript.
         // No student-provided prompt or rubric is accepted by the question TTS endpoint.
+        var style = status.Language == "en-US"
+            ? "Read clearly in English at a natural, measured pace."
+            : "Read clearly in Vietnamese at a natural, measured pace.";
         var payload = JsonSerializer.Serialize(new {
             model = status.TtsModel,
             input = new[] { new { type = "user_input", content = new[] { new { type = "text", text,
-                annotations = new[] { new { type = "speech_metadata", style = "Read clearly in Vietnamese at a natural, measured pace." } } } } } },
+                annotations = new[] { new { type = "speech_metadata", style } } } } } },
             response_format = new { type = "audio" }, generation_config = new { speech_config = new[] { new { voice = status.Voice } } }
         });
         var bytes = await http.Send(() => {

@@ -118,4 +118,22 @@ public class AdminWorkflowTests
         // Removed fake write action must not appear to succeed.
         await Call(s, HttpMethod.Put, "/api/Admin/settings", new { ttsSpeedRate = 1.5 }, expected: HttpStatusCode.MethodNotAllowed);
     }
+
+    [Fact]
+    public async Task SpeechLanguageAndVoiceCanBeConfiguredByAdminOnly()
+    {
+        await using var s = await LecturerSandbox.Create();
+        var initial = await Call(s, HttpMethod.Get, "/api/Admin/settings");
+        Assert.Equal("vi-VN", initial.GetProperty("language").GetString());
+        Assert.Equal("Kore", initial.GetProperty("voice").GetString());
+
+        var updated = await Call(s, HttpMethod.Put, "/api/Admin/speech", new { language = "en-US", voice = "Aoede" });
+        Assert.Equal("en-US", updated.GetProperty("language").GetString());
+        Assert.Equal("Aoede", updated.GetProperty("voice").GetString());
+
+        await Call(s, HttpMethod.Put, "/api/Admin/speech", new { language = "fr-FR", voice = "Kore" }, expected: HttpStatusCode.BadRequest);
+        await Call(s, HttpMethod.Put, "/api/Admin/speech", new { language = "vi-VN", voice = "InvalidVoice" }, expected: HttpStatusCode.BadRequest);
+        await Call(s, HttpMethod.Put, "/api/Admin/speech", new { language = "vi-VN", voice = "Kore" }, token: s.Token(1, "Lecturer"), expected: HttpStatusCode.Forbidden);
+        Assert.Equal(0, s.Ai.Calls); Assert.Equal(0, s.Network.Calls);
+    }
 }

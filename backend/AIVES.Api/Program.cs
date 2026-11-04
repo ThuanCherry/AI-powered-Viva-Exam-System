@@ -27,6 +27,18 @@ if (args.Contains("--check-database"))
     return;
 }
 
+if (args.Contains("--seed-admin") || args.Contains("--seed-users"))
+{
+    await DatabaseDiagnostics.SeedAdmin(builder.Configuration);
+    return;
+}
+
+if (args.Contains("--probe-ai"))
+{
+    await DatabaseDiagnostics.ProbeAi(builder.Configuration);
+    return;
+}
+
 // Local diagnostic only: never starts the server, opens MySQL, or calls an AI provider.
 if (args.Contains("--check-configuration"))
 {

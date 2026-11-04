@@ -8,3 +8,4 @@ export const toggleUserStatus = id => api.put(`/api/Users/${id}/status`, {});
 export const getAdminCourses = () => api.get('/api/Courses');
 export const assignLecturerToCourse = (id, lecturerId) => api.put(`/api/Courses/${id}/assign-lecturer`, { lecturerId });
 export const getSpeechSettings = () => api.get('/api/Admin/settings');
+export const updateSpeechSettings = data => api.put('/api/Admin/speech', data);

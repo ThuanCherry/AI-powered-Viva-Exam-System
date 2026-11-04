@@ -76,7 +76,7 @@ public class GeminiLiveTranscriber(IConfiguration config, ProviderStatus status,
             using var setup = CancellationTokenSource.CreateLinkedTokenSource(ct); setup.CancelAfter(TimeSpan.FromSeconds(10));
             await socket.Connect(config["AI:ApiKey"]!, setup.Token);
             await socket.Send(JsonSerializer.Serialize(new { setup = new { model = $"models/{status.LiveModel}",
-                generationConfig = new { responseModalities = new[] { "TEXT" } }, inputAudioTranscription = new { languageCodes = new[] { "vi-VN" }, mode = "VERBATIM" } } }), setup.Token);
+                generationConfig = new { responseModalities = new[] { "TEXT" } }, inputAudioTranscription = new { languageCodes = new[] { status.Language }, mode = "VERBATIM" } } }), setup.Token);
             using (var ready = Parse(await socket.Receive(setup.Token)))
             {
                 WorkflowRules.Require(ready.RootElement.TryGetProperty("setupComplete", out _), "GeminiLiveSetupFailed: không nhận được setupComplete.", 502);

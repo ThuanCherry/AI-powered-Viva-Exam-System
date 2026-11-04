@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Sidebar from '../components/Sidebar.jsx';
 import { getAdminUsers, createAdminUser, updateAdminUser, toggleUserStatus,
-  getAdminCourses, assignLecturerToCourse, getSpeechSettings } from '../api/admin.js';
+  getAdminCourses, assignLecturerToCourse, getSpeechSettings, updateSpeechSettings } from '../api/admin.js';
 import '../styles/AdminManagement.css';
 
 const roles = { Admin: 'Quản trị viên', Lecturer: 'Giảng viên', Student: 'Sinh viên' };
@@ -137,7 +137,36 @@ export default function AdminManagement() {
           ['TTS', settings.providers.tts, settings.providers.ttsModel]].map(([label, state, model]) =>
           <div className="admin-config-item" key={label}><strong>{label}</strong><span>{configured(state)}</span><code>{model || 'Chưa đặt model'}</code></div>)}
       </div>
-      <p>Giọng đọc: <strong>{settings.voice}</strong> · Môi trường: <strong>{settings.providers.configurationEnvironment}</strong></p>
+
+      <div className="assign-card" style={{ marginTop: 16, marginBottom: 16 }}>
+        <div>
+          <div className="assign-course-title">Ngôn ngữ & Giọng đọc (STT / TTS)</div>
+          <p className="assign-course-desc">Chọn ngôn ngữ nhận diện giọng nói (STT) và giọng đọc câu hỏi (TTS) cho phòng thi vấn đáp.</p>
+        </div>
+        <div className="assign-controls" style={{ display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+          <div>
+            <label htmlFor="speech-language">Ngôn ngữ (STT/TTS)</label>
+            <select id="speech-language" className="assign-select" disabled={busy || loading}
+              value={settings.language || 'vi-VN'}
+              onChange={e => void mutate(() => updateSpeechSettings({ language: e.target.value, voice: settings.voice }), 'Đã cập nhật ngôn ngữ STT/TTS.')}>
+              {(settings.supportedLanguages || [
+                { code: 'vi-VN', label: 'Tiếng Việt (vi-VN)' },
+                { code: 'en-US', label: 'Tiếng Anh (en-US)' }
+              ]).map(lang => <option key={lang.code} value={lang.code}>{lang.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="speech-voice">Giọng đọc (TTS Voice)</label>
+            <select id="speech-voice" className="assign-select" disabled={busy || loading}
+              value={settings.voice || 'Kore'}
+              onChange={e => void mutate(() => updateSpeechSettings({ language: settings.language || 'vi-VN', voice: e.target.value }), 'Đã cập nhật giọng đọc TTS.')}>
+              {(settings.supportedVoices || ['Kore', 'Aoede', 'Puck', 'Charon', 'Fenrir']).map(v => <option key={v} value={v}>{v}</option>)}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <p>Ngôn ngữ: <strong>{settings.language === 'en-US' ? 'Tiếng Anh (en-US)' : 'Tiếng Việt (vi-VN)'}</strong> · Giọng đọc: <strong>{settings.voice}</strong> · Môi trường: <strong>{settings.providers.configurationEnvironment}</strong></p>
       <p>Chỉnh cấu hình tại <code>{settings.configurationFile}</code> trên máy chạy backend, rồi khởi động lại backend.
         Biến môi trường có thể ghi đè giá trị trong file. API key không hiển thị trên trình duyệt.</p>
       {!!settings.providers.missing?.length && <p>Còn thiếu: <code>{settings.providers.missing.join(', ')}</code></p>}
