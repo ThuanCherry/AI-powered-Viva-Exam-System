@@ -194,4 +194,54 @@ public class LecturerWorkflowTests
         db.Documents.Add(doc); await db.SaveChangesAsync();
         await Call(s, HttpMethod.Get, $"/api/documents/{doc.DocumentId}/download", expected: HttpStatusCode.NotFound);
     }
+
+    [Fact] public async Task DocumentUploadAndAiGenerateQuestionsSavesChunksAndAppearsInQuestionBank()
+    {
+        await using var s = await LecturerSandbox.Create();
+        var course = await Course(s);
+
+        using var zipped = new MemoryStream();
+        using (var zip = new ZipArchive(zipped, ZipArchiveMode.Create, true))
+        {
+            using (var a = new StreamWriter(zip.CreateEntry("[Content_Types].xml").Open()))
+                a.Write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"></Types>");
+            using (var b = new StreamWriter(zip.CreateEntry("word/document.xml").Open()))
+                b.Write("<w:document xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\"><w:body><w:p><w:t>Object Oriented Programming principles include Encapsulation, Inheritance, Polymorphism, and Abstraction. Encapsulation hides internal state.</w:t></w:p></w:body></w:document>");
+        }
+        var docxBytes = zipped.ToArray();
+
+        var uploadRes = await Upload(s, course, docxBytes, "OOP_Lecture_Notes.docx");
+        Assert.Equal(HttpStatusCode.OK, uploadRes.StatusCode);
+        var uploadJson = JsonSerializer.Deserialize<JsonElement>(await uploadRes.Content.ReadAsStringAsync());
+        var docId = uploadJson.GetProperty("data").GetProperty("documentId").GetInt32();
+
+        var genResult = await Call(s, HttpMethod.Post, $"/api/lecturer/documents/{docId}/generate-questions", new { count = 3 });
+        Assert.Equal(3, genResult.GetProperty("generatedCount").GetInt32());
+
+        using (var scope = s.App.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AivesDbContext>();
+            var chunks = await db.DocumentChunks.Where(c => c.DocumentId == docId).ToListAsync();
+            Assert.NotEmpty(chunks);
+
+            var genQuestions = await db.GeneratedQuestions.Where(q => q.DocumentId == docId).ToListAsync();
+            Assert.Equal(3, genQuestions.Count);
+
+            var aiQuestions = await db.Questions.Where(q => q.CourseId == course && q.Source == "AI").ToListAsync();
+            Assert.Equal(3, aiQuestions.Count);
+            Assert.Equal("Approved", aiQuestions[0].Status);
+
+            var firstId = aiQuestions[0].QuestionId;
+            var editResult = await Call(s, HttpMethod.Put, $"/api/lecturer/questions/{firstId}", new
+            {
+                courseId = course,
+                questionText = "Câu hỏi AI đã được giảng viên tinh chỉnh lại?",
+                expectedAnswer = "Đáp án chuẩn đã cập nhật.",
+                difficulty = "Medium",
+                bloomLevel = "Understand",
+                status = "Approved"
+            });
+            Assert.Equal(firstId, editResult.GetProperty("questionId").GetInt32());
+        }
+    }
 }

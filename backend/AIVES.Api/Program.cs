@@ -39,6 +39,12 @@ if (args.Contains("--probe-ai"))
     return;
 }
 
+if (args.Contains("--probe-qgen"))
+{
+    await DatabaseDiagnostics.ProbeQuestionGen(builder.Configuration);
+    return;
+}
+
 // Local diagnostic only: never starts the server, opens MySQL, or calls an AI provider.
 if (args.Contains("--check-configuration"))
 {

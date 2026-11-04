@@ -28,6 +28,7 @@ public static class ApplicationServices
         services.AddScoped<ScheduleNotifications>();
         services.AddScoped<LecturerService>();
         services.AddScoped<DocumentStore>();
+        services.AddScoped<DocumentAiService>();
         services.AddScoped<VivaEngine>();
         services.AddScoped<DatabaseHealthService>();
         return services;

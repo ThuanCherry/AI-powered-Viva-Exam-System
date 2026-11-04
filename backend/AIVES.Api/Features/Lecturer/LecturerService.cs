@@ -123,7 +123,7 @@ public class LecturerService(AivesDbContext db, WorkflowService flow, ScheduleNo
             Require(item != null, "Không tìm thấy câu hỏi.", 404);
             Require(item.Course!.LecturerId == lecturer && item.CourseId == input.CourseId, "Không đổi môn hoặc sửa câu hỏi của người khác.", 403);
             Require(!await db.ExamQuestions.AnyAsync(q => q.QuestionId == id, ct), "Câu đã phân vào đề thi; hãy tạo câu mới để bảo toàn lịch sử.", 409);
-            Require(item.Source == "Manual" && item.QuestionType == "Main", "Chỉ sửa câu chính nhập thủ công tại màn hình này.", 409);
+            Require((item.Source == "Manual" || item.Source == "AI") && item.QuestionType == "Main", "Chỉ sửa câu chính nhập thủ công hoặc do AI sinh tại màn hình này.", 409);
         }
         else { item = new() { CourseId = input.CourseId, CreatedBy = lecturer, CreatedAt = flow.Now, Source = "Manual", QuestionType = "Main" }; db.Questions.Add(item); }
         item!.QuestionText = input.QuestionText.Trim(); item.ExpectedAnswer = input.ExpectedAnswer?.Trim(); item.Difficulty = input.Difficulty;

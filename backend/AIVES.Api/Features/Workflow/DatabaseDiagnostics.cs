@@ -208,4 +208,54 @@ public static class DatabaseDiagnostics
             Console.WriteLine($"[TTS ERROR in {ttsSw.ElapsedMilliseconds}ms]: {ex.Message}");
         }
     }
+
+    public static async Task ProbeQuestionGen(IConfiguration configuration)
+    {
+        Console.WriteLine("--- Testing Gemini Question Generation from Document Excerpt ---");
+        var status = new ProviderStatus(configuration);
+        var services = new ServiceCollection();
+        services.AddHttpClient("providers");
+        services.AddSingleton<ProviderHttp>();
+        var sp = services.BuildServiceProvider();
+        var http = sp.GetRequiredService<ProviderHttp>();
+
+        var sw = Stopwatch.StartNew();
+        try
+        {
+            var model = configuration["AI:Model"] ?? "gemini-3.5-flash";
+            var sampleDoc = "Chương 3: Lập trình Hướng Đối Tượng nâng cao.\n" +
+                "1. Tính Đóng gói (Encapsulation): Che giấu chi tiết cài đặt và trạng thái bên trong của đối tượng, chỉ cho phép tương tác qua các phương thức công khai.\n" +
+                "2. Tính Kế thừa (Inheritance): Cho phép lớp con thừa hưởng các thuộc tính và phương thức từ lớp cha, tái sử dụng mã nguồn.\n" +
+                "3. Tính Đa hình (Polymorphism): Khả năng đối tượng thực thi cùng một phương thức theo các cách khác nhau thông qua Override hoặc Interface.";
+
+            var systemPrompt = "Bạn là chuyên gia khảo thí đại học hàng đầu về phỏng vấn vấn đáp (viva exam).";
+            var prompt = "Dưới đây là tài liệu học tập:\n\"\"\"\n" + sampleDoc + "\n\"\"\"\n\nHãy sinh đúng 3 câu hỏi thi vấn đáp cho sinh viên. Trả về duy nhất JSON array: [{\"questionText\": string, \"expectedAnswer\": string, \"difficulty\": \"Easy\"|\"Medium\"|\"Hard\", \"bloomLevel\": \"Remember\"|\"Understand\"|\"Apply\"|\"Analyze\", \"topic\": string, \"explanation\": string}]";
+
+            var payload = JsonSerializer.Serialize(new
+            {
+                systemInstruction = new { parts = new[] { new { text = systemPrompt } } },
+                contents = new[] { new { role = "user", parts = new[] { new { text = prompt } } } },
+                generationConfig = new { responseMimeType = "application/json", temperature = 0.3, maxOutputTokens = 2048 }
+            });
+
+            var bytes = await http.Send(() =>
+            {
+                var r = new HttpRequestMessage(HttpMethod.Post, $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent");
+                r.Headers.Add("x-goog-api-key", configuration["AI:ApiKey"]);
+                r.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+                return r;
+            }, CancellationToken.None);
+
+            sw.Stop();
+            using var jsonDoc = JsonDocument.Parse(bytes);
+            var text = jsonDoc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString()!;
+            Console.WriteLine($"[GENERATE SUCCESS in {sw.ElapsedMilliseconds}ms]");
+            Console.WriteLine(text);
+        }
+        catch (Exception ex)
+        {
+            sw.Stop();
+            Console.WriteLine($"[GENERATE ERROR in {sw.ElapsedMilliseconds}ms]: {ex.Message}");
+        }
+    }
 }
