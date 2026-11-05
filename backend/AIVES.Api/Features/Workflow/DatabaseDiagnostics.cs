@@ -33,6 +33,18 @@ public static class DatabaseDiagnostics
             await using var countRolesCmd = new MySqlCommand("SELECT COUNT(*) FROM roles", connection);
             var roleCount = await countRolesCmd.ExecuteScalarAsync();
             Console.WriteLine($"Total Roles: {roleCount}");
+
+            await using var countDocsCmd = new MySqlCommand("SELECT COUNT(*) FROM documents", connection);
+            var docCount = await countDocsCmd.ExecuteScalarAsync();
+            Console.WriteLine($"Total Documents: {docCount}");
+
+            await using var countQCmd = new MySqlCommand("SELECT COUNT(*) FROM questions", connection);
+            var qCount = await countQCmd.ExecuteScalarAsync();
+            Console.WriteLine($"Total Questions: {qCount}");
+
+            await using var countGenQCmd = new MySqlCommand("SELECT COUNT(*) FROM generated_questions", connection);
+            var genQCount = await countGenQCmd.ExecuteScalarAsync();
+            Console.WriteLine($"Total Generated Questions: {genQCount}");
         }
         catch (Exception exception)
         {

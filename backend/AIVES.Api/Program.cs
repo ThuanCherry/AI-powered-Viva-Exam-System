@@ -71,7 +71,17 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<AivesDbContext>(options =>
-    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 0))));
+    options.UseMySql(
+        connectionString,
+        new MySqlServerVersion(new Version(8, 0, 0)),
+        mySqlOptions =>
+        {
+            mySqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(5),
+                errorNumbersToAdd: null);
+            mySqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+        }));
 
 // ---------- Authentication (JWT) ----------
 var jwtKey = builder.Configuration["Jwt:Key"]
