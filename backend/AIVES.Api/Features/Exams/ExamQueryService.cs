@@ -51,12 +51,19 @@ public class ExamQueryService(AivesDbContext _db)
             .Include(e => e.Lecturer)
             .Include(e => e.VivaSettings)
             .Include(e => e.ExamQuestions).ThenInclude(q => q.Question)
+            .Include(e => e.ExamQuestions).ThenInclude(q => q.Answer).ThenInclude(a => a!.FollowUps)
+            .Include(e => e.ExamQuestions).ThenInclude(q => q.Answer).ThenInclude(a => a!.AiEvaluation)
             .Include(e => e.Candidates)
                 .ThenInclude(c => c.Student)
             .FirstOrDefaultAsync(e => e.ExamId == id, ct);
 
         Require(exam != null, "Exam not found.", 404);
         Require(!(caller.IsLecturer ? exam.LecturerId != user : exam.Status == "Draft" || !exam.Candidates.Any(c => c.StudentId == user && c.Status != "Cancelled")), "Không có quyền truy cập kỳ thi.", 403);
+
+        var finalResults = await _db.FinalResults.AsNoTracking()
+            .Include(r => r.FinalizedByUser)
+            .Where(r => r.ExamId == id)
+            .ToListAsync(ct);
 
         return new
         {
@@ -90,26 +97,70 @@ public class ExamQueryService(AivesDbContext _db)
                 exam.VivaSettings.SecondsPerQuestion,
                 exam.VivaSettings.MaxFollowUpsPerQuestion
             },
-            Candidates = exam.Candidates.Where(c => c.Status != "Cancelled" && (caller.IsLecturer || c.StudentId == user)).OrderBy(c => c.ScheduledTime).Select(c => new
+            Candidates = exam.Candidates.Where(c => c.Status != "Cancelled" && (caller.IsLecturer || c.StudentId == user)).OrderBy(c => c.ScheduledTime).Select(c =>
             {
-                c.CandidateId,
-                c.StudentId,
-                StudentName = c.Student?.FullName,
-                StudentEmail = c.Student?.Email,
-                Questions = caller.IsLecturer ? exam.ExamQuestions.Where(q => q.CandidateId == c.CandidateId && q.ParentExamQuestionId == null).OrderBy(q => q.OrderNo).Select(q => new
+                var res = finalResults.FirstOrDefault(r => r.CandidateId == c.CandidateId);
+                return new
                 {
-                    q.ExamQuestionId,
-                    q.QuestionId,
-                    q.OrderNo,
-                    QuestionText = q.Question!.QuestionText,
-                    q.Question.Difficulty,
-                    q.Question.BloomLevel
-                }).ToArray() : null,
-                ScheduledTime = c.ScheduledTime.HasValue ? WorkflowService.Iso(c.ScheduledTime.Value) : null,
-                ScheduledEndTime = c.ScheduledTime.HasValue ? WorkflowService.Iso(c.ScheduledTime.Value.AddMinutes(exam.TimePerStudent)) : null,
-                c.Status,
-                c.StartedAt,
-                c.FinishedAt
+                    c.CandidateId,
+                    c.StudentId,
+                    StudentName = c.Student?.FullName,
+                    StudentEmail = c.Student?.Email,
+                    Questions = caller.IsLecturer ? exam.ExamQuestions.Where(q => q.CandidateId == c.CandidateId && q.ParentExamQuestionId == null).OrderBy(q => q.OrderNo).Select(q =>
+                    {
+                        var sig = VivaEngine.ComputeSignals(q.Answer?.Transcript, q.Answer?.FollowUps, q.Answer?.DurationSeconds);
+                        return new
+                        {
+                            q.ExamQuestionId,
+                            q.QuestionId,
+                            q.OrderNo,
+                            QuestionText = q.Question!.QuestionText,
+                            ExpectedAnswer = q.Question.ExpectedAnswer,
+                            q.Question.Difficulty,
+                            q.Question.BloomLevel,
+                            q.IsCompleted,
+                            Transcript = q.Answer?.Transcript,
+                            DurationSeconds = q.Answer?.DurationSeconds,
+                            WordCount = sig.WordCount,
+                            WordsPerMinute = sig.WordsPerMinute,
+                            FluencyLabel = sig.FluencyLabel,
+                            FollowUps = q.Answer?.FollowUps.OrderBy(f => f.OrderNo).Select(f => new
+                            {
+                                f.FollowUpId,
+                                f.OrderNo,
+                                f.QuestionText,
+                                f.AnswerTranscript,
+                                f.Reason,
+                                Answered = f.AnsweredAt != null
+                            }).ToArray() ?? [],
+                            Evaluation = q.Answer?.AiEvaluation == null ? null : new
+                            {
+                                q.Answer.AiEvaluation.AiScore,
+                                q.Answer.AiEvaluation.Confidence,
+                                q.Answer.AiEvaluation.Feedback,
+                                q.Answer.AiEvaluation.Strengths,
+                                q.Answer.AiEvaluation.Weaknesses,
+                                q.Answer.AiEvaluation.MissingPoints,
+                                EvaluatedAt = WorkflowService.Iso(q.Answer.AiEvaluation.EvaluatedAt)
+                            }
+                        };
+                    }).ToArray() : null,
+                    Result = res == null ? null : new
+                    {
+                        res.AiScore,
+                        res.LecturerScore,
+                        res.FinalScore,
+                        res.LecturerComment,
+                        IsFinalized = res.FinalizedAt != null,
+                        FinalizedByName = res.FinalizedByUser?.FullName,
+                        FinalizedAt = res.FinalizedAt.HasValue ? WorkflowService.Iso(res.FinalizedAt.Value) : null
+                    },
+                    ScheduledTime = c.ScheduledTime.HasValue ? WorkflowService.Iso(c.ScheduledTime.Value) : null,
+                    ScheduledEndTime = c.ScheduledTime.HasValue ? WorkflowService.Iso(c.ScheduledTime.Value.AddMinutes(exam.TimePerStudent)) : null,
+                    c.Status,
+                    c.StartedAt,
+                    c.FinishedAt
+                };
             }).ToArray()
         };
     }

@@ -71,4 +71,18 @@ public class WorkflowController(WorkflowService flow, VivaEngine engine, Provide
 
     [HttpGet("Exams/{id:int}/attempt/tts"), Authorize(Roles = "Student")]
     public async Task<IActionResult> Speak(int id, [FromQuery] string turnId, CancellationToken ct) => File(await engine.Speak(id, UserId, turnId, ct), "audio/wav");
+
+    [HttpPost("Exams/{id:int}/attempt/evaluate"), Authorize(Roles = "Student")]
+    public async Task<IActionResult> EvaluateAttempt(int id, CancellationToken ct) => Data(await engine.EvaluateAttempt(id, UserId, ct));
+
+    [HttpPost("Exams/{id:int}/candidates/{candidateId:int}/evaluate"), Authorize(Roles = "Lecturer")]
+    public async Task<IActionResult> EvaluateCandidate(int id, int candidateId, CancellationToken ct) => Data(await engine.EvaluateByLecturer(id, candidateId, UserId, ct));
+
+    [HttpPut("Exams/{id:int}/candidates/{candidateId:int}/grade"), Authorize(Roles = "Lecturer")]
+    public async Task<IActionResult> GradeCandidate(int id, int candidateId, GradeCandidateInput input, CancellationToken ct)
+    {
+        var result = await engine.GradeByLecturer(id, candidateId, UserId, input, ct);
+        await flow.Notify(id, "graded", ct);
+        return Data(result);
+    }
 }

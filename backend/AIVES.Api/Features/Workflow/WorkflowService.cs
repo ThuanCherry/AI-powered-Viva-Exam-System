@@ -203,8 +203,10 @@ public class WorkflowService(AivesDbContext db, TimeProvider clock, ScheduleNoti
     {
         var rows = await db.ExamCandidates.Where(c => c.StudentId == student && c.Status != "Cancelled" && c.ExamSession!.Status != "Draft" && c.ExamSession.Status != "Cancelled")
             .OrderBy(c => c.ScheduledTime).Select(c => new { c.ExamId, c.CandidateId, c.Status, c.ScheduledTime,
-                c.ExamSession!.ExamName, c.ExamSession.TimePerStudent, CourseName = c.ExamSession.Course!.CourseName }).ToListAsync(ct);
+                c.ExamSession!.ExamName, c.ExamSession.TimePerStudent, CourseName = c.ExamSession.Course!.CourseName,
+                Result = db.FinalResults.Where(r => r.ExamId == c.ExamId && r.CandidateId == c.CandidateId).Select(r => new { r.AiScore, r.LecturerScore, r.FinalScore, IsFinalized = r.FinalizedAt != null }).FirstOrDefault() }).ToListAsync(ct);
         return rows.Select(c => new { c.ExamId, c.CandidateId, c.Status, c.ExamName, c.TimePerStudent, c.CourseName,
+            aiScore = c.Result?.AiScore, finalScore = c.Result?.FinalScore, isFinalized = c.Result?.IsFinalized ?? false,
             scheduledTime = c.ScheduledTime.HasValue ? WorkflowService.Iso(c.ScheduledTime.Value) : null }).ToArray();
     }
     public async Task<object> CatalogAsync(int lecturer, CancellationToken ct) => await db.Courses

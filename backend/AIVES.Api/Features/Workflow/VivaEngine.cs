@@ -19,7 +19,7 @@ public class VivaEngine(AivesDbContext db, WorkflowService flow, IVivaLlm llm, I
         c.ScheduledTime!.Value.AddMinutes(c.ExamSession.TimePerStudent), c.StartedAt!.Value.AddMinutes(c.ExamSession.TimePerStudent) }.Min();
 
     private async Task<List<ExamQuestion>> Questions(ExamCandidate c, CancellationToken ct) => await db.ExamQuestions
-        .Include(q => q.Question).Include(q => q.Answer).ThenInclude(a => a!.FollowUps)
+        .Include(q => q.Question).Include(q => q.Answer).ThenInclude(a => a!.FollowUps).Include(q => q.Answer).ThenInclude(a => a!.AiEvaluation)
         .Where(q => q.CandidateId == c.CandidateId && q.ParentExamQuestionId == null).OrderBy(q => q.OrderNo).ToListAsync(ct);
 
     private static (ExamQuestion? Main, FollowUpQuestion? Follow) Current(List<ExamQuestion> qs)
@@ -89,6 +89,8 @@ public class VivaEngine(AivesDbContext db, WorkflowService flow, IVivaLlm llm, I
             .AddSeconds(c.ExamSession!.VivaSettings?.SecondsPerQuestion ?? 120), deadline!.Value }.Min();
         var warning = await db.ExamLogs.Where(l => l.CandidateId == c.CandidateId && l.Action == "ProviderError" && (l.Description == null || !l.Description.Contains("Gemini không trả đúng JSON")))
             .OrderByDescending(l => l.LogId).Select(l => l.Description).FirstOrDefaultAsync(ct);
+        var finalResult = await db.FinalResults.AsNoTracking().Include(r => r.FinalizedByUser)
+            .FirstOrDefaultAsync(r => r.ExamId == c.ExamId && r.CandidateId == c.CandidateId, ct);
         return new { c.ExamId, c.CandidateId, c.Status, serverTime = WorkflowService.Iso(now),
             deadline = deadline.HasValue ? WorkflowService.Iso(deadline.Value) : null,
             scheduledTime = c.ScheduledTime.HasValue ? WorkflowService.Iso(c.ScheduledTime.Value) : null,
@@ -97,9 +99,31 @@ public class VivaEngine(AivesDbContext db, WorkflowService flow, IVivaLlm llm, I
             followUpsUsed = qs.Sum(q => q.Answer?.FollowUps.Count ?? 0), maxFollowUpCount = c.ExamSession!.MaxFollowUpCount,
             turn = main == null ? null : new { turnId = Turn(main, follow), text = follow?.QuestionText ?? main.Question!.QuestionText,
                 mainOrder = main.OrderNo, isFollowUp = follow != null, transcript = follow?.AnswerTranscript ?? (follow == null ? main.Answer?.Transcript : null) ?? "" },
-            history = qs.Where(q => q.AskedAt != null).Select(q => new { question = q.Question!.QuestionText, transcript = q.Answer?.Transcript,
-                completed = q.IsCompleted, askedAt = WorkflowService.Iso(q.AskedAt!.Value),
-                followUps = q.Answer?.FollowUps.OrderBy(f => f.OrderNo).Select(f => new { question = f.QuestionText, transcript = f.AnswerTranscript, answered = f.AnsweredAt != null }) }),
+            history = qs.Where(q => q.AskedAt != null).Select(q => {
+                var sig = ComputeSignals(q.Answer?.Transcript, q.Answer?.FollowUps, q.Answer?.DurationSeconds);
+                return new { examQuestionId = q.ExamQuestionId, question = q.Question!.QuestionText, transcript = q.Answer?.Transcript,
+                    completed = q.IsCompleted, askedAt = WorkflowService.Iso(q.AskedAt!.Value),
+                    durationSeconds = q.Answer?.DurationSeconds, wordCount = sig.WordCount, wordsPerMinute = sig.WordsPerMinute, fluencyLabel = sig.FluencyLabel,
+                    evaluation = q.Answer?.AiEvaluation == null ? null : new {
+                        aiScore = q.Answer.AiEvaluation.AiScore,
+                        confidence = q.Answer.AiEvaluation.Confidence,
+                        feedback = q.Answer.AiEvaluation.Feedback,
+                        strengths = q.Answer.AiEvaluation.Strengths,
+                        weaknesses = q.Answer.AiEvaluation.Weaknesses,
+                        missingPoints = q.Answer.AiEvaluation.MissingPoints,
+                        evaluatedAt = WorkflowService.Iso(q.Answer.AiEvaluation.EvaluatedAt)
+                    },
+                    followUps = q.Answer?.FollowUps.OrderBy(f => f.OrderNo).Select(f => new { question = f.QuestionText, transcript = f.AnswerTranscript, answered = f.AnsweredAt != null }) };
+            }),
+            result = finalResult == null ? null : new {
+                aiScore = finalResult.AiScore,
+                lecturerScore = finalResult.LecturerScore,
+                finalScore = finalResult.FinalScore,
+                lecturerComment = finalResult.LecturerComment,
+                isFinalized = finalResult.FinalizedAt != null,
+                finalizedByName = finalResult.FinalizedByUser?.FullName,
+                finalizedAt = finalResult.FinalizedAt.HasValue ? WorkflowService.Iso(finalResult.FinalizedAt.Value) : null
+            },
             providers = providers.View, providerWarning = warning };
     }
 
@@ -280,6 +304,161 @@ public class VivaEngine(AivesDbContext db, WorkflowService flow, IVivaLlm llm, I
         }
         if (exam.Candidates.All(c => c.Status is not ("Waiting" or "InProgress"))) exam.Status = "Completed";
         await db.SaveChangesAsync(ct); await tx.CommitAsync(ct);
+    }
+
+    public static (int WordCount, int? WordsPerMinute, string FluencyLabel) ComputeSignals(string? mainTranscript, IEnumerable<FollowUpQuestion>? followUps, int? durationSeconds)
+    {
+        var followText = followUps == null ? "" : string.Join(" ", followUps.Select(f => f.AnswerTranscript));
+        var combined = $"{mainTranscript} {followText}".Trim();
+        var words = string.IsNullOrWhiteSpace(combined)
+            ? 0
+            : combined.Split([' ', '\n', '\r', '\t', ',', '.', ';', '!', '?'], StringSplitOptions.RemoveEmptyEntries).Length;
+        if (words == 0) return (0, 0, "Chưa trả lời");
+        int? wpm = durationSeconds is > 3 ? (int)Math.Round(words * 60.0 / durationSeconds.Value) : null;
+        var label = words switch
+        {
+            < 10 => "Quá ngắn / Ngập ngừng",
+            < 25 => "Ngắn gọn · Cơ bản",
+            < 60 => "Mạch lạc · Trôi chảy",
+            _ => "Trôi chảy · Diễn đạt chi tiết"
+        };
+        return (words, wpm, label);
+    }
+
+    public async Task<object> EvaluateAttempt(int examId, int studentId, CancellationToken ct)
+    {
+        var c = await Candidate(examId, studentId, ct);
+        await Advance(c, ct);
+        Require(c.Status == "Completed", "Chỉ đánh giá sau khi hoàn thành phiên thi.", 409);
+        await RunAiEvaluation(c, false, ct);
+        return await State(c, ct);
+    }
+
+    public async Task<object> EvaluateByLecturer(int examId, int candidateId, int lecturerId, CancellationToken ct)
+    {
+        var exam = await flow.Owned(examId, lecturerId, ct);
+        var c = exam.Candidates.FirstOrDefault(x => x.CandidateId == candidateId);
+        Require(c != null, "Không tìm thấy thí sinh trong kỳ thi.", 404);
+        await RunAiEvaluation(c!, true, ct);
+        var res = await db.FinalResults.AsNoTracking().Include(r => r.FinalizedByUser)
+            .FirstOrDefaultAsync(r => r.ExamId == examId && r.CandidateId == candidateId, ct);
+        return new { candidateId, aiScore = res?.AiScore, lecturerScore = res?.LecturerScore, finalScore = res?.FinalScore, isFinalized = res?.FinalizedAt != null };
+    }
+
+    public async Task<object> GradeByLecturer(int examId, int candidateId, int lecturerId, GradeCandidateInput input, CancellationToken ct)
+    {
+        Require(input.LecturerScore is >= 0m and <= 10m, "Điểm giảng viên cần nằm trong khoảng 0 đến 10.");
+        Require(input.LecturerComment?.Length is not > 2000, "Nhận xét tối đa 2000 ký tự.");
+        var exam = await flow.Owned(examId, lecturerId, ct);
+        var c = exam.Candidates.FirstOrDefault(x => x.CandidateId == candidateId);
+        Require(c != null, "Không tìm thấy thí sinh trong kỳ thi.", 404);
+
+        var score = Math.Round(input.LecturerScore, 2);
+        var res = await db.FinalResults.FirstOrDefaultAsync(r => r.ExamId == examId && r.CandidateId == candidateId, ct);
+        if (res == null)
+        {
+            res = new FinalResult { ExamId = examId, CandidateId = candidateId };
+            db.FinalResults.Add(res);
+        }
+        res.LecturerScore = score;
+        res.FinalScore = score;
+        res.LecturerComment = string.IsNullOrWhiteSpace(input.LecturerComment) ? null : input.LecturerComment.Trim();
+        res.FinalizedBy = lecturerId;
+        res.FinalizedAt = flow.Now;
+        flow.Log(examId, candidateId, "GradeFinalized", $"Score: {score}/10");
+        await db.SaveChangesAsync(ct);
+
+        var lecturerUser = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserId == lecturerId, ct);
+        return new
+        {
+            res.CandidateId,
+            res.AiScore,
+            res.LecturerScore,
+            res.FinalScore,
+            res.LecturerComment,
+            isFinalized = true,
+            finalizedByName = lecturerUser?.FullName,
+            finalizedAt = WorkflowService.Iso(res.FinalizedAt.Value)
+        };
+    }
+
+    private async Task RunAiEvaluation(ExamCandidate c, bool force, CancellationToken ct)
+    {
+        var qs = await Questions(c, ct);
+        if (qs.Count == 0) return;
+
+        var scores = new List<decimal>();
+        foreach (var q in qs)
+        {
+            if (q.Answer == null)
+            {
+                q.Answer = new Answer
+                {
+                    CandidateId = c.CandidateId,
+                    ExamQuestionId = q.ExamQuestionId,
+                    Transcript = "",
+                    CreatedAt = flow.Now,
+                    StartedAt = q.AskedAt ?? flow.Now,
+                    FinishedAt = flow.Now,
+                    DurationSeconds = 0
+                };
+                db.Answers.Add(q.Answer);
+                await db.SaveChangesAsync(ct);
+            }
+
+            if (q.Answer.AiEvaluation == null || force)
+            {
+                var rubric = await db.Rubrics.Include(r => r.Criteria).FirstOrDefaultAsync(r => r.QuestionId == q.QuestionId, ct);
+                var expected = (q.Question?.ExpectedAnswer ?? "") + (rubric == null ? "" : "\nRubric: " + string.Join("; ", rubric.Criteria.OrderBy(r => r.DisplayOrder).Select(r => $"{r.CriteriaName}: {r.Description}")));
+                var history = string.Join("\n", q.Answer.FollowUps.OrderBy(f => f.OrderNo).Select(f => $"Q: {f.QuestionText}\nA: {f.AnswerTranscript}"));
+                var grade = await llm.Evaluate(q.Question?.QuestionText ?? "", expected, q.Answer.Transcript ?? "", history, ct);
+
+                if (q.Answer.AiEvaluation == null)
+                {
+                    q.Answer.AiEvaluation = new AiEvaluation
+                    {
+                        AnswerId = q.Answer.AnswerId,
+                        AiScore = grade.Score,
+                        Confidence = grade.Confidence,
+                        Feedback = grade.Feedback,
+                        Strengths = grade.Strengths,
+                        Weaknesses = grade.Weaknesses,
+                        MissingPoints = grade.MissingPoints,
+                        EvaluatedAt = flow.Now
+                    };
+                    db.AiEvaluations.Add(q.Answer.AiEvaluation);
+                }
+                else
+                {
+                    q.Answer.AiEvaluation.AiScore = grade.Score;
+                    q.Answer.AiEvaluation.Confidence = grade.Confidence;
+                    q.Answer.AiEvaluation.Feedback = grade.Feedback;
+                    q.Answer.AiEvaluation.Strengths = grade.Strengths;
+                    q.Answer.AiEvaluation.Weaknesses = grade.Weaknesses;
+                    q.Answer.AiEvaluation.MissingPoints = grade.MissingPoints;
+                    q.Answer.AiEvaluation.EvaluatedAt = flow.Now;
+                }
+            }
+            scores.Add(q.Answer.AiEvaluation.AiScore);
+        }
+
+        var avgAi = scores.Count > 0 ? Math.Round(scores.Average(), 2) : 0m;
+        var finalRes = await db.FinalResults.FirstOrDefaultAsync(r => r.ExamId == c.ExamId && r.CandidateId == c.CandidateId, ct);
+        if (finalRes == null)
+        {
+            finalRes = new FinalResult
+            {
+                ExamId = c.ExamId,
+                CandidateId = c.CandidateId,
+                AiScore = avgAi
+            };
+            db.FinalResults.Add(finalRes);
+        }
+        else
+        {
+            finalRes.AiScore = avgAi;
+        }
+        await db.SaveChangesAsync(ct);
     }
 }
 

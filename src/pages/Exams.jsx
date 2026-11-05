@@ -27,7 +27,16 @@ export default function Exams() {
         <div className="wf-row"><span className="wf-eyebrow">{e.courseName}</span><Status value={e.status} /></div>
         <h2>{e.examName}</h2><p>{vnTime(e.scheduledTime || e.startTime)}</p>
         <p className="wf-muted">{lecturer ? `Kết thúc: ${vnTime(e.endTime)}` : `${e.timePerStudent} phút / sinh viên`}</p>
-        <Link className="wf-button wf-secondary" to={lecturer ? `/exams/${e.examId}` : `/viva/${e.examId}`}>{lecturer ? 'Xem lịch & cấu hình' : e.status === 'Completed' ? 'Xem phiên thi' : 'Vào phòng chờ'} →</Link>
+        {!lecturer && e.status === 'Completed' && (
+          <p className="vr-card-score">
+            {e.isFinalized && e.finalScore != null
+              ? `✓ Điểm chính thức: ${Number(e.finalScore).toFixed(1)} / 10`
+              : e.aiScore != null
+              ? `AI đề xuất: ${Number(e.aiScore).toFixed(1)} / 10 · Chờ GV duyệt`
+              : 'Đã hoàn thành · Xem đánh giá AI'}
+          </p>
+        )}
+        <Link className="wf-button wf-secondary" to={lecturer ? `/exams/${e.examId}` : `/viva/${e.examId}`}>{lecturer ? 'Xem lịch & Chấm điểm' : e.status === 'Completed' ? 'Xem kết quả & đánh giá' : 'Vào phòng chờ'} →</Link>
       </article>)}</div>
     </div>
   </AppShell>;
@@ -154,6 +163,6 @@ export function ExamEditor() {
         {exam && ['Draft', 'Scheduled'].includes(exam.status) && <button type="button" className="wf-button wf-secondary" disabled={busy} onClick={() => action('cancel')}>Hủy kỳ thi</button>}
       </aside>
     </form>}
-    {exam && exam.status !== 'Draft' && <CandidateQuestionDistribution candidates={exam.candidates} mainCount={exam.mainQuestionCount} />}
+    {exam && exam.status !== 'Draft' && <CandidateQuestionDistribution examId={exam.examId} candidates={exam.candidates} mainCount={exam.mainQuestionCount} onUpdated={() => setRevision(r => r + 1)} />}
   </div></AppShell>;
 }

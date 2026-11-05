@@ -20,6 +20,7 @@ export default function VivaRoom() {
   const [state, setState] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [evalBusy, setEvalBusy] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [connection, setConnection] = useState('Đang kết nối');
   const [recording, setRecording] = useState(false);
@@ -31,6 +32,7 @@ export default function VivaRoom() {
   const current = useRef(null);
   const mounted = useRef(true);
   const manualDirty = useRef(false);
+  const autoEvaluated = useRef(false);
   const offset = useRef(0);
   const capture = useRef(null);
   const micAbort = useRef(null);
@@ -68,6 +70,25 @@ export default function VivaRoom() {
     hub.start().then(join).catch(() => { if (alive) setConnection('REST dự phòng · đồng bộ mỗi 5 giây'); });
     return () => { alive = false; mounted.current = false; window.removeEventListener(SCHEDULE_CHANGED, scheduleChanged); clearInterval(poll); clearInterval(tick); cancelMic(); speechAbort.current?.abort(); hub.stop(); audio.current?.pause(); if (audioUrl.current) URL.revokeObjectURL(audioUrl.current); };
   }, [examId, refresh, cancelMic]);
+
+  const evaluateAttempt = useCallback(async () => {
+    setEvalBusy(true);
+    try {
+      const next = await api.post(`/api/Exams/${examId}/attempt/evaluate`);
+      if (mounted.current) apply(next);
+    } catch (e) {
+      if (mounted.current) setError(e.message);
+    } finally {
+      if (mounted.current) setEvalBusy(false);
+    }
+  }, [examId, apply]);
+
+  useEffect(() => {
+    if (state?.status === 'Completed' && state.history?.length > 0 && !state.result && !autoEvaluated.current) {
+      autoEvaluated.current = true;
+      evaluateAttempt();
+    }
+  }, [state?.status, state?.history?.length, state?.result, evaluateAttempt]);
 
   const speak = useCallback(async (turnId, signal) => {
     speechAbort.current?.abort();
@@ -121,6 +142,9 @@ export default function VivaRoom() {
       if (controller.signal.aborted || current.current !== captureTurn) session.cancel(); else capture.current = session;
     } catch (e) { cancelMic(); setMicStarting(false); setError(e.name === 'NotAllowedError' ? 'Quyền microphone bị từ chối. Cho phép mic trong cài đặt trình duyệt hoặc nhập văn bản dự phòng.' : e.message); }
   };
+
+  const result = state?.result;
+
   return <AppShell title="Phòng vấn đáp" subtitle="Câu hỏi và câu trả lời được lưu theo phiên thi"><div className="wf-page wf-room">
     <div className="wf-row"><Link className="wf-back" to="/exams">← Lịch thi</Link><span className="wf-connection" role="status">{connection}</span></div>
     {error && <p className="wf-error" role="alert">{error}</p>}
@@ -140,12 +164,119 @@ export default function VivaRoom() {
           <textarea id="transcript" className="wf-transcript" maxLength={12000} value={transcript} disabled={busy || recording || micStarting || pending > 0} onChange={e => { manualDirty.current = true; setTranscript(e.target.value); }} placeholder="Transcript từ microphone sẽ hiện tại đây. Có thể sửa hoặc nhập tay khi cần." />
           <div className="wf-tools"><button className="wf-button" disabled={busy || recording || micStarting || pending > 0} onClick={() => run(() => api.post(`/api/Exams/${examId}/attempt/answer`, { turnId: state.turn.turnId, transcript }))}>{busy ? 'Đang lưu & xử lý…' : 'Nộp câu trả lời →'}</button><button className="wf-button wf-secondary" disabled={busy || recording || micStarting || pending > 0} onClick={() => run(() => api.post(`/api/Exams/${examId}/attempt/answer`, { turnId: state.turn.turnId, transcript: '' }))}>Bỏ qua lượt</button></div>
         </>}
-        {state.status === 'Completed' && <div className="wf-empty"><h2>Đã kết thúc phiên thi</h2><p>Các câu trả lời đã được lưu. Bạn có thể xem lại bên dưới.</p></div>}
+        {state.status === 'Completed' && (
+          <div className="vr-summary">
+            <div className="vr-summary__head">
+              <div>
+                <span className="wf-eyebrow">Kết quả phiên thi vấn đáp</span>
+                <h2 style={{ margin: '6px 0 4px' }}>Đã hoàn thành bài thi</h2>
+                <p className="wf-muted" style={{ margin: 0 }}>
+                  {result?.isFinalized
+                    ? `Đã được giảng viên ${result.finalizedByName || ''} duyệt và chốt điểm chính thức.`
+                    : 'AI đã phân tích câu trả lời để đưa ra điểm gợi ý. Điểm chính thức sẽ do Giảng viên xét duyệt (Human-in-the-loop).'}
+                </p>
+              </div>
+              {!result && (
+                <button type="button" className="wf-button wf-secondary" disabled={evalBusy} onClick={evaluateAttempt}>
+                  {evalBusy ? 'Đang phân tích AI…' : 'Phân tích & Chấm gợi ý AI'}
+                </button>
+              )}
+            </div>
+
+            {evalBusy && !result && (
+              <p className="wf-notice" role="status" style={{ marginTop: 16 }}>
+                Giám khảo AI đang đối chiếu transcript với đáp án mẫu để chấm điểm gợi ý và tổng hợp nhận xét…
+              </p>
+            )}
+
+            {result && (
+              <div className="vr-score-grid">
+                <div className="vr-score-card">
+                  <span className="vr-score-card__label">Điểm AI đề xuất</span>
+                  <strong className="vr-score-card__val">{result.aiScore != null ? `${Number(result.aiScore).toFixed(1)} / 10` : '—'}</strong>
+                  <small className="vr-score-card__sub">Tổng hợp tự động từ các câu trả lời</small>
+                </div>
+                <div className={`vr-score-card ${result.isFinalized ? 'is-final' : ''}`}>
+                  <span className="vr-score-card__label">Điểm chính thức (Giảng viên)</span>
+                  <strong className="vr-score-card__val">
+                    {result.isFinalized && result.finalScore != null ? `${Number(result.finalScore).toFixed(1)} / 10` : 'Chờ duyệt'}
+                  </strong>
+                  <small className="vr-score-card__sub">
+                    {result.isFinalized ? `Chốt lúc ${vnTime(result.finalizedAt)}` : 'Giảng viên quyết định điểm cuối cùng'}
+                  </small>
+                </div>
+              </div>
+            )}
+
+            {result?.lecturerComment && (
+              <div className="vr-lecturer-note">
+                <strong>Nhận xét của Giảng viên:</strong>
+                <p>{result.lecturerComment}</p>
+              </div>
+            )}
+          </div>
+        )}
         {!['Waiting', 'Completed', 'InProgress'].includes(state.status) && <p>Phiên thi không khả dụng: {state.status}.</p>}
       </section>
       {(state.providers.llm !== 'Configured' || state.providers.stt !== 'Configured' || state.providers.tts !== 'Configured') && <p className="wf-fallback">LLM: {state.providers.llm} · STT: {state.providers.stt} · TTS: {state.providers.tts}. {state.providers.missing?.length > 0 && <>Backend chưa nạp: {state.providers.missing.join(', ')}. </>}Môi trường: {state.providers.configurationEnvironment || 'chưa xác định'}. Có thể nhập văn bản dự phòng.</p>}
       {state.providerWarning && !state.providerWarning.includes('Gemini không trả đúng JSON') && <p className="wf-fallback">Lỗi provider được lưu gần nhất: {state.providerWarning}</p>}
-      {state.history?.length > 0 && <section className="wf-panel" style={{ marginTop: 20 }}><h2>Lịch sử phiên thi</h2>{state.history.map((h, i) => <article className="wf-history" key={i}><strong>{i + 1}. {h.question}</strong><p>{h.transcript || (h.completed ? 'Không có câu trả lời.' : 'Chưa nộp.')}</p>{h.followUps?.map((f, j) => <div key={j}><strong>↳ {f.question}</strong><p>{f.transcript || (f.answered ? 'Không có câu trả lời.' : 'Đang chờ trả lời.')}</p></div>)}</article>)}</section>}
+      {state.history?.length > 0 && (
+        <section className="wf-panel" style={{ marginTop: 20 }}>
+          <h2>Chi tiết câu trả lời & Đánh giá AI</h2>
+          {state.history.map((h, i) => (
+            <article className="wf-history vr-qitem" key={i}>
+              <div className="wf-row" style={{ alignItems: 'flex-start' }}>
+                <strong>Câu {i + 1}. {h.question}</strong>
+                {h.evaluation && (
+                  <span className="vr-qscore">AI gợi ý: {Number(h.evaluation.aiScore).toFixed(1)} / 10</span>
+                )}
+              </div>
+              <div className="vr-signals">
+                {h.durationSeconds != null && <span>⏱ Thời gian trả lời: {h.durationSeconds}s</span>}
+                {h.wordCount != null && <span>📝 Độ dài: {h.wordCount} từ</span>}
+                {h.fluencyLabel && <span>🗣 Độ trôi chảy: {h.fluencyLabel}{h.wordsPerMinute ? ` (~${h.wordsPerMinute} từ/phút)` : ''}</span>}
+              </div>
+              <div className="vr-answer-box">
+                <span className="vr-answer-box__label">Transcript câu trả lời:</span>
+                <p>{h.transcript || (h.completed ? 'Không có câu trả lời.' : 'Chưa nộp.')}</p>
+              </div>
+              {h.followUps?.map((f, j) => (
+                <div className="vr-followup-box" key={j}>
+                  <strong>↳ Câu hỏi đào sâu {j + 1}: {f.question}</strong>
+                  <p>{f.transcript || (f.answered ? 'Không có câu trả lời.' : 'Đang chờ trả lời.')}</p>
+                </div>
+              ))}
+              {h.evaluation && (
+                <div className="vr-eval-box">
+                  <div className="vr-eval-box__feedback">
+                    <strong>Đánh giá tổng quát của AI:</strong> {h.evaluation.feedback}
+                  </div>
+                  <div className="vr-eval-grid">
+                    {h.evaluation.strengths && (
+                      <div className="vr-eval-pill is-good">
+                        <span>✓ Điểm mạnh</span>
+                        <p>{h.evaluation.strengths}</p>
+                      </div>
+                    )}
+                    {h.evaluation.weaknesses && (
+                      <div className="vr-eval-pill is-warn">
+                        <span>⚠ Điểm yếu</span>
+                        <p>{h.evaluation.weaknesses}</p>
+                      </div>
+                    )}
+                    {h.evaluation.missingPoints && (
+                      <div className="vr-eval-pill is-miss">
+                        <span>🔍 Ý còn thiếu</span>
+                        <p>{h.evaluation.missingPoints}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </article>
+          ))}
+        </section>
+      )}
     </>}
   </div></AppShell>;
 }
