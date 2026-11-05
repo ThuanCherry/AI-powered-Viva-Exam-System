@@ -76,10 +76,6 @@ builder.Services.AddDbContext<AivesDbContext>(options =>
         new MySqlServerVersion(new Version(8, 0, 0)),
         mySqlOptions =>
         {
-            mySqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(5),
-                errorNumbersToAdd: null);
             mySqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
         }));
 
