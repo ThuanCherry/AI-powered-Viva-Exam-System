@@ -87,7 +87,7 @@ public class VivaEngine(AivesDbContext db, WorkflowService flow, IVivaLlm llm, I
         var deadline = c.StartedAt != null ? Deadline(c) : (DateTime?)null;
         var turnEnd = main == null ? (DateTime?)null : new[] { (follow?.AskedAt ?? main.AskedAt ?? now)
             .AddSeconds(c.ExamSession!.VivaSettings?.SecondsPerQuestion ?? 120), deadline!.Value }.Min();
-        var warning = await db.ExamLogs.Where(l => l.CandidateId == c.CandidateId && l.Action == "ProviderError")
+        var warning = await db.ExamLogs.Where(l => l.CandidateId == c.CandidateId && l.Action == "ProviderError" && (l.Description == null || !l.Description.Contains("Gemini không trả đúng JSON")))
             .OrderByDescending(l => l.LogId).Select(l => l.Description).FirstOrDefaultAsync(ct);
         return new { c.ExamId, c.CandidateId, c.Status, serverTime = WorkflowService.Iso(now),
             deadline = deadline.HasValue ? WorkflowService.Iso(deadline.Value) : null,

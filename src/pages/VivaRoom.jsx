@@ -144,7 +144,7 @@ export default function VivaRoom() {
         {!['Waiting', 'Completed', 'InProgress'].includes(state.status) && <p>Phiên thi không khả dụng: {state.status}.</p>}
       </section>
       {(state.providers.llm !== 'Configured' || state.providers.stt !== 'Configured' || state.providers.tts !== 'Configured') && <p className="wf-fallback">LLM: {state.providers.llm} · STT: {state.providers.stt} · TTS: {state.providers.tts}. {state.providers.missing?.length > 0 && <>Backend chưa nạp: {state.providers.missing.join(', ')}. </>}Môi trường: {state.providers.configurationEnvironment || 'chưa xác định'}. Có thể nhập văn bản dự phòng.</p>}
-      {state.providerWarning && <p className="wf-fallback">Lỗi provider được lưu gần nhất: {state.providerWarning}</p>}
+      {state.providerWarning && !state.providerWarning.includes('Gemini không trả đúng JSON') && <p className="wf-fallback">Lỗi provider được lưu gần nhất: {state.providerWarning}</p>}
       {state.history?.length > 0 && <section className="wf-panel" style={{ marginTop: 20 }}><h2>Lịch sử phiên thi</h2>{state.history.map((h, i) => <article className="wf-history" key={i}><strong>{i + 1}. {h.question}</strong><p>{h.transcript || (h.completed ? 'Không có câu trả lời.' : 'Chưa nộp.')}</p>{h.followUps?.map((f, j) => <div key={j}><strong>↳ {f.question}</strong><p>{f.transcript || (f.answered ? 'Không có câu trả lời.' : 'Đang chờ trả lời.')}</p></div>)}</article>)}</section>}
     </>}
   </div></AppShell>;
