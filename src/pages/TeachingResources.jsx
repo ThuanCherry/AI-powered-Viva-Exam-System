@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import AppShell from '../components/Sidebar.jsx';
 import { api } from '../api/client.js';
@@ -20,6 +20,16 @@ export function DocumentsPage() {
   const [genCount, setGenCount] = useState(5);
   const [genBusy, setGenBusy] = useState(false);
   const [genResult, setGenResult] = useState(null);
+  const [elapsed, setElapsed] = useState(0);
+
+  // Live timer while AI is generating questions
+  useEffect(() => {
+    if (!genBusy) return;
+    const timer = setInterval(() => {
+      setElapsed(s => s + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [genBusy]);
 
   const upload = async event => {
     event.preventDefault();
@@ -86,6 +96,7 @@ export function DocumentsPage() {
     if (!selectedDocForAi) return;
     setError('');
     setGenBusy(true);
+    setElapsed(0);
     setGenResult(null);
     try {
       const res = await api.post(`/api/lecturer/documents/${selectedDocForAi.documentId}/generate-questions`, {
@@ -156,9 +167,17 @@ export function DocumentsPage() {
                 </div>
               </div>
               {genBusy && (
-                <p style={{ fontSize: '13px', color: '#047857', marginTop: '10px' }}>
-                  ⏳ Hệ thống đang trích xuất văn bản, lập chỉ mục (chunks) và gửi qua Gemini LLM để thiết kế câu hỏi vấn đáp kèm đáp án chuẩn... Vui lòng đợi trong giây lát.
-                </p>
+                <div style={{ marginTop: '14px', padding: '14px', background: '#ecfdf5', borderRadius: '8px', border: '1px solid #a7f3d0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '16px' }}>🤖</span>
+                    <strong style={{ fontSize: '14px', color: '#065f46' }}>
+                      AI đang phân tích tài liệu và thiết kế câu hỏi vấn đáp... ({elapsed}s)
+                    </strong>
+                  </div>
+                  <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#047857' }}>
+                    Gemini đang đọc toàn bộ nội dung tài liệu, trích xuất các ý chính, cấu trúc đáp án chuẩn và gán mức độ nhận thức (Bloom Level). Quá trình này thường mất khoảng 10 – 20 giây. Bạn có thể chuyển tab làm việc khác và quay lại mà không bị mất tiến trình.
+                  </p>
+                </div>
               )}
             </form>
 
@@ -193,7 +212,7 @@ export function DocumentsPage() {
           </section>
         )}
 
-        {files.loading && <p>Đang tải tài liệu…</p>}
+        {files.loading && !files.data && <p>Đang tải tài liệu…</p>}
         {files.data?.length === 0 && <p className="wf-empty">Môn học chưa có tài liệu.</p>}
         {files.data?.length > 0 && (
           <section className="wf-panel lc-gap">
@@ -381,7 +400,7 @@ export function ManualQuestionsPage() {
                 <button className="wf-button wf-secondary">Tìm</button>
               </form>
 
-              {questions.loading && <p>Đang tải…</p>}
+              {questions.loading && !questions.data && <p>Đang tải…</p>}
               {questions.data?.length === 0 && <p className="wf-muted">Chưa có câu hỏi phù hợp.</p>}
               {questions.data?.map(q => (
                 <article className="wf-history" key={q.questionId}>

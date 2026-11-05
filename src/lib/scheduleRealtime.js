@@ -16,7 +16,7 @@ export function watchSchedule({ hub, refresh, status, window, document, timers =
     catch { offline(); }
     finally { starting = false; }
   };
-  const resume = () => { if (alive && document.visibilityState !== 'hidden') { updated(); void start(); } };
+  const resume = () => { if (alive && document.visibilityState !== 'hidden') { void start(); } };
   hub.on('ScheduleChanged', updated);
   hub.onreconnecting(offline);
   hub.onreconnected(connected);
