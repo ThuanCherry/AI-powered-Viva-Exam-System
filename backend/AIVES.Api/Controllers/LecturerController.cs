@@ -66,5 +66,5 @@ public class LecturerController(LecturerService service, DocumentStore documents
     public async Task<IActionResult> UpdateQuestion(int id, QuestionInput input, CancellationToken ct) => Data(new { questionId = await service.SaveQuestion(id, UserId, input, ct) });
 
     [HttpDelete("questions/{id:int}")]
-    public async Task<IActionResult> ArchiveQuestion(int id, CancellationToken ct) { await service.ArchiveQuestion(id, UserId, ct); return Data(new { message = "Đã lưu trữ câu hỏi, không xóa lịch sử." }); }
+    public async Task<IActionResult> ArchiveQuestion(int id, CancellationToken ct) { await service.ArchiveQuestion(id, UserId, ct); return Data(new { message = "Đã xóa câu hỏi khỏi ngân hàng câu hỏi." }); }
 }

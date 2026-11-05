@@ -283,11 +283,12 @@ export function ManualQuestionsPage() {
   };
 
   const archive = async q => {
-    if (!window.confirm('Lưu trữ câu hỏi này? Câu hỏi sẽ không được phân vào đề mới; lịch sử thi vẫn được giữ nguyên.')) return;
+    if (!window.confirm('Bạn có chắc chắn muốn xóa câu hỏi này khỏi Ngân hàng câu hỏi?\n(Câu hỏi sẽ được gỡ khỏi ngân hàng đề mới; lịch sử thi cũ vẫn được bảo toàn)')) return;
     setBusy(true);
     setError('');
     try {
       await api.delete(`/api/lecturer/questions/${q.questionId}`);
+      setNotice('Đã xóa câu hỏi thành công.');
       questions.reload();
       courses.reload();
     } catch (e) {
@@ -394,7 +395,7 @@ export function ManualQuestionsPage() {
                     <option value="">Đang sử dụng</option>
                     <option value="Draft">Nháp</option>
                     <option value="Approved">Sẵn sàng</option>
-                    <option value="Archived">Đã lưu trữ</option>
+                    <option value="Archived">Đã xóa / Lưu trữ</option>
                   </select>
                 </label>
                 <button className="wf-button wf-secondary">Tìm</button>
@@ -405,7 +406,7 @@ export function ManualQuestionsPage() {
               {questions.data?.map(q => (
                 <article className="wf-history" key={q.questionId}>
                   <p className="wf-muted">
-                    {levels[q.difficulty] || q.difficulty} · {blooms[q.bloomLevel] || q.bloomLevel} · {q.status === 'Approved' ? 'Sẵn sàng' : q.status === 'Draft' ? 'Nháp' : q.status === 'Archived' ? 'Đã lưu trữ' : 'Chờ duyệt'}
+                    {levels[q.difficulty] || q.difficulty} · {blooms[q.bloomLevel] || q.bloomLevel} · {q.status === 'Approved' ? 'Sẵn sàng' : q.status === 'Draft' ? 'Nháp' : q.status === 'Archived' ? 'Đã xóa (Lưu trữ)' : 'Chờ duyệt'}
                     {q.source === 'AI' ? <span style={{ color: '#059669', fontWeight: 600 }}> · 🤖 Sinh bởi AI</span> : q.source !== 'Manual' ? ' · Nguồn có sẵn' : ' · Soạn thủ công'}
                   </p>
                   <strong className="lc-question">{q.questionText}</strong>
@@ -426,7 +427,7 @@ export function ManualQuestionsPage() {
                     )}
                     {q.status !== 'Archived' && (
                       <button className="lc-text-button lc-danger" disabled={busy} onClick={() => archive(q)}>
-                        Lưu trữ
+                        Xóa
                       </button>
                     )}
                   </div>
