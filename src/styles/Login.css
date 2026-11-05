@@ -305,48 +305,6 @@
   cursor: progress;
 }
 
-/* Quick Demo Fill Buttons (styled in warm parchment & brass) */
-.login__quick-fill {
-  margin-top: 1.15rem;
-  padding: 0.75rem;
-  background: #fbf6ec;
-  border: 1px dashed var(--parchment-line);
-  border-radius: 8px;
-}
-
-.login__quick-label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--ink-text-dim);
-  margin-bottom: 0.45rem;
-}
-
-.login__quick-buttons {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-
-.login__quick-btn {
-  background: #ffffff;
-  border: 1px solid var(--parchment-line);
-  border-radius: 6px;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--ink-text);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.login__quick-btn:hover {
-  background: #f3ebdb;
-  border-color: var(--brass);
-  color: var(--brass-deep);
-  transform: translateY(-1px);
-}
-
 .divider {
   display: flex;
   align-items: center;

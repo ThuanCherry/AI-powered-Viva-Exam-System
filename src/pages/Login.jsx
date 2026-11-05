@@ -66,12 +66,6 @@ export default function Login() {
     }
   }
 
-  function quickFill(email, password) {
-    setForm({ email, password, remember: true });
-    setErrors({});
-    setServerError("");
-  }
-
   function validate() {
     const next = {};
     if (!form.email.trim()) {
@@ -238,34 +232,6 @@ export default function Login() {
             <button type="submit" className="submit" disabled={status === "submitting"}>
               {status === "submitting" ? "Signing in…" : "Sign in"}
             </button>
-
-            {/* Quick Demo Fill Buttons in warm classic style */}
-            <div className="login__quick-fill">
-              <span className="login__quick-label">⚡ Quick Demo Accounts:</span>
-              <div className="login__quick-buttons">
-                <button
-                  type="button"
-                  className="login__quick-btn"
-                  onClick={() => quickFill("admin@aives.vn", "Admin@123456")}
-                >
-                  👑 Admin
-                </button>
-                <button
-                  type="button"
-                  className="login__quick-btn"
-                  onClick={() => quickFill("lecturer@aives.vn", "Lecturer@123456")}
-                >
-                  👨‍🏫 Lecturer
-                </button>
-                <button
-                  type="button"
-                  className="login__quick-btn"
-                  onClick={() => quickFill("student1@aives.vn", "Student@123456")}
-                >
-                  🎓 Student
-                </button>
-              </div>
-            </div>
 
             <div className="divider">
               <span>or</span>
