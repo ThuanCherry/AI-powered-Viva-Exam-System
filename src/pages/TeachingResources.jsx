@@ -92,7 +92,7 @@ export function DocumentsPage() {
         count: Number(genCount)
       });
       setGenResult(res);
-      setNotice(`AI đã hoàn thành! Đã sinh và thêm ${res.generatedCount} câu hỏi vào Ngân hàng câu hỏi của môn.`);
+      setNotice(`AI đã hoàn thành! Đã sinh ${res.generatedCount} câu hỏi ở trạng thái Nháp và thêm vào Ngân hàng câu hỏi để bạn kiểm duyệt.`);
       files.reload();
     } catch (err) {
       setError(err.message || 'Không thể sinh câu hỏi từ tài liệu.');
@@ -167,17 +167,17 @@ export function DocumentsPage() {
               <div style={{ marginTop: '20px', borderTop: '1px solid #a7f3d0', paddingTop: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <h3 style={{ margin: 0, color: '#065f46' }}>
-                    ✅ Đã thêm {genResult.generatedCount} câu hỏi vào Ngân hàng câu hỏi:
+                    ✅ Đã tạo {genResult.generatedCount} câu hỏi (Trạng thái: Nháp):
                   </h3>
                   <Link className="wf-button wf-secondary" to={`/questions?courseId=${courseId}`}>
-                    Xem Ngân hàng câu hỏi →
+                    Kiểm duyệt trong Ngân hàng câu hỏi →
                   </Link>
                 </div>
                 <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {genResult.questions?.map((q, idx) => (
                     <div key={idx} style={{ background: 'white', padding: '12px', borderRadius: '8px', border: '1px solid #d1fae5' }}>
-                      <p style={{ margin: '0 0 6px 0', fontSize: '12px', color: '#059669', fontWeight: 600 }}>
-                        Câu {idx + 1} · {q.difficulty} · {q.bloomLevel} · [Đã duyệt vào đề]
+                      <p style={{ margin: '0 0 6px 0', fontSize: '12px', color: '#d97706', fontWeight: 600 }}>
+                        Câu {idx + 1} · {q.difficulty} · {q.bloomLevel} · [Nháp - Chờ duyệt]
                       </p>
                       <strong style={{ fontSize: '14px', color: '#1f2937' }}>{q.questionText}</strong>
                       {q.expectedAnswer && (
@@ -269,6 +269,28 @@ export function ManualQuestionsPage() {
     setError('');
     try {
       await api.delete(`/api/lecturer/questions/${q.questionId}`);
+      questions.reload();
+      courses.reload();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const approve = async q => {
+    setBusy(true);
+    setError('');
+    try {
+      await api.put(`/api/lecturer/questions/${q.questionId}`, {
+        courseId: Number(courseId),
+        questionText: q.questionText,
+        expectedAnswer: q.expectedAnswer || '',
+        difficulty: q.difficulty,
+        bloomLevel: q.bloomLevel,
+        status: 'Approved'
+      });
+      setNotice('Đã duyệt câu hỏi chuyển sang trạng thái Sẵn sàng sử dụng.');
       questions.reload();
       courses.reload();
     } catch (e) {
@@ -373,6 +395,11 @@ export function ManualQuestionsPage() {
                     <p className="lc-question">{q.expectedAnswer || 'Chưa nhập đáp án tham khảo.'}</p>
                   </details>
                   <div className="wf-tools">
+                    {q.status === 'Draft' && (q.source === 'Manual' || q.source === 'AI') && q.questionType === 'Main' && (
+                      <button className="lc-text-button" style={{ color: '#059669', fontWeight: 600 }} disabled={busy} onClick={() => approve(q)}>
+                        ✓ Duyệt sẵn sàng
+                      </button>
+                    )}
                     {(q.source === 'Manual' || q.source === 'AI') && q.questionType === 'Main' && q.status !== 'Archived' && (
                       <button className="lc-text-button" disabled={busy} onClick={() => { setEditing(q.questionId); setForm(q); }}>
                         Sửa

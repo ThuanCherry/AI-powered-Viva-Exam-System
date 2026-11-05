@@ -225,14 +225,14 @@ public class DocumentAiService(
                 Explanation = item.Explanation != null && item.Explanation.Length > 2000 ? item.Explanation[..2000] : item.Explanation,
                 BloomLevel = bloomInt,
                 Topic = item.Topic != null && item.Topic.Length > 200 ? item.Topic[..200] : item.Topic,
-                Status = "Approved",
-                ReviewedById = userId,
-                ReviewedAt = now,
+                Status = "Draft",
+                ReviewedById = null,
+                ReviewedAt = null,
                 CreatedAt = now
             };
             db.GeneratedQuestions.Add(genRecord);
 
-            // Save record in Question Bank (questions table)
+            // Save record in Question Bank (questions table) as Draft so lecturer can review & approve
             var bankQuestion = new Question
             {
                 CourseId = doc.CourseId,
@@ -242,10 +242,10 @@ public class DocumentAiService(
                 Difficulty = cleanDifficulty,
                 BloomLevel = cleanBloom,
                 QuestionType = "Main",
-                Status = "Approved",
+                Status = "Draft",
                 Source = "AI",
-                ReviewedBy = userId,
-                ReviewedAt = now,
+                ReviewedBy = null,
+                ReviewedAt = null,
                 CreatedAt = now
             };
             db.Questions.Add(bankQuestion);

@@ -229,7 +229,7 @@ public class LecturerWorkflowTests
 
             var aiQuestions = await db.Questions.Where(q => q.CourseId == course && q.Source == "AI").ToListAsync();
             Assert.Equal(3, aiQuestions.Count);
-            Assert.Equal("Approved", aiQuestions[0].Status);
+            Assert.Equal("Draft", aiQuestions[0].Status);
 
             var firstId = aiQuestions[0].QuestionId;
             var editResult = await Call(s, HttpMethod.Put, $"/api/lecturer/questions/{firstId}", new

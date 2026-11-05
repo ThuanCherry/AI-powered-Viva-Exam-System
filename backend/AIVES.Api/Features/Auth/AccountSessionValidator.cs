@@ -17,8 +17,16 @@ public class AccountSessionValidator(AivesDbContext db)
 
     public static async Task ValidateToken(TokenValidatedContext context)
     {
-        var validator = context.HttpContext.RequestServices.GetRequiredService<AccountSessionValidator>();
-        if (!await validator.IsCurrentAsync(context.Principal, context.HttpContext.RequestAborted))
-            context.Fail("Tài khoản đã bị khóa hoặc vai trò đã thay đổi. Vui lòng đăng nhập lại.");
+        try
+        {
+            var validator = context.HttpContext.RequestServices.GetRequiredService<AccountSessionValidator>();
+            if (!await validator.IsCurrentAsync(context.Principal, context.HttpContext.RequestAborted))
+                context.Fail("Tài khoản đã bị khóa hoặc vai trò đã thay đổi. Vui lòng đăng nhập lại.");
+        }
+        catch (OperationCanceledException) when (context.HttpContext.RequestAborted.IsCancellationRequested)
+        {
+            // Request was cancelled by client (browser reload, navigation, or abort controller).
+            context.Fail("Request cancelled by client.");
+        }
     }
 }
