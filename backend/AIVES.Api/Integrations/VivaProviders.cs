@@ -104,12 +104,32 @@ public class GeminiViva(IConfiguration config, ProviderStatus status, ProviderHt
         {
             using var doc = JsonDocument.Parse(bytes);
             var text = doc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString()!;
-            var decision = JsonSerializer.Deserialize<FollowUpDecision>(text, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var cleanText = CleanJson(text);
+            var decision = JsonSerializer.Deserialize<FollowUpDecision>(cleanText, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             WorkflowRules.Require(decision != null && (!decision.NeedsFollowUp || (!string.IsNullOrWhiteSpace(decision.Question) && decision.Question.Length <= 600)), "ProviderInvalidResponse: follow-up không hợp lệ.", 502);
             return decision!;
         }
         catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException or IndexOutOfRangeException)
         { throw new WorkflowException(502, "ProviderInvalidResponse: Gemini không trả đúng JSON."); }
+    }
+
+    private static string CleanJson(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return text;
+        var trimmed = text.Trim();
+        var firstBrace = trimmed.IndexOf('{');
+        var lastBrace = trimmed.LastIndexOf('}');
+        if (firstBrace >= 0 && lastBrace > firstBrace)
+        {
+            return trimmed.Substring(firstBrace, lastBrace - firstBrace + 1);
+        }
+        if (trimmed.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
+            trimmed = trimmed[7..];
+        else if (trimmed.StartsWith("```", StringComparison.OrdinalIgnoreCase))
+            trimmed = trimmed[3..];
+        if (trimmed.EndsWith("```", StringComparison.OrdinalIgnoreCase))
+            trimmed = trimmed[..^3];
+        return trimmed.Trim();
     }
 }
 

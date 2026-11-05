@@ -310,14 +310,34 @@ public class DocumentAiService(
         {
             using var jsonDoc = JsonDocument.Parse(bytes);
             var text = jsonDoc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString()!;
+            var cleanText = CleanJsonArray(text);
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var list = JsonSerializer.Deserialize<List<GeneratedQuestionItem>>(text, options);
+            var list = JsonSerializer.Deserialize<List<GeneratedQuestionItem>>(cleanText, options);
             return list?.Where(q => !string.IsNullOrWhiteSpace(q.QuestionText)).ToList() ?? [];
         }
         catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException or IndexOutOfRangeException)
         {
             throw new WorkflowException(502, "ProviderInvalidResponse: Gemini không trả đúng định dạng danh sách câu hỏi JSON.");
         }
+    }
+
+    private static string CleanJsonArray(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return text;
+        var trimmed = text.Trim();
+        var firstBracket = trimmed.IndexOf('[');
+        var lastBracket = trimmed.LastIndexOf(']');
+        if (firstBracket >= 0 && lastBracket > firstBracket)
+        {
+            return trimmed.Substring(firstBracket, lastBracket - firstBracket + 1);
+        }
+        if (trimmed.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
+            trimmed = trimmed[7..];
+        else if (trimmed.StartsWith("```", StringComparison.OrdinalIgnoreCase))
+            trimmed = trimmed[3..];
+        if (trimmed.EndsWith("```", StringComparison.OrdinalIgnoreCase))
+            trimmed = trimmed[..^3];
+        return trimmed.Trim();
     }
 
     private static List<GeneratedQuestionItem> GenerateFallbackQuestions(List<DocumentChunk> chunks, int count)
