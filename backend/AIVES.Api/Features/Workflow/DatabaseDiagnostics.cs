@@ -258,4 +258,55 @@ public static class DatabaseDiagnostics
             Console.WriteLine($"[GENERATE ERROR in {sw.ElapsedMilliseconds}ms]: {ex.Message}");
         }
     }
+
+    public static void CreateSwdSamplePdf(string outputPath)
+    {
+        var builder = new UglyToad.PdfPig.Writer.PdfDocumentBuilder();
+        var page = builder.AddPage(UglyToad.PdfPig.Content.PageSize.A4);
+        var font = builder.AddStandard14Font(UglyToad.PdfPig.Fonts.Standard14Fonts.Standard14Font.Helvetica);
+        var boldFont = builder.AddStandard14Font(UglyToad.PdfPig.Fonts.Standard14Fonts.Standard14Font.HelveticaBold);
+
+        var y = 800.0;
+        page.AddText("TAI LIEU ON TAP MON THIET KE PHAN MEM (SWD)", 16, new UglyToad.PdfPig.Core.PdfPoint(50, y), boldFont);
+        y -= 30;
+        page.AddText("Mon hoc: Software Architecture & Design (SWD)", 12, new UglyToad.PdfPig.Core.PdfPoint(50, y), font);
+        y -= 20;
+        page.AddText("Tong quan kien truc va cac mau thiet ke cot loi gom 3 phan sau:", 11, new UglyToad.PdfPig.Core.PdfPoint(50, y), font);
+        y -= 35;
+
+        // Phan 1
+        page.AddText("1. Kien truc Ba lop (Three-Tier Architecture):", 13, new UglyToad.PdfPig.Core.PdfPoint(50, y), boldFont);
+        y -= 18;
+        page.AddText("- Presentation Tier: Giao dien tuong tac nguoi dung, nhan input va hien thi ket qua.", 10.5, new UglyToad.PdfPig.Core.PdfPoint(60, y), font);
+        y -= 16;
+        page.AddText("- Business Logic Tier: Xu ly nghiep vu cot loi, kiem tra logic va tinh toan du lieu.", 10.5, new UglyToad.PdfPig.Core.PdfPoint(60, y), font);
+        y -= 16;
+        page.AddText("- Data Tier: Co so du lieu, luu tru va truy van du lieu an toan.", 10.5, new UglyToad.PdfPig.Core.PdfPoint(60, y), font);
+        y -= 16;
+        page.AddText("- Uu diem: Phan tach trach nhiem (Separation of Concerns), giup he thong de bao tri va mo rong.", 10.5, new UglyToad.PdfPig.Core.PdfPoint(60, y), font);
+        y -= 30;
+
+        // Phan 2
+        page.AddText("2. Mau thiet ke Singleton Pattern (Creational Pattern):", 13, new UglyToad.PdfPig.Core.PdfPoint(50, y), boldFont);
+        y -= 18;
+        page.AddText("- Muc dich: Dam bao mot lop chi co duy nhat mot the hien (instance) trong toan bo ung dung.", 10.5, new UglyToad.PdfPig.Core.PdfPoint(60, y), font);
+        y -= 16;
+        page.AddText("- Co che: Constructor private, bien static giu instance va phuong thuc GetInstance().", 10.5, new UglyToad.PdfPig.Core.PdfPoint(60, y), font);
+        y -= 16;
+        page.AddText("- Ung dung: Quan ly ket noi Database Connection Pool, Logger tap trung, Configuration Manager.", 10.5, new UglyToad.PdfPig.Core.PdfPoint(60, y), font);
+        y -= 30;
+
+        // Phan 3
+        page.AddText("3. Mau thiet ke Observer Pattern (Behavioral Pattern):", 13, new UglyToad.PdfPig.Core.PdfPoint(50, y), boldFont);
+        y -= 18;
+        page.AddText("- Muc dich: Dinh nghia moi quan he mot-nhieu (one-to-many) giua cac doi tuong.", 10.5, new UglyToad.PdfPig.Core.PdfPoint(60, y), font);
+        y -= 16;
+        page.AddText("- Co che: Khi Subject thay doi trang thai, tat ca Observer dang ky se duoc tu dong thong bao.", 10.5, new UglyToad.PdfPig.Core.PdfPoint(60, y), font);
+        y -= 16;
+        page.AddText("- Ung dung: He thong xu ly su kien (Event-driven), Gui thong bao real-time (Notifications, Webhooks).", 10.5, new UglyToad.PdfPig.Core.PdfPoint(60, y), font);
+
+        var bytes = builder.Build();
+        File.WriteAllBytes(outputPath, bytes);
+        Console.WriteLine($"[PDF CREATED] {outputPath} ({bytes.Length} bytes)");
+    }
 }

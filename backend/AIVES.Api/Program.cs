@@ -45,6 +45,13 @@ if (args.Contains("--probe-qgen"))
     return;
 }
 
+if (args.Contains("--create-swd-pdf"))
+{
+    var outPath = args.FirstOrDefault(a => a.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase)) ?? "SWD_Architecture_Design_Notes.pdf";
+    DatabaseDiagnostics.CreateSwdSamplePdf(outPath);
+    return;
+}
+
 // Local diagnostic only: never starts the server, opens MySQL, or calls an AI provider.
 if (args.Contains("--check-configuration"))
 {
