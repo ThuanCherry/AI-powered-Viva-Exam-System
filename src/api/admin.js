@@ -6,6 +6,7 @@ export const createAdminUser = data => api.post('/api/Admin/users', data);
 export const updateAdminUser = (id, data) => api.put(`/api/Users/${id}`, data);
 export const toggleUserStatus = id => api.put(`/api/Users/${id}/status`, {});
 export const getAdminCourses = () => api.get('/api/Courses');
+export const createAdminCourse = data => api.post('/api/Courses', data);
 export const assignLecturerToCourse = (id, lecturerId) => api.put(`/api/Courses/${id}/assign-lecturer`, { lecturerId });
 export const getSpeechSettings = () => api.get('/api/Admin/settings');
 export const updateSpeechSettings = data => api.put('/api/Admin/speech', data);

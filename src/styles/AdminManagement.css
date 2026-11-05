@@ -494,3 +494,95 @@
 .admin-action { background: transparent; border: 0; color: #286653; cursor: pointer; padding: .35rem; font: inherit; font-weight: 600; }
 .admin-empty { padding: 2rem; text-align: center; color: #64748b; }
 @media (max-width: 700px) { .admin-tabs { overflow-x: auto; } .admin-tab-btn { flex-shrink: 0; padding: .7rem; } .assign-card { align-items: stretch; flex-direction: column; } .assign-controls { width: 100%; } .assign-select { min-width: 0; width: 100%; } }
+
+/* AI Modern Control Panel Enhancements */
+.ai-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.ai-status-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.ai-status-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -4px rgba(0,0,0,0.08);
+}
+
+.ai-status-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ai-status-card__icon {
+  font-size: 1.6rem;
+}
+
+.ai-badge-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid #a7f3d0;
+}
+
+.ai-badge-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pulseDot 1.8s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.voice-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem;
+}
+
+.voice-picker-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.85rem 0.5rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.voice-picker-item:hover {
+  border-color: #93c5fd;
+  background: #ffffff;
+}
+
+.voice-picker-item.is-selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+}

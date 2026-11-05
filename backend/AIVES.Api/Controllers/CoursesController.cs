@@ -14,9 +14,14 @@ public class CoursesController(CourseCatalogService service) : ApiControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken ct) => Data(await service.DetailAsync(id, Caller, ct));
 
+    [HttpPost, Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateCourse([FromBody] CreateCourseAdminRequest request, CancellationToken ct) =>
+        Data(await service.CreateCourseAsync(request, Caller, ct));
+
     [HttpPut("{id:int}/assign-lecturer"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> AssignLecturer(int id, [FromBody] AssignLecturerRequest request, CancellationToken ct) =>
         Data(await service.AssignLecturerAsync(id, request.LecturerId, Caller, ct));
 }
 
 public record AssignLecturerRequest(int? LecturerId);
+public record CreateCourseAdminRequest(string CourseCode, string CourseName, string? Description, int? LecturerId);

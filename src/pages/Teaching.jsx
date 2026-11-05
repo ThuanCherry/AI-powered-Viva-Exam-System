@@ -8,30 +8,84 @@ import { vnTime } from '../lib/time.js';
 import { Status } from './Exams.jsx';
 import '../styles/Lecturer.css';
 
-const courseEmpty = { courseCode: '', courseName: '', description: '' };
 export function CoursesPage() {
-  const { data, error: loadError, loading, reload } = useApi('/api/Courses');
-  const [form, setForm] = useState(courseEmpty);
-  const [editing, setEditing] = useState(null);
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const save = async e => {
-    e.preventDefault(); setBusy(true); setError('');
-    try { await (editing ? api.put(`/api/lecturer/courses/${editing}`, form) : api.post('/api/lecturer/courses', form)); setForm(courseEmpty); setEditing(null); setMessage('Đã lưu môn học. Bạn có thể tạo lớp học phần cho môn này.'); reload(); }
-    catch (err) { setError(err.message); } finally { setBusy(false); }
-  };
-  return <AppShell title="Môn học" subtitle="Chọn môn đã có hoặc thêm môn bạn phụ trách"><div className="wf-page">
-    {(error || loadError) && <p className="wf-error" role="alert">{error || loadError}</p>}{message && <p className="wf-notice" role="status">{message}</p>}
-    <div className="lc-columns"><section className="wf-panel"><h2>{editing ? 'Chỉnh sửa môn học' : 'Thêm môn học'}</h2><form onSubmit={save}><fieldset disabled={busy}>
-      <label>Mã môn<input required maxLength={50} value={form.courseCode} onChange={e => setForm({ ...form, courseCode: e.target.value })} /></label>
-      <label>Tên môn<input required maxLength={200} value={form.courseName} onChange={e => setForm({ ...form, courseName: e.target.value })} /></label>
-      <label>Mô tả<textarea maxLength={1000} value={form.description || ''} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
-      <div className="wf-tools"><button className="wf-button">{busy ? 'Đang lưu…' : 'Lưu môn học'}</button>{editing && <button className="wf-button wf-secondary" type="button" onClick={() => { setEditing(null); setForm(courseEmpty); }}>Hủy chỉnh sửa</button>}</div>
-    </fieldset></form></section><section className="wf-panel"><h2>Môn đang phụ trách</h2>{loading && <p>Đang tải…</p>}{data?.length === 0 && <p>Chưa có môn học. Thêm môn để bắt đầu quản lý lớp.</p>}
-      {data?.map(c => <article className="lc-list-row" key={c.courseId}><div><strong>{c.courseCode} · {c.courseName}</strong><small>{c.description}</small><Link to={`/classes?courseId=${c.courseId}`}>Lớp học phần →</Link></div><button className="lc-text-button" onClick={() => { setEditing(c.courseId); setForm(c); }}>Sửa</button></article>)}
-    </section></div>
-  </div></AppShell>;
+  const { data, error: loadError, loading } = useApi('/api/Courses');
+  return (
+    <AppShell title="Môn học phụ trách" subtitle="Danh sách học phần được Nhà trường / Ban quản trị phân công">
+      <div className="wf-page">
+        {loadError && <p className="wf-error" role="alert">{loadError}</p>}
+        
+        <div style={{
+          background: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          padding: '14px 18px',
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <span style={{ fontSize: '22px' }}>🏛️</span>
+          <div style={{ fontSize: '13.5px', color: '#334155', lineHeight: 1.5 }}>
+            <strong style={{ color: '#0f172a' }}>Phân công đào tạo:</strong> Danh mục môn học được quản lý và phân quyền trực tiếp bởi <strong>Quản trị viên (Admin / Phòng Đào tạo)</strong>. Giảng viên phụ trách toàn quyền quản lý lớp học phần, tài liệu học tập, ngân hàng câu hỏi và tổ chức kỳ thi vấn đáp cho môn học được giao.
+          </div>
+        </div>
+
+        <section className="wf-panel">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h2 style={{ margin: 0 }}>Học phần bạn đang phụ trách ({data?.length ?? 0})</h2>
+          </div>
+
+          {loading && <p>Đang tải danh sách môn học…</p>}
+          {!loading && data?.length === 0 && (
+            <div className="wf-empty" style={{ padding: '2.5rem 1rem', textAlign: 'center' }}>
+              <div style={{ fontSize: '36px', marginBottom: '8px' }}>📂</div>
+              <strong>Bạn chưa được phân công môn học nào</strong>
+              <p className="wf-muted" style={{ marginTop: '6px' }}>Vui lòng liên hệ Quản trị viên (Admin) để được phân quyền phụ trách học phần.</p>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {data?.map(c => (
+              <article className="wf-card" key={c.courseId} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                      <span style={{
+                        background: '#e0f2fe',
+                        color: '#0369a1',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        padding: '3px 8px',
+                        borderRadius: '6px'
+                      }}>
+                        {c.courseCode}
+                      </span>
+                      <strong style={{ fontSize: '16px', color: '#0f172a' }}>{c.courseName}</strong>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '13.5px', color: '#64748b' }}>
+                      {c.description || 'Chưa có mô tả chi tiết cho môn học.'}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <Link className="wf-button wf-secondary" style={{ padding: '6px 14px', fontSize: '13px' }} to={`/classes?courseId=${c.courseId}`}>
+                      👥 Lớp học phần →
+                    </Link>
+                    <Link className="wf-button wf-secondary" style={{ padding: '6px 14px', fontSize: '13px' }} to={`/questions?courseId=${c.courseId}`}>
+                      📚 Ngân hàng câu hỏi
+                    </Link>
+                    <Link className="wf-button wf-secondary" style={{ padding: '6px 14px', fontSize: '13px' }} to={`/documents?courseId=${c.courseId}`}>
+                      📄 Tài liệu & AI sinh câu hỏi
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      </div>
+    </AppShell>
+  );
 }
 
 export function ClassesPage() {

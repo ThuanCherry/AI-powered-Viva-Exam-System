@@ -53,6 +53,46 @@ public class CourseCatalogService(AivesDbContext _db)
                 course.CreatedAt
             };
     }
+    public async Task<object> CreateCourseAsync(Controllers.CreateCourseAdminRequest request, Caller caller, CancellationToken ct)
+    {
+        Require(caller.IsAdmin, "Chỉ quản trị viên được tạo môn học.", 403);
+        var code = request.CourseCode?.Trim().ToUpperInvariant() ?? "";
+        Require(System.Text.RegularExpressions.Regex.IsMatch(code, "^[A-Z0-9][A-Z0-9._-]{0,49}$"), "Mã môn gồm 1–50 ký tự chữ, số, dấu chấm/gạch ngang/gạch dưới.");
+        var name = request.CourseName?.Trim() ?? "";
+        Require(name is { Length: > 0 and <= 200 }, "Tên môn cần từ 1–200 ký tự.");
+        Require(request.Description?.Length is not > 1000, "Mô tả tối đa 1000 ký tự.");
+        Require(!await _db.Courses.AnyAsync(c => c.CourseCode.ToUpper() == code, ct), "Mã môn học đã tồn tại.", 409);
+
+        int lecturerId;
+        if (request.LecturerId.HasValue)
+        {
+            var exists = await _db.Users.AnyAsync(u => u.UserId == request.LecturerId.Value && u.Status == "Active" && u.Role!.RoleName == "Lecturer", ct);
+            Require(exists, "Giảng viên được chọn không tồn tại hoặc không hoạt động.", 400);
+            lecturerId = request.LecturerId.Value;
+        }
+        else
+        {
+            var firstLecturer = await _db.Users.Where(u => u.Status == "Active" && u.Role!.RoleName == "Lecturer").Select(u => (int?)u.UserId).FirstOrDefaultAsync(ct);
+            Require(firstLecturer.HasValue, "Hệ thống chưa có giảng viên hoạt động để phân công môn học. Vui lòng tạo tài khoản giảng viên trước.", 400);
+            lecturerId = firstLecturer.Value;
+        }
+
+        var course = new Models.Course
+        {
+            CourseCode = code,
+            CourseName = name,
+            Description = request.Description?.Trim(),
+            LecturerId = lecturerId,
+            CreatedAt = DateTime.UtcNow,
+            IsActive = true
+        };
+
+        _db.Courses.Add(course);
+        await _db.SaveChangesAsync(ct);
+        await _db.Entry(course).Reference(c => c.Lecturer).LoadAsync(ct);
+        return new { course.CourseId, course.CourseCode, course.CourseName, course.LecturerId, LecturerName = course.Lecturer?.FullName };
+    }
+
     public async Task<object> AssignLecturerAsync(int id, int? lecturerId, Caller caller, CancellationToken ct)
     {
         Require(caller.IsAdmin, "Chỉ quản trị viên được phân công giảng viên.", 403);
