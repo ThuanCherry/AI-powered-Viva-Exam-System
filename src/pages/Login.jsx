@@ -8,14 +8,14 @@ import "../styles/Login.css";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function Waveform() {
-  const heights = [16, 32, 22, 48, 28, 56, 36, 48, 24, 38, 18, 30, 44, 20];
+  const heights = [18, 34, 22, 46, 30, 58, 26, 44, 20, 36, 16, 28];
   return (
     <div className="waveform" aria-hidden="true">
       {heights.map((h, i) => (
         <span
           key={i}
           className="waveform__bar"
-          style={{ "--h": `${h}px`, "--delay": `${i * 85}ms` }}
+          style={{ "--h": `${h}px`, "--delay": `${i * 90}ms` }}
         />
       ))}
     </div>
@@ -29,10 +29,10 @@ function EyeIcon({ open }) {
         d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.8"
+        strokeWidth="1.6"
         strokeLinejoin="round"
       />
-      <circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.6" />
     </svg>
   ) : (
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -40,7 +40,7 @@ function EyeIcon({ open }) {
         d="M3 3l18 18M9.9 5.2A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-4 4.7M6.2 6.9C3.5 8.8 2 12 2 12s3.6 7 10 7c1.4 0 2.6-.3 3.7-.8M12 9a3 3 0 0 1 3 3"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.8"
+        strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -75,14 +75,14 @@ export default function Login() {
   function validate() {
     const next = {};
     if (!form.email.trim()) {
-      next.email = "Vui lòng nhập địa chỉ email.";
+      next.email = "Please enter your email.";
     } else if (!EMAIL_PATTERN.test(form.email.trim())) {
-      next.email = "Định dạng email không hợp lệ.";
+      next.email = "Enter a valid email address.";
     }
     if (!form.password) {
-      next.password = "Vui lòng nhập mật khẩu.";
+      next.password = "Please enter your password.";
     } else if (form.password.length < 6) {
-      next.password = "Mật khẩu tối thiểu 6 ký tự.";
+      next.password = "Password must be at least 6 characters.";
     }
     return next;
   }
@@ -114,7 +114,7 @@ export default function Login() {
       setServerError(
         error instanceof ApiError
           ? error.message
-          : "Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin."
+          : "Sign in failed. Please check your details and try again."
       );
       setStatus("error");
     }
@@ -122,97 +122,61 @@ export default function Login() {
 
   return (
     <div className="login">
-      {/* Left Showcase Stage */}
+      {/* Left Stage */}
       <section className="login__stage">
         <div className="login__stage-top">
-          <div className="login__logo-badge">
-            <span className="login__mark">AIVES</span>
-            <span className="login__mark-tag">AI VIVA EXAM</span>
-          </div>
-          <span className="login__mark-sub">Hệ thống Thi vấn đáp Trực tuyến</span>
+          <span className="login__mark" aria-hidden="true">
+            AIVES
+          </span>
+          <span className="login__mark-sub">AI-Powered Viva Exam System</span>
         </div>
 
         <div className="login__stage-body">
-          <div className="login__badge-pill">
-            <span className="login__badge-dot" /> Nền tảng Đánh giá Năng lực Thế hệ Mới
-          </div>
-
           <h1 className="login__headline">
-            Đổi mới thi vấn đáp
+            Every viva
             <br />
-            <span className="login__headline-gradient">với Trí tuệ nhân tạo.</span>
+            begins with a question.
           </h1>
-
           <p className="login__lede">
-            Tự động hóa toàn trình kỳ thi vấn đáp: Khởi tạo câu hỏi thông minh từ tài liệu, hội đồng giám khảo AI tương tác giọng nói trực tiếp và chấm điểm minh bạch theo Rubric.
+            Sign in to prepare questions, run exams, and grade viva sessions —
+            alongside an AI panel that listens as closely as you do.
           </p>
-
-          <div className="login__waveform-box">
-            <Waveform />
-            <span className="login__waveform-caption">🎙️ Nhận diện & phản hồi âm thanh trực tiếp</span>
-          </div>
-
-          <div className="login__features-grid">
-            <div className="login__feature-item">
-              <span className="login__feature-icon">🤖</span>
-              <div>
-                <strong>Sinh câu hỏi thông minh</strong>
-                <p>Trích xuất trọng tâm từ PDF/DOCX theo Bloom Level</p>
-              </div>
-            </div>
-            <div className="login__feature-item">
-              <span className="login__feature-icon">🎙️</span>
-              <div>
-                <strong>STT / TTS Thời gian thực</strong>
-                <p>Nhận diện giọng nói chuẩn tiếng Việt & quốc tế</p>
-              </div>
-            </div>
-            <div className="login__feature-item">
-              <span className="login__feature-icon">📊</span>
-              <div>
-                <strong>Chấm điểm chuẩn Rubric</strong>
-                <p>Khách quan, minh bạch và bảo toàn lịch sử thi</p>
-              </div>
-            </div>
-          </div>
+          <Waveform />
         </div>
 
-        <div className="login__stage-foot">
-          <span>Ngân hàng câu hỏi · Quản lý kỳ thi · Viva Room AI · Báo cáo kết quả</span>
-        </div>
+        <p className="login__stage-foot">
+          Question Bank · Exam Management · AI Interview · Report
+        </p>
       </section>
 
-      {/* Right Login Panel */}
+      {/* Right Panel */}
       <section className="login__panel">
         <div className="login__card">
           <form className="login__form" onSubmit={handleSubmit} noValidate>
-            <div className="login__form-header">
-              <h2 className="login__form-title">Đăng nhập</h2>
-              <p className="login__form-sub">Vui lòng nhập tài khoản của bạn để bắt đầu làm việc</p>
-            </div>
+            <h2 className="login__form-title">Sign in</h2>
+            <p className="login__form-sub">Enter your account details.</p>
 
             {registeredEmail && (
               <p className="login__form-notice" role="status">
-                ✓ Tạo tài khoản thành công! Bạn có thể đăng nhập ngay.
+                Account created. Sign in to continue.
               </p>
             )}
 
             {status === "error" && (
-              <div className="login__form-error" role="alert">
-                <span>⚠️</span> {serverError}
-              </div>
+              <p className="login__form-error" role="alert">
+                {serverError}
+              </p>
             )}
 
-            {/* Email Field */}
             <div className="field">
-              <label htmlFor="email">Email tài khoản</label>
+              <label htmlFor="email">Email</label>
               <div className="field__control">
                 <input
                   id="email"
                   name="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="name@university.edu.vn"
+                  placeholder="you@university.edu"
                   value={form.email}
                   onChange={(e) => updateField("email", e.target.value)}
                   aria-invalid={Boolean(errors.email)}
@@ -226,19 +190,11 @@ export default function Login() {
               )}
             </div>
 
-            {/* Password Field */}
             <div className="field">
               <div className="field__label-row">
-                <label htmlFor="password">Mật khẩu</label>
-                <a
-                  className="field__link"
-                  href="#forgot-password"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert("Vui lòng liên hệ Quản trị viên (Admin) để đặt lại mật khẩu.");
-                  }}
-                >
-                  Quên mật khẩu?
+                <label htmlFor="password">Password</label>
+                <a className="field__link" href="#forgot-password" onClick={(e) => { e.preventDefault(); alert("Please contact your administrator to reset your password."); }}>
+                  Forgot password?
                 </a>
               </div>
               <div className="field__control">
@@ -257,7 +213,7 @@ export default function Login() {
                   type="button"
                   className="field__toggle"
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                   aria-pressed={showPassword}
                 >
                   <EyeIcon open={showPassword} />
@@ -270,24 +226,22 @@ export default function Login() {
               )}
             </div>
 
-            {/* Remember Me */}
             <label className="checkbox">
               <input
                 type="checkbox"
                 checked={form.remember}
                 onChange={(e) => updateField("remember", e.target.checked)}
               />
-              <span>Ghi nhớ đăng nhập trên thiết bị này</span>
+              <span>Remember me on this device</span>
             </label>
 
-            {/* Submit Button */}
             <button type="submit" className="submit" disabled={status === "submitting"}>
-              {status === "submitting" ? "Đang xác thực…" : "Đăng nhập hệ thống →"}
+              {status === "submitting" ? "Signing in…" : "Sign in"}
             </button>
 
-            {/* Quick Demo Fill Buttons */}
+            {/* Quick Demo Fill Buttons in warm classic style */}
             <div className="login__quick-fill">
-              <span className="login__quick-label">⚡ Chọn tài khoản thử nghiệm nhanh:</span>
+              <span className="login__quick-label">⚡ Quick Demo Accounts:</span>
               <div className="login__quick-buttons">
                 <button
                   type="button"
@@ -301,27 +255,26 @@ export default function Login() {
                   className="login__quick-btn"
                   onClick={() => quickFill("lecturer@aives.vn", "Lecturer@123456")}
                 >
-                  👨‍🏫 Giảng viên
+                  👨‍🏫 Lecturer
                 </button>
                 <button
                   type="button"
                   className="login__quick-btn"
                   onClick={() => quickFill("student1@aives.vn", "Student@123456")}
                 >
-                  🎓 Sinh viên
+                  🎓 Student
                 </button>
               </div>
             </div>
 
             <div className="divider">
-              <span>hoặc đăng nhập bằng</span>
+              <span>or</span>
             </div>
 
-            {/* SSO */}
             <button
               type="button"
               className="sso"
-              onClick={() => alert("Tính năng SSO Google sẽ được tích hợp với Google Workspace của nhà trường.")}
+              onClick={() => alert("Google SSO will be authenticated with University Google Workspace.")}
             >
               <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true">
                 <path
@@ -341,11 +294,11 @@ export default function Login() {
                   d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .98 4.96l2.97 2.33C4.66 5.16 6.65 3.58 9 3.58Z"
                 />
               </svg>
-              Tài khoản Google trường cấp
+              Continue with Google
             </button>
 
             <p className="login__form-foot">
-              Bạn chưa có tài khoản? <Link to="/register">Đăng ký tài khoản Sinh viên</Link>
+              Don&apos;t have an account? <Link to="/register">Create one.</Link>
             </p>
           </form>
         </div>
