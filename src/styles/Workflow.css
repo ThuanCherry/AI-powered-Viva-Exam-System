@@ -509,3 +509,139 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Local Microphone Tester Styles */
+.vr-mictest {
+  border: 1.5px solid #c9ddd5;
+  border-radius: 12px;
+  background: #f6fbf9;
+  margin: 14px 0;
+  overflow: hidden;
+}
+
+.vr-mictest__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: #edf6f2;
+  flex-wrap: wrap;
+}
+
+.vr-mictest__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: #164435;
+  flex-wrap: wrap;
+}
+
+.vr-mictest__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #94aca4;
+  display: inline-block;
+}
+
+.vr-mictest__dot.is-active {
+  background: #d98218;
+  box-shadow: 0 0 0 3px rgba(217, 130, 24, 0.2);
+}
+
+.vr-mictest__dot.is-ok {
+  background: #18864f;
+  box-shadow: 0 0 0 3px rgba(24, 134, 79, 0.22);
+}
+
+.vr-mictest__ok-tag {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #dcf2e6;
+  color: #13683e;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.vr-mictest__toggle {
+  background: transparent;
+  border: 1px solid #b8d3c9;
+  color: #176b53;
+  border-radius: 8px;
+  padding: 5px 11px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vr-mictest__toggle:hover {
+  background: #e2f0ea;
+}
+
+.vr-mictest__body {
+  padding: 16px;
+  border-top: 1px solid #d7e7e0;
+}
+
+.vr-mictest__controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.vr-mictest__device {
+  flex: 1;
+  min-width: 220px;
+  margin-bottom: 0 !important;
+}
+
+.vr-mictest__btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.vr-mictest__meter-wrap {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #dce8e3;
+}
+
+.vr-mictest__bars {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 5px;
+  height: 22px;
+  align-items: end;
+  margin-bottom: 8px;
+}
+
+.vr-mictest__bar {
+  height: 100%;
+  border-radius: 4px;
+  background: #e6efec;
+  transition: background 0.08s ease, transform 0.08s ease;
+}
+
+.vr-mictest__bar.is-on {
+  background: #1b8c58;
+}
+
+.vr-mictest__bar.is-high {
+  background: #d97706;
+}
+
+.vr-mictest__status {
+  display: block;
+  font-size: 13px;
+  color: #2c4a40;
+  font-weight: 600;
+}

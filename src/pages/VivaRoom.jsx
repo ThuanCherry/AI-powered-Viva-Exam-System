@@ -7,6 +7,7 @@ import { getSession } from '../auth/session.js';
 import { Status } from './Exams.jsx';
 import { vnTime } from '../lib/time.js';
 import { startLiveMicrophone } from '../audio/liveMicrophone.js';
+import MicTester from '../components/MicTester.jsx';
 import '../styles/Workflow.css';
 import { SCHEDULE_CHANGED } from '../hooks/useScheduleRealtime.js';
 
@@ -36,6 +37,7 @@ export default function VivaRoom() {
   const [micStarting, setMicStarting] = useState(false);
   const [interim, setInterim] = useState('');
   const [speechBusy, setSpeechBusy] = useState(false);
+  const [micDeviceId, setMicDeviceId] = useState('');
   const [now, setNow] = useState(() => Date.now());
   const current = useRef(null);
   const mounted = useRef(true);
@@ -133,7 +135,7 @@ export default function VivaRoom() {
       audio.current?.pause(); setInterim('');
       const controller = new AbortController(); micAbort.current = controller;
       let unconfirmed = '';
-      const session = await startLiveMicrophone({ hub: hubConnection.current, examId, turnId: captureTurn, signal: controller.signal,
+      const session = await startLiveMicrophone({ hub: hubConnection.current, examId, turnId: captureTurn, deviceId: micDeviceId, signal: controller.signal,
         onEvent(event) {
           if (current.current !== captureTurn || !mounted.current) return;
           if (event.type === 'interim') { unconfirmed = event.text; setInterim(event.text); }
@@ -158,12 +160,33 @@ export default function VivaRoom() {
     {!state ? <p>Đang tải phiên thi…</p> : <>
       <section className="wf-panel" style={{ marginTop: 20 }}>
         <div className="wf-row"><Status value={state.status} />{state.deadline && state.status === 'InProgress' && <span className="wf-clock">Phiên thi còn {remaining(state.deadline, now)}</span>}</div>
-        {state.status === 'Waiting' && <div className="wf-empty"><h2>Phòng chờ sẵn sàng</h2><p>Slot của bạn: {vnTime(state.scheduledTime)}</p><p>Server kiểm tra quyền và giờ bắt đầu. Chuẩn bị microphone trước khi vào thi.</p><button className="wf-button" disabled={busy} onClick={() => run(() => api.post(`/api/Exams/${examId}/attempt/start`))}>{busy ? 'Đang kiểm tra…' : 'Bắt đầu thi'}</button></div>}
+        {state.status === 'Waiting' && (
+          <div className="wf-empty">
+            <h2>Phòng chờ sẵn sàng</h2>
+            <p>Slot của bạn: {vnTime(state.scheduledTime)}</p>
+            <p>Server kiểm tra quyền và giờ bắt đầu. Hãy kiểm tra microphone bên dưới trước khi vào thi.</p>
+            <div style={{ maxWidth: 620, margin: '18px auto', textAlign: 'left' }}>
+              <MicTester
+                selectedDeviceId={micDeviceId}
+                onSelectDevice={setMicDeviceId}
+                examMicActive={false}
+                defaultExpanded={true}
+              />
+            </div>
+            <button className="wf-button" disabled={busy} onClick={() => run(() => api.post(`/api/Exams/${examId}/attempt/start`))}>{busy ? 'Đang kiểm tra…' : 'Bắt đầu thi'}</button>
+          </div>
+        )}
         {state.status === 'InProgress' && state.turn && <>
           <p className="wf-muted">Câu chính {state.turn.mainOrder}/{state.mainQuestionCount} {state.turn.isFollowUp && '· Câu hỏi đào sâu'} · Follow-up {state.followUpsUsed}/{state.maxFollowUpCount}</p>
           <progress value={state.completedMain} max={state.mainQuestionCount} />
           <h2 className="wf-question">{state.turn.text}</h2>
           <p className="wf-clock">Lượt trả lời còn {remaining(state.turnDeadline, now)}</p>
+          <MicTester
+            selectedDeviceId={micDeviceId}
+            onSelectDevice={setMicDeviceId}
+            examMicActive={recording || micStarting || pending > 0}
+            defaultExpanded={false}
+          />
           <div className="wf-tools"><button className="wf-button wf-secondary" disabled={!ttsConfigured || busy || recording || pending > 0 || micStarting || speechBusy} onClick={() => speak(state.turn.turnId)}>{speechBusy ? 'Đang tạo giọng đọc…' : 'Nghe câu hỏi'}</button><button className="wf-button wf-secondary" disabled={busy || micStarting || speechBusy || state.providers.stt !== 'Configured' || (!recording && pending > 0)} onClick={recording ? stop : startMic}>{micStarting ? 'Đang mở Gemini Live…' : recording ? '■ Dừng & chốt transcript' : '● Trả lời bằng mic'}</button>{pending > 0 && <span role="status">Đang chốt transcript cuối…</span>}{(micStarting || pending > 0) && <button className="wf-button wf-secondary" onClick={cancelMic}>Hủy thu âm</button>}</div>
           <p className="wf-muted">Gemini Live Transcribe · tiếng Việt · audio PCM gửi liên tục mỗi 100ms. Chữ tạm cập nhật khi nói; chỉ transcript đã xác nhận được lưu vào phiên thi.</p>
           {interim && <p className="wf-fallback" role="status"><strong>{recording ? 'Đang nhận: ' : 'Chưa xác nhận: '}</strong>{interim}</p>}

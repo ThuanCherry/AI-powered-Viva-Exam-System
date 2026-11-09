@@ -1,9 +1,11 @@
 import { Subject, HubConnectionState } from '@microsoft/signalr';
 
-export async function startLiveMicrophone({ hub, examId, turnId, signal, onEvent, onState, onError }) {
+export async function startLiveMicrophone({ hub, examId, turnId, deviceId, signal, onEvent, onState, onError }) {
   if (hub?.state !== HubConnectionState.Connected) throw new Error('Microphone cần kết nối SignalR. Chờ nối lại rồi thử thu tiếp.');
   if (!navigator.mediaDevices?.getUserMedia || !window.AudioWorkletNode) throw new Error('Cần HTTPS/localhost và trình duyệt hỗ trợ AudioWorklet. Có thể nhập tay dự phòng.');
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } });
+  const audioConstraints = { channelCount: 1, echoCancellation: true, noiseSuppression: true };
+  if (deviceId) audioConstraints.deviceId = { ideal: deviceId };
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
   let context, source, node, gain, subscription, timeout;
   let closed = false, closing = false, inputFinished = false, sent = 0, acknowledged = 0;
   const upload = new Subject();
