@@ -210,7 +210,7 @@ export default function VivaRoom() {
             <div className="vr-score-grid">
               <div className="vr-score-card">
                 <span className="vr-score-card__label">Điểm AI gợi ý</span>
-                <strong className="vr-score-card__val">{result?.aiScore != null ? `${Number(result.aiScore).toFixed(1)} / 10` : 'Đang chấm…'}</strong>
+                <strong className="vr-score-card__val">{result?.aiScore != null ? `${Number(result.aiScore).toFixed(1)} / 10` : evalBusy ? 'Đang chấm…' : '—'}</strong>
               </div>
               <div className={`vr-score-card ${result?.isFinalized ? 'is-final' : ''}`}>
                 <span className="vr-score-card__label">Điểm chính thức (Giảng viên)</span>
@@ -229,7 +229,6 @@ export default function VivaRoom() {
         {!['Waiting', 'Completed', 'InProgress'].includes(state.status) && <p>Phiên thi không khả dụng: {state.status}.</p>}
       </section>
       {(state.providers.llm !== 'Configured' || state.providers.stt !== 'Configured' || state.providers.tts !== 'Configured') && <p className="wf-fallback">LLM: {state.providers.llm} · STT: {state.providers.stt} · TTS: {state.providers.tts}. {state.providers.missing?.length > 0 && <>Backend chưa nạp: {state.providers.missing.join(', ')}. </>}Môi trường: {state.providers.configurationEnvironment || 'chưa xác định'}. Có thể nhập văn bản dự phòng.</p>}
-      {state.providerWarning && !state.providerWarning.includes('Gemini không trả đúng JSON') && <p className="wf-fallback">Lỗi provider được lưu gần nhất: {state.providerWarning}</p>}
       {state.history?.length > 0 && (
         <section className="wf-panel" style={{ marginTop: 20 }}>
           <h2>Chi tiết câu trả lời & Đánh giá AI</h2>
