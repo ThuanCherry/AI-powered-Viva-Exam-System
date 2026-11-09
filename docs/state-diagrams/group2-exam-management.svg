@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="430" viewBox="0 0 1320 430">
+  <defs>
+    <marker id="vp-arr" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto">
+      <polygon points="0,0 8,3.5 0,7" fill="#ff0000"/>
+    </marker>
+  </defs>
+  <rect width="1320" height="430" fill="#ffffff"/>
+  <!-- Initial State -->
+  <circle cx="52" cy="190" r="12" fill="#000000"/>
+  <!-- State: Draft -->
+  <rect x="150" y="165" width="140" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="220" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Draft</text>
+  <!-- State: Scheduled -->
+  <rect x="410" y="165" width="150" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="485" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Scheduled</text>
+  <!-- State: In Progress -->
+  <rect x="680" y="165" width="150" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="755" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">In Progress</text>
+  <!-- State: Completed -->
+  <rect x="950" y="165" width="150" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="1025" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Completed</text>
+  <!-- Final State -->
+  <circle cx="1214" cy="190" r="14" fill="#ffffff" stroke="#ff0000" stroke-width="2"/>
+  <circle cx="1214" cy="190" r="8" fill="#000000"/>
+  <!-- State: Cancelled -->
+  <rect x="410" y="310" width="150" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="485" y="339" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Cancelled</text>
+  <!-- Transition: Create exam -->
+  <path d="M64,190 L150,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="71.1" y="171" width="71.8" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="107" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Create exam</text>
+  <!-- Transition: Edit draft -->
+  <path d="M220,165 L190,110 L250,110 L220,165" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="217" y="91" width="66" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="250" y="102" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Edit draft</text>
+  <!-- Transition: Publish exam -->
+  <path d="M290,190 L410,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="311.2" y="171" width="77.6" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="350" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Publish exam</text>
+  <!-- Transition: Revert to draft -->
+  <path d="M485,165 L485,80 L220,80 L220,165" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="172.5" y="61" width="95" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="220" y="72" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Revert to draft</text>
+  <!-- Transition: Start exam session -->
+  <path d="M560,190 L680,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="563.8" y="171" width="112.39999999999999" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="620" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Start exam session</text>
+  <!-- Transition: All students finished -->
+  <path d="M830,190 L950,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="825.1" y="171" width="129.8" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="890" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">All students finished</text>
+  <!-- Transition:  -->
+  <path d="M1100,190 L1200,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <!-- Transition: Cancel draft -->
+  <path d="M220,215 L220,335 L410,335" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="181.2" y="316" width="77.6" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="220" y="327" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Cancel draft</text>
+  <!-- Transition: Cancel scheduled -->
+  <path d="M485,215 L485,310" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="434.6" y="243.5" width="100.8" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="485" y="254.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Cancel scheduled</text>
+  <!-- Transition: Purge or archive -->
+  <path d="M560,335 L1214,335 L1214,204" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="1163.6" y="316" width="100.8" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="1214" y="327" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Purge or archive</text>
+</svg>

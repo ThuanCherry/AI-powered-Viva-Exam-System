@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="460" viewBox="0 0 1480 460">
+  <defs>
+    <marker id="vp-arr" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto">
+      <polygon points="0,0 8,3.5 0,7" fill="#ff0000"/>
+    </marker>
+  </defs>
+  <rect width="1480" height="460" fill="#ffffff"/>
+  <!-- Initial State -->
+  <circle cx="52" cy="190" r="12" fill="#000000"/>
+  <!-- State: Waiting -->
+  <rect x="130" y="165" width="140" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="200" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Waiting</text>
+  <!-- State: Asking Question -->
+  <rect x="360" y="165" width="160" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="440" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Asking Question</text>
+  <!-- State: Listening -->
+  <rect x="610" y="165" width="150" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="685" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Listening</text>
+  <!-- State: Processing Answer -->
+  <rect x="850" y="165" width="160" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="930" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Processing Answer</text>
+  <!-- State: Evaluating Answer -->
+  <rect x="1100" y="165" width="160" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="1180" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Evaluating Answer</text>
+  <!-- State: Completed -->
+  <rect x="1100" y="310" width="160" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="1180" y="339" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Completed</text>
+  <!-- State: Absent -->
+  <rect x="130" y="310" width="140" height="50" rx="25" fill="#ffffcc" stroke="#ff0000" stroke-width="1.5"/>
+  <text x="200" y="339" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#000000">Absent</text>
+  <!-- Final State -->
+  <circle cx="1384" cy="335" r="14" fill="#ffffff" stroke="#ff0000" stroke-width="2"/>
+  <circle cx="1384" cy="335" r="8" fill="#000000"/>
+  <!-- Transition: Schedule slot -->
+  <path d="M64,190 L130,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="55.300000000000004" y="171" width="83.39999999999999" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="97" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Schedule slot</text>
+  <!-- Transition: Candidate starts exam -->
+  <path d="M270,190 L360,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="250.1" y="171" width="129.8" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="315" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Candidate starts exam</text>
+  <!-- Transition: Slot time expired -->
+  <path d="M200,215 L200,310" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="146.7" y="243.5" width="106.6" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="200" y="254.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Slot time expired</text>
+  <!-- Transition: Close slot record -->
+  <path d="M200,360 L200,405 L1384,405 L1384,349" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="1330.7" y="386" width="106.6" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="1384" y="397" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Close slot record</text>
+  <!-- Transition: Play question audio -->
+  <path d="M520,190 L610,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="505.9" y="171" width="118.2" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="565" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Play question audio</text>
+  <!-- Transition: Stream speech audio -->
+  <path d="M685,165 L655,115 L715,115 L685,165" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="655.9" y="96" width="118.2" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="715" y="107" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Stream speech audio</text>
+  <!-- Transition: Submit answer or time limit -->
+  <path d="M760,190 L850,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="722.7" y="171" width="164.6" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="805" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Submit answer or time limit</text>
+  <!-- Transition: Check completeness -->
+  <path d="M1010,190 L1100,190" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="998.8" y="171" width="112.39999999999999" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="1055" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Check completeness</text>
+  <!-- Transition: Adaptive follow-up -->
+  <path d="M1180,165 L1180,60 L440,60 L440,165" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="383.8" y="41" width="112.39999999999999" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="440" y="52" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Adaptive follow-up</text>
+  <!-- Transition: Next main question -->
+  <path d="M1180,165 L1180,105 L440,105 L440,165" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="383.8" y="86" width="112.39999999999999" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="440" y="97" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Next main question</text>
+  <!-- Transition: All questions finished -->
+  <path d="M1180,215 L1180,310" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="1112.2" y="243.5" width="135.6" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="1180" y="254.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">All questions finished</text>
+  <!-- Transition: Exam timeout -->
+  <path d="M685,215 L685,335 L1100,335" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+  <rect x="646.2" y="316" width="77.6" height="14" fill="#ffffff" opacity="0.95"/>
+  <text x="685" y="327" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" fill="#000000">Exam timeout</text>
+  <!-- Transition:  -->
+  <path d="M1260,335 L1370,335" fill="none" stroke="#ff0000" stroke-width="1.5" marker-end="url(#vp-arr)"/>
+</svg>
