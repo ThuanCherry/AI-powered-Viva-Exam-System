@@ -8,6 +8,7 @@ import { Status } from './Exams.jsx';
 import { vnTime } from '../lib/time.js';
 import { startLiveMicrophone } from '../audio/liveMicrophone.js';
 import MicTester from '../components/MicTester.jsx';
+import AntiCheatMonitor from '../components/AntiCheatMonitor.jsx';
 import '../styles/Workflow.css';
 import { SCHEDULE_CHANGED } from '../hooks/useScheduleRealtime.js';
 
@@ -156,6 +157,7 @@ export default function VivaRoom() {
           </div>
         )}
         {state.status === 'InProgress' && state.turn && <>
+          <AntiCheatMonitor examId={examId} active={true} />
           <p className="wf-muted">Câu chính {state.turn.mainOrder}/{state.mainQuestionCount} {state.turn.isFollowUp && '· Câu hỏi đào sâu'} · Follow-up {state.followUpsUsed}/{state.maxFollowUpCount}</p>
           <progress value={state.completedMain} max={state.mainQuestionCount} />
           <h2 className="wf-question">{state.turn.text}</h2>

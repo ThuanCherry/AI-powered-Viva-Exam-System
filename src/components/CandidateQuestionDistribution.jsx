@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api } from '../api/client.js';
 import { vnTime } from '../lib/time.js';
 import { Status } from '../pages/Exams.jsx';
+import { readCandidateAntiCheatEvents } from './AntiCheatMonitor.jsx';
 import '../styles/CandidateQuestionDistribution.css';
 
 function scoreTone(val) {
@@ -137,6 +138,8 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
     }
   };
 
+  const antiCheatEvents = readCandidateAntiCheatEvents(examId, candidate.studentEmail);
+
   return (
     <details className="vr-cand-card" open={defaultOpen}>
       <summary className="vr-cand-summary">
@@ -146,6 +149,11 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
         </div>
         <div className="vr-cand-summary__right">
           <Status value={candidate.status} />
+          {antiCheatEvents.length > 0 && (
+            <span className="vr-score-pill is-low" title={antiCheatEvents.map(e => `${e.time}: ${e.reason}`).join('\n')}>
+              ⚠️ Rời màn hình: <strong>{antiCheatEvents.length} lần</strong>
+            </span>
+          )}
           <span className={`vr-score-pill is-${scoreTone(res?.aiScore)}`}>
             AI gợi ý: <strong>{res?.aiScore != null ? `${Number(res.aiScore).toFixed(1)} / 10` : '—'}</strong>
           </span>
