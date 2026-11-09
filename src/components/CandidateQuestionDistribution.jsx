@@ -21,6 +21,17 @@ function buildInitialQuestionScores(questions = []) {
   return map;
 }
 
+function roundFinalScore(raw) {
+  if (raw == null || raw === '' || Number.isNaN(Number(raw))) return null;
+  const oneDec = Math.round(Number(raw) * 10) / 10;
+  const floorVal = Math.floor(oneDec);
+  const frac = Math.round((oneDec - floorVal) * 10) / 10;
+  if (frac > 0.5) {
+    return Math.ceil(oneDec);
+  }
+  return oneDec;
+}
+
 function computeAverageFromMap(questions = [], scoreMap = {}) {
   if (!questions.length) return null;
   let sum = 0;
@@ -33,7 +44,7 @@ function computeAverageFromMap(questions = [], scoreMap = {}) {
     }
   }
   if (!hasAny) return null;
-  return Math.round((sum / questions.length) * 10) / 10;
+  return roundFinalScore(sum / questions.length);
 }
 
 function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
@@ -41,7 +52,11 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
   const qList = candidate.questions || [];
   const [questionScores, setQuestionScores] = useState(() => buildInitialQuestionScores(qList));
   const [score, setScore] = useState(
-    res?.lecturerScore != null ? String(res.lecturerScore) : res?.aiScore != null ? String(res.aiScore) : ''
+    res?.lecturerScore != null
+      ? String(roundFinalScore(res.lecturerScore))
+      : res?.aiScore != null
+      ? String(roundFinalScore(res.aiScore))
+      : ''
   );
   const [comment, setComment] = useState(res?.lecturerComment || '');
   const [aiBusy, setAiBusy] = useState(false);
@@ -57,11 +72,11 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
     const avg = computeAverageFromMap(candidate.questions || [], nextMap);
     setScore(
       candidate.result?.lecturerScore != null
-        ? String(candidate.result.lecturerScore)
+        ? String(roundFinalScore(candidate.result.lecturerScore))
         : avg != null
         ? String(avg)
         : candidate.result?.aiScore != null
-        ? String(candidate.result.aiScore)
+        ? String(roundFinalScore(candidate.result.aiScore))
         : ''
     );
     setComment(candidate.result?.lecturerComment || '');
@@ -76,24 +91,6 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
     }
   };
 
-  const handleResetToAiScores = () => {
-    const nextMap = buildInitialQuestionScores(qList);
-    setQuestionScores(nextMap);
-    const avg = computeAverageFromMap(qList, nextMap);
-    if (avg != null) {
-      setScore(String(avg));
-    } else if (res?.aiScore != null) {
-      setScore(String(res.aiScore));
-    }
-  };
-
-  const computedAvg = computeAverageFromMap(qList, questionScores);
-  const formulaParts = qList.map((q, idx) => {
-    const raw = questionScores[q.examQuestionId];
-    const v = raw !== '' && raw != null && !Number.isNaN(Number(raw)) ? Number(raw).toFixed(1) : '0.0';
-    return `Câu ${idx + 1}: ${v}đ`;
-  });
-
   const handleAiCheck = async () => {
     if (!examId) return;
     setAiBusy(true);
@@ -102,7 +99,7 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
     try {
       const r = await api.post(`/api/Exams/${examId}/candidates/${candidate.candidateId}/evaluate`);
       if (r?.aiScore != null && !candidate.result?.isFinalized) {
-        setScore(String(r.aiScore));
+        setScore(String(roundFinalScore(r.aiScore)));
       }
       setMsg('AI đã chấm và cập nhật nhận xét đối chiếu.');
       onUpdated?.();
@@ -116,11 +113,13 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
   const handleSaveGrade = async e => {
     e.preventDefault();
     if (!examId) return;
-    const num = Number(score);
-    if (score === '' || Number.isNaN(num) || num < 0 || num > 10) {
+    const rawNum = Number(score);
+    if (score === '' || Number.isNaN(rawNum) || rawNum < 0 || rawNum > 10) {
       setErr('Vui lòng nhập điểm từ 0.0 đến 10.0.');
       return;
     }
+    const num = roundFinalScore(rawNum);
+    setScore(String(num));
     setSaveBusy(true);
     setErr('');
     setMsg('');
@@ -287,47 +286,10 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
 
         {examId && (
           <form className="vr-grade-bar" onSubmit={handleSaveGrade}>
-            {qList.length > 0 && (
-              <div className="vr-formula-banner">
-                <div className="vr-formula-banner__text">
-                  <strong>📊 Trung bình cộng {qList.length} câu:</strong>{' '}
-                  <span>({formulaParts.join(' + ')}) ÷ {qList.length} câu = </span>
-                  <strong className="vr-formula-banner__avg">
-                    {computedAvg != null ? `${computedAvg.toFixed(1)} / 10` : '—'}
-                  </strong>
-                  {computedAvg != null && score !== '' && Number(score) !== computedAvg && (
-                    <span className="vr-formula-override-tag">
-                      (GV đang chỉnh tay điểm chốt: {Number(score).toFixed(1)})
-                    </span>
-                  )}
-                </div>
-                <div className="vr-formula-banner__actions">
-                  {computedAvg != null && (
-                    <button
-                      type="button"
-                      className="wf-button wf-secondary vr-btn-mini"
-                      onClick={() => setScore(String(computedAvg))}
-                    >
-                      Tính lại theo TB ({computedAvg.toFixed(1)})
-                    </button>
-                  )}
-                  {res?.aiScore != null && (
-                    <button
-                      type="button"
-                      className="wf-button wf-secondary vr-btn-mini"
-                      onClick={handleResetToAiScores}
-                    >
-                      Đồng bộ lại điểm AI ({Number(res.aiScore).toFixed(1)})
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-
             <div className="vr-grade-bar__main">
               <div className="vr-grade-bar__left">
                 <div className="vr-grade-field">
-                  <label>Điểm chốt cuối bài (thang 10 — có thể chỉnh sửa)</label>
+                  <label>Điểm chốt của Giảng viên (thang 10)</label>
                   <div className="vr-grade-score-row">
                     <input
                       type="number"
@@ -338,6 +300,11 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
                       className="vr-score-input"
                       value={score}
                       onChange={e => setScore(e.target.value)}
+                      onBlur={() => {
+                        if (score !== '' && !Number.isNaN(Number(score))) {
+                          setScore(String(roundFinalScore(score)));
+                        }
+                      }}
                       placeholder="8.5"
                     />
                   </div>
