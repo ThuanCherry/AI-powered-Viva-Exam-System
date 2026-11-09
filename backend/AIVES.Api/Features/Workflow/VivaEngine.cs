@@ -73,7 +73,7 @@ public class VivaEngine(AivesDbContext db, WorkflowService flow, IVivaLlm llm, I
     private async Task Complete(ExamCandidate c, CancellationToken ct)
     {
         c.Status = "Completed"; c.FinishedAt = flow.Now;
-        flow.Log(c.ExamId, c.CandidateId, "AttemptCompleted");
+        flow.Log(c.ExamId, c.CandidateId, "AttemptCompleted"); await db.SaveChangesAsync(ct); await RunAiEvaluation(c, false, ct);
         await db.SaveChangesAsync(ct);
         if (!await db.ExamCandidates.AnyAsync(x => x.ExamId == c.ExamId && (x.Status == "Waiting" || x.Status == "InProgress"), ct))
         { c.ExamSession!.Status = "Completed"; await db.SaveChangesAsync(ct); }
