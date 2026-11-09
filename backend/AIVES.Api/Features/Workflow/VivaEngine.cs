@@ -99,25 +99,10 @@ public class VivaEngine(AivesDbContext db, WorkflowService flow, IVivaLlm llm, I
             followUpsUsed = qs.Sum(q => q.Answer?.FollowUps.Count ?? 0), maxFollowUpCount = c.ExamSession!.MaxFollowUpCount,
             turn = main == null ? null : new { turnId = Turn(main, follow), text = follow?.QuestionText ?? main.Question!.QuestionText,
                 mainOrder = main.OrderNo, isFollowUp = follow != null, transcript = follow?.AnswerTranscript ?? (follow == null ? main.Answer?.Transcript : null) ?? "" },
-            history = qs.Where(q => q.AskedAt != null).Select(q => {
-                var sig = ComputeSignals(q.Answer?.Transcript, q.Answer?.FollowUps, q.Answer?.DurationSeconds);
-                return new { examQuestionId = q.ExamQuestionId, question = q.Question!.QuestionText, transcript = q.Answer?.Transcript,
-                    completed = q.IsCompleted, askedAt = WorkflowService.Iso(q.AskedAt!.Value),
-                    durationSeconds = q.Answer?.DurationSeconds, wordCount = sig.WordCount, wordsPerMinute = sig.WordsPerMinute, fluencyLabel = sig.FluencyLabel,
-                    evaluation = q.Answer?.AiEvaluation == null ? null : new {
-                        aiScore = q.Answer.AiEvaluation.AiScore,
-                        confidence = q.Answer.AiEvaluation.Confidence,
-                        feedback = q.Answer.AiEvaluation.Feedback,
-                        strengths = q.Answer.AiEvaluation.Strengths,
-                        weaknesses = q.Answer.AiEvaluation.Weaknesses,
-                        missingPoints = q.Answer.AiEvaluation.MissingPoints,
-                        evaluatedAt = WorkflowService.Iso(q.Answer.AiEvaluation.EvaluatedAt)
-                    },
-                    followUps = q.Answer?.FollowUps.OrderBy(f => f.OrderNo).Select(f => new { question = f.QuestionText, transcript = f.AnswerTranscript, answered = f.AnsweredAt != null }) };
-            }),
+            history = qs.Where(q => q.AskedAt != null).Select(q => new { examQuestionId = q.ExamQuestionId, question = q.Question!.QuestionText, transcript = q.Answer?.Transcript,
+                completed = q.IsCompleted, askedAt = WorkflowService.Iso(q.AskedAt!.Value),
+                followUps = q.Answer?.FollowUps.OrderBy(f => f.OrderNo).Select(f => new { question = f.QuestionText, transcript = f.AnswerTranscript, answered = f.AnsweredAt != null }) }),
             result = finalResult == null ? null : new {
-                aiScore = finalResult.AiScore,
-                lecturerScore = finalResult.LecturerScore,
                 finalScore = finalResult.FinalScore,
                 lecturerComment = finalResult.LecturerComment,
                 isFinalized = finalResult.FinalizedAt != null,
