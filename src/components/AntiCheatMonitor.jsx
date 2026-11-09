@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { api } from '../api/client.js';
 import { getSession } from '../auth/session.js';
+import { vnTime } from '../lib/time.js';
+
+export const MAX_ALLOWED_VIOLATIONS = 3;
 
 function getStorageKeys(examId) {
   const session = getSession();
@@ -21,29 +25,47 @@ export function readCandidateAntiCheatEvents(examId, studentEmail) {
   }
 }
 
-function playWarningTone() {
+export function mergeViolationLogs(serverLogs = [], localLogs = []) {
+  if (serverLogs && serverLogs.length > 0) {
+    return serverLogs.map((l, idx) => ({
+      id: l.logId || idx,
+      time: l.timestamp ? vnTime(l.timestamp) : '',
+      reason: l.reason || l.description || 'Chuyển Tab / Alt+Tab rời khỏi màn hình phòng thi',
+      awaySeconds: null
+    }));
+  }
+  return localLogs || [];
+}
+
+function playWarningTone(isTerminated = false) {
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return;
     const ctx = new AudioCtx();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-    osc.frequency.setValueAtTime(440, ctx.currentTime + 0.12); // A4
-    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.28);
+    osc.type = isTerminated ? 'sawtooth' : 'triangle';
+    osc.frequency.setValueAtTime(isTerminated ? 330 : 587.33, ctx.currentTime);
+    osc.frequency.setValueAtTime(isTerminated ? 220 : 440, ctx.currentTime + 0.14);
+    gain.gain.setValueAtTime(0.09, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.32);
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start();
-    osc.stop(ctx.currentTime + 0.28);
-    setTimeout(() => ctx.close().catch(() => {}), 400);
+    osc.stop(ctx.currentTime + 0.32);
+    setTimeout(() => ctx.close().catch(() => {}), 450);
   } catch {
     // Ignore audio context restriction
   }
 }
 
-export default function AntiCheatMonitor({ examId, active }) {
+export default function AntiCheatMonitor({
+  examId,
+  active,
+  serverViolations = [],
+  onViolationReported,
+  onExceedLimit
+}) {
   const { userKey, emailKey } = getStorageKeys(examId);
   const [events, setEvents] = useState(() => {
     try {
@@ -57,17 +79,7 @@ export default function AntiCheatMonitor({ examId, active }) {
   const [justReturned, setJustReturned] = useState(null);
   const lastTriggerRef = useRef(0);
   const awayStartRef = useRef(null);
-
-  const saveEvents = next => {
-    setEvents(next);
-    try {
-      const json = JSON.stringify(next);
-      localStorage.setItem(userKey, json);
-      if (emailKey) localStorage.setItem(emailKey, json);
-    } catch {
-      // Ignore storage quota error
-    }
-  };
+  const terminatingRef = useRef(false);
 
   useEffect(() => {
     if (!active) return;
@@ -84,6 +96,7 @@ export default function AntiCheatMonitor({ examId, active }) {
         second: '2-digit'
       });
 
+      let newCount = 0;
       setEvents(prev => {
         const next = [
           {
@@ -94,6 +107,7 @@ export default function AntiCheatMonitor({ examId, active }) {
           },
           ...prev
         ];
+        newCount = next.length;
         try {
           const json = JSON.stringify(next);
           localStorage.setItem(userKey, json);
@@ -103,7 +117,28 @@ export default function AntiCheatMonitor({ examId, active }) {
         }
         return next;
       });
-      playWarningTone();
+
+      const exceeded = newCount > MAX_ALLOWED_VIOLATIONS;
+      playWarningTone(exceeded);
+
+      // Report to backend exam_logs and auto-terminate if count > 3
+      (async () => {
+        try {
+          const nextState = await api.post(`/api/Exams/${examId}/attempt/focus-violation`, { reason });
+          if (nextState) {
+            onViolationReported?.(nextState);
+            if (exceeded && nextState.status !== 'Completed' && !terminatingRef.current) {
+              terminatingRef.current = true;
+              onExceedLimit?.();
+            }
+          }
+        } catch {
+          if (exceeded && !terminatingRef.current) {
+            terminatingRef.current = true;
+            onExceedLimit?.();
+          }
+        }
+      })();
     };
 
     const recordReturn = () => {
@@ -138,7 +173,7 @@ export default function AntiCheatMonitor({ examId, active }) {
 
     const handleWindowBlur = () => {
       if (document.hidden) return;
-      recordLeave('Rời khỏi cửa sổ phòng thi (Mất tiêu điểm màn hình)');
+      recordLeave('Alt+Tab / Rời khỏi cửa sổ phòng thi (Mất tiêu điểm màn hình)');
     };
 
     const handleWindowFocus = () => {
@@ -154,10 +189,14 @@ export default function AntiCheatMonitor({ examId, active }) {
       window.removeEventListener('blur', handleWindowBlur);
       window.removeEventListener('focus', handleWindowFocus);
     };
-  }, [active, userKey, emailKey]);
+  }, [active, examId, userKey, emailKey, onViolationReported, onExceedLimit]);
 
-  const count = events.length;
+  const displayEvents = events.length >= (serverViolations?.length || 0)
+    ? events
+    : mergeViolationLogs(serverViolations, events);
+  const count = displayEvents.length;
   const hasViolations = count > 0;
+  const remainingAllowed = Math.max(0, MAX_ALLOWED_VIOLATIONS - count);
 
   return (
     <div className={`vr-anticheat ${hasViolations ? 'is-warn' : 'is-safe'}`} role="region" aria-label="Giám sát phòng thi">
@@ -166,16 +205,22 @@ export default function AntiCheatMonitor({ examId, active }) {
           <span className={`vr-anticheat__dot ${hasViolations ? 'is-warn' : 'is-safe'}`} />
           {hasViolations ? (
             <span>
-              <strong>⚠️ Cảnh báo rời màn hình thi: {count} lần</strong>
+              <strong>
+                ⚠️ Cảnh báo rời màn hình thi: {count} / {MAX_ALLOWED_VIOLATIONS} lần cho phép
+              </strong>
               <span className="vr-anticheat__sub">
-                — Hệ thống đã ghi nhận hành vi chuyển tab / rời cửa sổ trong lúc đang thi.
+                {count > MAX_ALLOWED_VIOLATIONS
+                  ? '— Đã vượt quá 3 lần quy định! Hệ thống đang tự động chấm dứt phiên thi.'
+                  : remainingAllowed === 0
+                  ? '— Đã chạm mức cảnh báo tối đa (3/3)! Thoát màn hình thêm 1 lần nữa sẽ bị chấm dứt bài thi ngay lập tức.'
+                  : `— Còn tối đa ${remainingAllowed} lần cảnh báo trước khi hệ thống tự động chấm dứt bài thi.`}
               </span>
             </span>
           ) : (
             <span>
-              <strong>🛡️ Giám sát phòng thi (Anti-Cheat): Đang bật</strong>
+              <strong>🛡️ Giám sát phòng thi (Anti-Cheat): Đang bật (0 / {MAX_ALLOWED_VIOLATIONS} lần)</strong>
               <span className="vr-anticheat__sub">
-                — Vui lòng không chuyển tab hoặc mở cửa sổ khác trong suốt quá trình thi (0 lần vi phạm).
+                — Thoát màn hình hoặc bấm Alt+Tab quá {MAX_ALLOWED_VIOLATIONS} lần hệ thống sẽ tự động chấm dứt kỳ thi.
               </span>
             </span>
           )}
@@ -187,7 +232,7 @@ export default function AntiCheatMonitor({ examId, active }) {
             className="vr-anticheat__btn"
             onClick={() => setShowLog(v => !v)}
           >
-            {showLog ? 'Ẩn nhật ký' : `Xem chi tiết (${count})`}
+            {showLog ? 'Ẩn lịch sử' : `Lịch sử vi phạm (${count})`}
           </button>
         )}
       </div>
@@ -195,9 +240,14 @@ export default function AntiCheatMonitor({ examId, active }) {
       {justReturned && (
         <div className="vr-anticheat__alert" role="alert">
           <div>
-            <strong>🚨 Phát hiện bạn vừa rời khỏi màn hình phòng thi ({justReturned.awaySecs} giây)!</strong>
+            <strong>
+              🚨 Phát hiện rời khỏi màn hình phòng thi ({justReturned.awaySecs} giây) — Vi phạm lần {justReturned.count}/{MAX_ALLOWED_VIOLATIONS}!
+            </strong>
             <p>
-              Lý do: <em>{justReturned.reason}</em>. Tổng số lần vi phạm hiện tại: <strong>{justReturned.count} lần</strong>.
+              Hành vi: <em>{justReturned.reason}</em>.{' '}
+              {justReturned.count >= MAX_ALLOWED_VIOLATIONS
+                ? 'CẢNH BÁO CUỐI CÙNG: Nếu thoát màn hình thêm 1 lần nữa (quá 3 lần), hệ thống sẽ tự động thu bài và chấm dứt kỳ thi!'
+                : `Lưu ý: Thoát màn hình quá ${MAX_ALLOWED_VIOLATIONS} lần sẽ bị hệ thống tự động chấm dứt kỳ thi.`}
             </p>
           </div>
           <button
@@ -212,7 +262,7 @@ export default function AntiCheatMonitor({ examId, active }) {
 
       {showLog && hasViolations && (
         <ul className="vr-anticheat__log">
-          {events.map((ev, idx) => (
+          {displayEvents.map((ev, idx) => (
             <li key={ev.id || idx}>
               <span className="vr-anticheat__log-num">Lần {count - idx}</span>
               <span className="vr-anticheat__log-time">🕒 {ev.time}</span>

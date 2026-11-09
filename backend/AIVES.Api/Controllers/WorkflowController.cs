@@ -75,6 +75,15 @@ public class WorkflowController(WorkflowService flow, VivaEngine engine, Provide
     [HttpPost("Exams/{id:int}/attempt/evaluate"), Authorize(Roles = "Student")]
     public async Task<IActionResult> EvaluateAttempt(int id, CancellationToken ct) => Data(await engine.EvaluateAttempt(id, UserId, ct));
 
+    [HttpPost("Exams/{id:int}/attempt/focus-violation"), Authorize(Roles = "Student")]
+    public async Task<IActionResult> ReportFocusViolation(int id, FocusViolationInput input, CancellationToken ct)
+    {
+        var state = await engine.ReportFocusViolation(id, UserId, input, ct);
+        await flow.Notify(id, "attempt", ct);
+        await hub.Clients.Group($"student-{UserId}-exam-{id}").SendAsync("AttemptUpdated", new { serverTime = WorkflowService.Iso(flow.Now) }, ct);
+        return Data(state);
+    }
+
     [HttpPost("Exams/{id:int}/candidates/{candidateId:int}/evaluate"), Authorize(Roles = "Lecturer")]
     public async Task<IActionResult> EvaluateCandidate(int id, int candidateId, CancellationToken ct) => Data(await engine.EvaluateByLecturer(id, candidateId, UserId, ct));
 

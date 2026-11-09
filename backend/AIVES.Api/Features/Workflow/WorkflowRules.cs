@@ -10,6 +10,7 @@ public record ExamInput(int CourseId, string ExamName, string? Description, Date
     int MaxFollowUpsPerQuestion, int SecondsPerQuestion, string Strategy, int[] StudentIds, int? ClassId = null);
 public record AnswerInput(string TurnId, string Transcript);
 public record GradeCandidateInput(decimal LecturerScore, string? LecturerComment);
+public record FocusViolationInput(string? Reason);
 public record ScopeConfig(string Strategy = "Random", string TimeZone = "Asia/Ho_Chi_Minh", string StorageTimeZone = "UTC", int? ClassId = null);
 
 public static class WorkflowRules

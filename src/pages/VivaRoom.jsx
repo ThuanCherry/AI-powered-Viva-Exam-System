@@ -8,7 +8,7 @@ import { Status } from './Exams.jsx';
 import { vnTime } from '../lib/time.js';
 import { startLiveMicrophone } from '../audio/liveMicrophone.js';
 import MicTester from '../components/MicTester.jsx';
-import AntiCheatMonitor from '../components/AntiCheatMonitor.jsx';
+import AntiCheatMonitor, { MAX_ALLOWED_VIOLATIONS, readCandidateAntiCheatEvents } from '../components/AntiCheatMonitor.jsx';
 import '../styles/Workflow.css';
 import { SCHEDULE_CHANGED } from '../hooks/useScheduleRealtime.js';
 
@@ -107,6 +107,31 @@ export default function VivaRoom() {
   }, [turnId, cancelMic]);
 
   const run = async fn => { setBusy(true); setError(''); try { apply(await fn()); } catch (e) { setError(e.message); } finally { setBusy(false); } };
+
+  const forceTerminateAttempt = useCallback(async () => {
+    cancelMic();
+    speechAbort.current?.abort();
+    audio.current?.pause();
+    setBusy(true);
+    setError('🚫 Bạn đã thoát màn hình quá 3 lần quy định. Hệ thống tự động thu bài và chấm dứt kỳ thi.');
+    try {
+      let cur = await api.get(`/api/Exams/${examId}/attempt`);
+      let safety = 0;
+      while (cur?.status === 'InProgress' && cur?.turn?.turnId && safety < 25) {
+        safety += 1;
+        cur = await api.post(`/api/Exams/${examId}/attempt/answer`, {
+          turnId: cur.turn.turnId,
+          transcript: ''
+        });
+      }
+      if (mounted.current && cur) apply(cur);
+    } catch (e) {
+      if (mounted.current) setError(e.message);
+    } finally {
+      if (mounted.current) setBusy(false);
+    }
+  }, [examId, cancelMic, apply]);
+
   const startMic = async () => {
     setError(''); setMicStarting(true);
     try {
@@ -157,7 +182,13 @@ export default function VivaRoom() {
           </div>
         )}
         {state.status === 'InProgress' && state.turn && <>
-          <AntiCheatMonitor examId={examId} active={true} />
+          <AntiCheatMonitor
+            examId={examId}
+            active={true}
+            serverViolations={state.focusViolations}
+            onViolationReported={apply}
+            onExceedLimit={forceTerminateAttempt}
+          />
           <p className="wf-muted">Câu chính {state.turn.mainOrder}/{state.mainQuestionCount} {state.turn.isFollowUp && '· Câu hỏi đào sâu'} · Follow-up {state.followUpsUsed}/{state.maxFollowUpCount}</p>
           <progress value={state.completedMain} max={state.mainQuestionCount} />
           <h2 className="wf-question">{state.turn.text}</h2>
@@ -177,6 +208,17 @@ export default function VivaRoom() {
         </>}
         {state.status === 'Completed' && (
           <div className="vr-summary">
+            {(state.autoTerminatedReason || (state.focusViolations?.length || readCandidateAntiCheatEvents(examId, getSession()?.user?.email).length) > MAX_ALLOWED_VIOLATIONS) && (
+              <div className="vr-anticheat__alert" style={{ borderRadius: 10, marginBottom: 14, border: '1.5px solid #f87171' }} role="alert">
+                <div>
+                  <strong>🚫 Kỳ thi đã bị chấm dứt tự động do vi phạm quy chế phòng thi!</strong>
+                  <p>
+                    {state.autoTerminatedReason ||
+                      `Hệ thống phát hiện bạn đã thoát màn hình / chuyển tab quá ${MAX_ALLOWED_VIOLATIONS} lần quy định. Bài thi đã được thu tự động.`}
+                  </p>
+                </div>
+              </div>
+            )}
             <div className="vr-summary__head">
               <div>
                 <h2 style={{ margin: '10px 0 4px' }}>Đã hoàn thành phiên thi</h2>

@@ -65,6 +65,13 @@ public class ExamQueryService(AivesDbContext _db)
             .Where(r => r.ExamId == id)
             .ToListAsync(ct);
 
+        var focusLogs = caller.IsLecturer
+            ? await _db.ExamLogs.AsNoTracking()
+                .Where(l => l.ExamId == id && (l.Action == "FocusViolation" || l.Action == "AutoTerminated"))
+                .OrderByDescending(l => l.LogId)
+                .ToListAsync(ct)
+            : [];
+
         return new
         {
             exam.ExamId,
@@ -100,12 +107,23 @@ public class ExamQueryService(AivesDbContext _db)
             Candidates = exam.Candidates.Where(c => c.Status != "Cancelled" && (caller.IsLecturer || c.StudentId == user)).OrderBy(c => c.ScheduledTime).Select(c =>
             {
                 var res = finalResults.FirstOrDefault(r => r.CandidateId == c.CandidateId);
+                var candLogs = focusLogs.Where(l => l.CandidateId == c.CandidateId).ToList();
+                var focusViolations = candLogs.Where(l => l.Action == "FocusViolation")
+                    .Select(l => new
+                    {
+                        l.LogId,
+                        Reason = l.Description,
+                        Timestamp = WorkflowService.Iso(l.Timestamp)
+                    }).ToArray();
+                var autoTerminatedReason = candLogs.FirstOrDefault(l => l.Action == "AutoTerminated")?.Description;
                 return new
                 {
                     c.CandidateId,
                     c.StudentId,
                     StudentName = c.Student?.FullName,
                     StudentEmail = c.Student?.Email,
+                    FocusViolations = focusViolations,
+                    AutoTerminatedReason = autoTerminatedReason,
                     Questions = caller.IsLecturer ? exam.ExamQuestions.Where(q => q.CandidateId == c.CandidateId && q.ParentExamQuestionId == null).OrderBy(q => q.OrderNo).Select(q =>
                     {
                         var sig = VivaEngine.ComputeSignals(q.Answer?.Transcript, q.Answer?.FollowUps, q.Answer?.DurationSeconds);

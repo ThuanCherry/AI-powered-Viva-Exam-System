@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { api } from '../api/client.js';
 import { vnTime } from '../lib/time.js';
 import { Status } from '../pages/Exams.jsx';
-import { readCandidateAntiCheatEvents } from './AntiCheatMonitor.jsx';
+import {
+  MAX_ALLOWED_VIOLATIONS,
+  mergeViolationLogs,
+  readCandidateAntiCheatEvents
+} from './AntiCheatMonitor.jsx';
 import '../styles/CandidateQuestionDistribution.css';
 
 function scoreTone(val) {
@@ -138,7 +142,11 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
     }
   };
 
-  const antiCheatEvents = readCandidateAntiCheatEvents(examId, candidate.studentEmail);
+  const localEvents = readCandidateAntiCheatEvents(examId, candidate.studentEmail);
+  const serverEvents = mergeViolationLogs(candidate.focusViolations, []);
+  const antiCheatEvents = localEvents.length >= serverEvents.length ? localEvents : serverEvents;
+  const isAutoTerminated =
+    Boolean(candidate.autoTerminatedReason) || antiCheatEvents.length > MAX_ALLOWED_VIOLATIONS;
 
   return (
     <details className="vr-cand-card" open={defaultOpen}>
@@ -149,10 +157,21 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
         </div>
         <div className="vr-cand-summary__right">
           <Status value={candidate.status} />
-          {antiCheatEvents.length > 0 && (
-            <span className="vr-score-pill is-low" title={antiCheatEvents.map(e => `${e.time}: ${e.reason}`).join('\n')}>
-              ⚠️ Rời màn hình: <strong>{antiCheatEvents.length} lần</strong>
+          {antiCheatEvents.length > 0 ? (
+            <span
+              className="vr-score-pill is-low"
+              title={antiCheatEvents.map(e => `${e.time}: ${e.reason}`).join('\n')}
+            >
+              {isAutoTerminated
+                ? `🚫 Đình chỉ tự động (Thoát màn hình ${antiCheatEvents.length} lần)`
+                : `⚠️ Chuyển Tab / Alt+Tab: ${antiCheatEvents.length}/${MAX_ALLOWED_VIOLATIONS} lần`}
             </span>
+          ) : (
+            (candidate.status === 'Completed' || candidate.status === 'InProgress') && (
+              <span className="vr-score-pill is-good">
+                🛡️ Giám sát: <strong>0 lần rời màn hình</strong>
+              </span>
+            )
           )}
           <span className={`vr-score-pill is-${scoreTone(res?.aiScore)}`}>
             AI gợi ý: <strong>{res?.aiScore != null ? `${Number(res.aiScore).toFixed(1)} / 10` : '—'}</strong>
@@ -181,6 +200,40 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
             </button>
           )}
         </div>
+
+        {(antiCheatEvents.length > 0 || isAutoTerminated) && (
+          <div className="vr-anticheat is-warn" style={{ marginTop: 0, marginBottom: 18 }}>
+            <div className="vr-anticheat__bar">
+              <div className="vr-anticheat__status">
+                <span className="vr-anticheat__dot is-warn" />
+                <span>
+                  <strong>
+                    {isAutoTerminated
+                      ? `🚫 Kỳ thi của sinh viên đã bị chấm dứt tự động (Thoát màn hình ${antiCheatEvents.length} lần — vượt quá ${MAX_ALLOWED_VIOLATIONS} lần cho phép)`
+                      : `⚠️ Nhật ký giám sát phòng thi: Phát hiện sinh viên chuyển Tab / Alt+Tab ${antiCheatEvents.length}/${MAX_ALLOWED_VIOLATIONS} lần`}
+                  </strong>
+                  {candidate.autoTerminatedReason && (
+                    <span className="vr-anticheat__sub"> — {candidate.autoTerminatedReason}</span>
+                  )}
+                </span>
+              </div>
+            </div>
+            {antiCheatEvents.length > 0 && (
+              <ul className="vr-anticheat__log">
+                {antiCheatEvents.map((ev, idx) => (
+                  <li key={ev.id || idx}>
+                    <span className="vr-anticheat__log-num">Lần {antiCheatEvents.length - idx}</span>
+                    {ev.time && <span className="vr-anticheat__log-time">🕒 {ev.time}</span>}
+                    <span className="vr-anticheat__log-reason">{ev.reason}</span>
+                    {ev.awaySeconds != null && (
+                      <span className="vr-anticheat__log-dur">⏱ Rời màn hình {ev.awaySeconds} giây</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
 
         <ol className="vr-qlist">
           {(candidate.questions || []).map((q, idx) => (

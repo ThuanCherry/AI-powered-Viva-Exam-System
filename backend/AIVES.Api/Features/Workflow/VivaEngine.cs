@@ -91,6 +91,14 @@ public class VivaEngine(AivesDbContext db, WorkflowService flow, IVivaLlm llm, I
             .OrderByDescending(l => l.LogId).Select(l => l.Description).FirstOrDefaultAsync(ct);
         var finalResult = await db.FinalResults.AsNoTracking().Include(r => r.FinalizedByUser)
             .FirstOrDefaultAsync(r => r.ExamId == c.ExamId && r.CandidateId == c.CandidateId, ct);
+        var focusLogs = await db.ExamLogs.AsNoTracking()
+            .Where(l => l.CandidateId == c.CandidateId && (l.Action == "FocusViolation" || l.Action == "AutoTerminated"))
+            .OrderByDescending(l => l.LogId)
+            .ToListAsync(ct);
+        var focusViolations = focusLogs.Where(l => l.Action == "FocusViolation")
+            .Select(l => new { l.LogId, reason = l.Description, timestamp = WorkflowService.Iso(l.Timestamp) })
+            .ToArray();
+        var autoTerminatedReason = focusLogs.FirstOrDefault(l => l.Action == "AutoTerminated")?.Description;
         return new { c.ExamId, c.CandidateId, c.Status, serverTime = WorkflowService.Iso(now),
             deadline = deadline.HasValue ? WorkflowService.Iso(deadline.Value) : null,
             scheduledTime = c.ScheduledTime.HasValue ? WorkflowService.Iso(c.ScheduledTime.Value) : null,
@@ -109,6 +117,7 @@ public class VivaEngine(AivesDbContext db, WorkflowService flow, IVivaLlm llm, I
                 finalizedByName = finalResult.FinalizedByUser?.FullName,
                 finalizedAt = finalResult.FinalizedAt.HasValue ? WorkflowService.Iso(finalResult.FinalizedAt.Value) : null
             },
+            focusViolations, autoTerminatedReason,
             providers = providers.View, providerWarning = warning };
     }
 
@@ -317,6 +326,63 @@ public class VivaEngine(AivesDbContext db, WorkflowService flow, IVivaLlm llm, I
         Require(c.Status == "Completed", "Chỉ đánh giá sau khi hoàn thành phiên thi.", 409);
         await RunAiEvaluation(c, false, ct);
         return await State(c, ct);
+    }
+
+    public async Task<object> ReportFocusViolation(int examId, int studentId, FocusViolationInput input, CancellationToken ct)
+    {
+        await using var tx = await flow.LockExam(examId, ct);
+        var c = await Candidate(examId, studentId, ct);
+        if (c.Status == "InProgress")
+        {
+            var reason = string.IsNullOrWhiteSpace(input?.Reason)
+                ? "Chuyển Tab / Alt+Tab rời khỏi màn hình phòng thi"
+                : input.Reason.Trim();
+            if (reason.Length > 500) reason = reason[..500];
+
+            flow.Log(examId, c.CandidateId, "FocusViolation", reason);
+            await db.SaveChangesAsync(ct);
+
+            var violationCount = await db.ExamLogs.CountAsync(
+                l => l.CandidateId == c.CandidateId && l.Action == "FocusViolation", ct);
+
+            if (violationCount > 3)
+            {
+                var qs = await Questions(c, ct);
+                var now = flow.Now;
+                foreach (var q in qs)
+                {
+                    if (q.Answer != null)
+                    {
+                        foreach (var f in q.Answer.FollowUps.Where(f => f.AnsweredAt == null))
+                        {
+                            f.AnsweredAt = now;
+                        }
+                    }
+                    if (!q.IsCompleted)
+                    {
+                        q.IsCompleted = true;
+                        q.AskedAt ??= now;
+                        q.Answer ??= new Answer
+                        {
+                            CandidateId = c.CandidateId,
+                            ExamQuestionId = q.ExamQuestionId,
+                            Transcript = "",
+                            StartedAt = q.AskedAt,
+                            CreatedAt = now
+                        };
+                        q.Answer.FinishedAt = now;
+                        q.Answer.DurationSeconds = (int)Math.Max(0, (now - (q.AskedAt ?? now)).TotalSeconds);
+                    }
+                }
+                flow.Log(examId, c.CandidateId, "AutoTerminated",
+                    $"Hệ thống tự động chấm dứt kỳ thi do sinh viên thoát màn hình quá 3 lần ({violationCount} lần vi phạm).");
+                await db.SaveChangesAsync(ct);
+                await Complete(c, ct);
+            }
+        }
+        var state = await State(c, ct);
+        await tx.CommitAsync(ct);
+        return state;
     }
 
     public async Task<object> EvaluateByLecturer(int examId, int candidateId, int lecturerId, CancellationToken ct)
