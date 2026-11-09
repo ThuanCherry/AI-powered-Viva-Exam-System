@@ -12,8 +12,34 @@ function scoreTone(val) {
   return 'low';
 }
 
+function buildInitialQuestionScores(questions = []) {
+  const map = {};
+  for (const q of questions) {
+    map[q.examQuestionId] =
+      q.evaluation?.aiScore != null ? String(Number(q.evaluation.aiScore).toFixed(1)) : '';
+  }
+  return map;
+}
+
+function computeAverageFromMap(questions = [], scoreMap = {}) {
+  if (!questions.length) return null;
+  let sum = 0;
+  let hasAny = false;
+  for (const q of questions) {
+    const raw = scoreMap[q.examQuestionId];
+    if (raw !== '' && raw != null && !Number.isNaN(Number(raw))) {
+      sum += Number(raw);
+      hasAny = true;
+    }
+  }
+  if (!hasAny) return null;
+  return Math.round((sum / questions.length) * 10) / 10;
+}
+
 function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
   const res = candidate.result;
+  const qList = candidate.questions || [];
+  const [questionScores, setQuestionScores] = useState(() => buildInitialQuestionScores(qList));
   const [score, setScore] = useState(
     res?.lecturerScore != null ? String(res.lecturerScore) : res?.aiScore != null ? String(res.aiScore) : ''
   );
@@ -23,16 +49,50 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
 
+  const aiSig = qList.map(q => `${q.examQuestionId}:${q.evaluation?.aiScore ?? ''}`).join('|');
+
   useEffect(() => {
+    const nextMap = buildInitialQuestionScores(candidate.questions || []);
+    setQuestionScores(nextMap);
+    const avg = computeAverageFromMap(candidate.questions || [], nextMap);
     setScore(
       candidate.result?.lecturerScore != null
         ? String(candidate.result.lecturerScore)
+        : avg != null
+        ? String(avg)
         : candidate.result?.aiScore != null
         ? String(candidate.result.aiScore)
         : ''
     );
     setComment(candidate.result?.lecturerComment || '');
-  }, [candidate.result?.lecturerScore, candidate.result?.aiScore, candidate.result?.lecturerComment]);
+  }, [candidate.result?.lecturerScore, candidate.result?.aiScore, candidate.result?.lecturerComment, aiSig]);
+
+  const handleQuestionScoreChange = (examQuestionId, val) => {
+    const nextMap = { ...questionScores, [examQuestionId]: val };
+    setQuestionScores(nextMap);
+    const avg = computeAverageFromMap(qList, nextMap);
+    if (avg != null) {
+      setScore(String(avg));
+    }
+  };
+
+  const handleResetToAiScores = () => {
+    const nextMap = buildInitialQuestionScores(qList);
+    setQuestionScores(nextMap);
+    const avg = computeAverageFromMap(qList, nextMap);
+    if (avg != null) {
+      setScore(String(avg));
+    } else if (res?.aiScore != null) {
+      setScore(String(res.aiScore));
+    }
+  };
+
+  const computedAvg = computeAverageFromMap(qList, questionScores);
+  const formulaParts = qList.map((q, idx) => {
+    const raw = questionScores[q.examQuestionId];
+    const v = raw !== '' && raw != null && !Number.isNaN(Number(raw)) ? Number(raw).toFixed(1) : '0.0';
+    return `Câu ${idx + 1}: ${v}đ`;
+  });
 
   const handleAiCheck = async () => {
     if (!examId) return;
@@ -131,12 +191,36 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
                   )}
                 </div>
 
-                {q.evaluation && (
-                  <div className={`vr-qscore-big is-${scoreTone(q.evaluation.aiScore)}`}>
-                    <span className="vr-qscore-big__label">Điểm AI gợi ý</span>
-                    <strong className="vr-qscore-big__val">{Number(q.evaluation.aiScore).toFixed(1)} <span>/ 10</span></strong>
-                  </div>
-                )}
+                <div className="vr-qscore-group">
+                  {q.evaluation && (
+                    <div className={`vr-qscore-big is-${scoreTone(q.evaluation.aiScore)}`}>
+                      <span className="vr-qscore-big__label">Điểm AI gợi ý</span>
+                      <strong className="vr-qscore-big__val">{Number(q.evaluation.aiScore).toFixed(1)} <span>/ 10</span></strong>
+                    </div>
+                  )}
+
+                  {examId && (
+                    <div className="vr-qgrade-box">
+                      <label className="vr-qgrade-box__label" htmlFor={`qscore-${q.examQuestionId}`}>
+                        Điểm GV chấm câu này
+                      </label>
+                      <div className="vr-qgrade-box__row">
+                        <input
+                          id={`qscore-${q.examQuestionId}`}
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          max="10"
+                          className="vr-qgrade-input"
+                          value={questionScores[q.examQuestionId] ?? ''}
+                          onChange={e => handleQuestionScoreChange(q.examQuestionId, e.target.value)}
+                          placeholder="0.0"
+                        />
+                        <span className="vr-qgrade-unit">/ 10</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Khung đối chiếu 2 cột song song: Sinh viên trả lời vs Đáp án thực tế */}
@@ -203,51 +287,81 @@ function CandidateGradingCard({ examId, candidate, defaultOpen, onUpdated }) {
 
         {examId && (
           <form className="vr-grade-bar" onSubmit={handleSaveGrade}>
-            <div className="vr-grade-bar__left">
-              <div className="vr-grade-field">
-                <label>Điểm chốt của Giảng viên (thang 10)</label>
-                <div className="vr-grade-score-row">
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="10"
-                    required
-                    className="vr-score-input"
-                    value={score}
-                    onChange={e => setScore(e.target.value)}
-                    placeholder="8.5"
-                  />
+            {qList.length > 0 && (
+              <div className="vr-formula-banner">
+                <div className="vr-formula-banner__text">
+                  <strong>📊 Trung bình cộng {qList.length} câu:</strong>{' '}
+                  <span>({formulaParts.join(' + ')}) ÷ {qList.length} câu = </span>
+                  <strong className="vr-formula-banner__avg">
+                    {computedAvg != null ? `${computedAvg.toFixed(1)} / 10` : '—'}
+                  </strong>
+                  {computedAvg != null && score !== '' && Number(score) !== computedAvg && (
+                    <span className="vr-formula-override-tag">
+                      (GV đang chỉnh tay điểm chốt: {Number(score).toFixed(1)})
+                    </span>
+                  )}
+                </div>
+                <div className="vr-formula-banner__actions">
+                  {computedAvg != null && (
+                    <button
+                      type="button"
+                      className="wf-button wf-secondary vr-btn-mini"
+                      onClick={() => setScore(String(computedAvg))}
+                    >
+                      Tính lại theo TB ({computedAvg.toFixed(1)})
+                    </button>
+                  )}
                   {res?.aiScore != null && (
                     <button
                       type="button"
-                      className="wf-button wf-secondary"
-                      onClick={() => setScore(String(res.aiScore))}
+                      className="wf-button wf-secondary vr-btn-mini"
+                      onClick={handleResetToAiScores}
                     >
-                      Lấy điểm AI ({Number(res.aiScore).toFixed(1)})
+                      Đồng bộ lại điểm AI ({Number(res.aiScore).toFixed(1)})
                     </button>
                   )}
                 </div>
               </div>
+            )}
 
-              <div className="vr-grade-field vr-grade-field--grow">
-                <label>Nhận xét của Giảng viên dành cho Sinh viên</label>
-                <input
-                  type="text"
-                  maxLength={2000}
-                  value={comment}
-                  onChange={e => setComment(e.target.value)}
-                  placeholder="Nhập đánh giá hoặc nhận xét tổng kết cho sinh viên…"
-                />
+            <div className="vr-grade-bar__main">
+              <div className="vr-grade-bar__left">
+                <div className="vr-grade-field">
+                  <label>Điểm chốt cuối bài (thang 10 — có thể chỉnh sửa)</label>
+                  <div className="vr-grade-score-row">
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="10"
+                      required
+                      className="vr-score-input"
+                      value={score}
+                      onChange={e => setScore(e.target.value)}
+                      placeholder="8.5"
+                    />
+                  </div>
+                </div>
+
+                <div className="vr-grade-field vr-grade-field--grow">
+                  <label>Nhận xét của Giảng viên dành cho Sinh viên</label>
+                  <input
+                    type="text"
+                    maxLength={2000}
+                    value={comment}
+                    onChange={e => setComment(e.target.value)}
+                    placeholder="Nhập đánh giá hoặc nhận xét tổng kết cho sinh viên…"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="vr-grade-bar__right">
-              {err && <span className="vr-inline-msg is-err">{err}</span>}
-              {msg && <span className="vr-inline-msg is-ok">{msg}</span>}
-              <button type="submit" className="wf-button vr-btn-save" disabled={saveBusy || aiBusy}>
-                {saveBusy ? 'Đang lưu…' : res?.isFinalized ? '✓ Cập nhật điểm đã chốt' : '✓ Xác nhận & Chốt điểm'}
-              </button>
+              <div className="vr-grade-bar__right">
+                {err && <span className="vr-inline-msg is-err">{err}</span>}
+                {msg && <span className="vr-inline-msg is-ok">{msg}</span>}
+                <button type="submit" className="wf-button vr-btn-save" disabled={saveBusy || aiBusy}>
+                  {saveBusy ? 'Đang lưu…' : res?.isFinalized ? '✓ Cập nhật điểm đã chốt' : '✓ Xác nhận & Chốt điểm'}
+                </button>
+              </div>
             </div>
           </form>
         )}

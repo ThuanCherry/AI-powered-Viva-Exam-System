@@ -238,19 +238,75 @@
   color: #4d6a61;
 }
 
-/* BIG Score Box on each Question */
+/* Score Group & Per-Question Lecturer Grading Box */
+.vr-qscore-group {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
 .vr-qscore-big {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 136px;
-  padding: 10px 18px;
+  min-width: 130px;
+  padding: 10px 16px;
   border-radius: 14px;
   background: #eaf6ef;
   border: 2px solid #9ad6b7;
   text-align: center;
   flex-shrink: 0;
+}
+
+.vr-qgrade-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 155px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  background: #f0f7ff;
+  border: 2px solid #93c5fd;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.vr-qgrade-box__label {
+  margin: 0 0 4px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #1e40af !important;
+}
+
+.vr-qgrade-box__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.vr-qgrade-input {
+  width: 76px !important;
+  padding: 4px 8px !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  text-align: center;
+  color: #1e3a8a !important;
+  background: #ffffff !important;
+  border: 1.5px solid #60a5fa !important;
+  border-radius: 8px !important;
+}
+
+.vr-qgrade-unit {
+  font-size: 15px;
+  font-weight: 700;
+  color: #3b82f6;
 }
 
 .vr-qscore-big__label {
@@ -435,6 +491,62 @@
   border-radius: 14px;
   background: #f1f8f5;
   border: 1.5px solid #b5d6c9;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vr-formula-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px dashed #88bfa9;
+  font-size: 14px;
+  color: #164435;
+  flex-wrap: wrap;
+}
+
+.vr-formula-banner__text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.vr-formula-banner__avg {
+  font-size: 16px;
+  color: #0f5736;
+  background: #dcf2e6;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.vr-formula-override-tag {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #9c6209;
+  background: #fff4d6;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.vr-formula-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.vr-btn-mini {
+  padding: 6px 12px !important;
+  font-size: 12.5px !important;
+}
+
+.vr-grade-bar__main {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
