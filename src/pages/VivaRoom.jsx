@@ -16,20 +16,11 @@ function remaining(deadline, now) {
   return `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
 }
 
-function scoreTone(val) {
-  const n = Number(val);
-  if (Number.isNaN(n)) return 'neutral';
-  if (n >= 8) return 'good';
-  if (n >= 5) return 'mid';
-  return 'low';
-}
-
 export default function VivaRoom() {
   const { examId } = useParams();
   const [state, setState] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const [evalBusy, setEvalBusy] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [connection, setConnection] = useState('Đang kết nối');
   const [recording, setRecording] = useState(false);
@@ -81,24 +72,12 @@ export default function VivaRoom() {
     return () => { alive = false; mounted.current = false; window.removeEventListener(SCHEDULE_CHANGED, scheduleChanged); clearInterval(poll); clearInterval(tick); cancelMic(); speechAbort.current?.abort(); hub.stop(); audio.current?.pause(); if (audioUrl.current) URL.revokeObjectURL(audioUrl.current); };
   }, [examId, refresh, cancelMic]);
 
-  const handleAiCheck = useCallback(async () => {
-    setEvalBusy(true);
-    try {
-      const next = await api.post(`/api/Exams/${examId}/attempt/evaluate`);
-      if (mounted.current) apply(next);
-    } catch (e) {
-      if (mounted.current) setError(e.message);
-    } finally {
-      if (mounted.current) setEvalBusy(false);
-    }
-  }, [examId, apply]);
-
   useEffect(() => {
     if (state?.status === 'Completed' && state.history?.length > 0 && !state.result && !autoEvaluated.current) {
       autoEvaluated.current = true;
-      handleAiCheck();
+      api.post(`/api/Exams/${examId}/attempt/evaluate`).then(next => { if (mounted.current) apply(next); }).catch(() => {});
     }
-  }, [state?.status, state?.history?.length, state?.result, handleAiCheck]);
+  }, [examId, state?.status, state?.history?.length, state?.result, apply]);
 
   const speak = useCallback(async (turnId, signal) => {
     speechAbort.current?.abort();
@@ -200,26 +179,21 @@ export default function VivaRoom() {
               <div>
                 <h2 style={{ margin: '10px 0 4px' }}>Đã hoàn thành phiên thi</h2>
                 <p className="wf-muted" style={{ margin: 0 }}>
-                  Hệ thống AI hỗ trợ chấm điểm gợi ý. Giảng viên là người duyệt và quyết định điểm số cuối cùng.
+                  {result?.isFinalized
+                    ? `Điểm chính thức đã được Giảng viên ${result.finalizedByName || ''} xét duyệt và công bố.`
+                    : 'Bài làm của bạn đã được hệ thống lưu trữ. Điểm chính thức sẽ hiển thị tại đây sau khi Giảng viên chấm và công bố.'}
                 </p>
               </div>
-              <button type="button" className="wf-button wf-secondary" disabled={evalBusy} onClick={handleAiCheck}>
-                {evalBusy ? '🤖 AI đang chấm…' : '🤖 Dùng AI check điểm'}
-              </button>
             </div>
             <div className="vr-score-grid">
-              <div className="vr-score-card">
-                <span className="vr-score-card__label">Điểm AI gợi ý</span>
-                <strong className="vr-score-card__val">{result?.aiScore != null ? `${Number(result.aiScore).toFixed(1)} / 10` : evalBusy ? 'Đang chấm…' : '—'}</strong>
-              </div>
               <div className={`vr-score-card ${result?.isFinalized ? 'is-final' : ''}`}>
-                <span className="vr-score-card__label">Điểm chính thức (Giảng viên)</span>
+                <span className="vr-score-card__label">Kết quả chính thức</span>
                 <strong className="vr-score-card__val">
-                  {result?.isFinalized && result?.finalScore != null ? `${Number(result.finalScore).toFixed(1)} / 10` : 'Chờ giảng viên duyệt'}
+                  {result?.isFinalized && result?.finalScore != null ? `${Number(result.finalScore).toFixed(1)} / 10` : 'Chờ Giảng viên chấm điểm'}
                 </strong>
               </div>
             </div>
-            {result?.lecturerComment && (
+            {result?.isFinalized && result?.lecturerComment && (
               <div className="vr-lecturer-note">
                 <strong>Nhận xét của Giảng viên:</strong> {result.lecturerComment}
               </div>
@@ -231,7 +205,7 @@ export default function VivaRoom() {
       {(state.providers.llm !== 'Configured' || state.providers.stt !== 'Configured' || state.providers.tts !== 'Configured') && <p className="wf-fallback">LLM: {state.providers.llm} · STT: {state.providers.stt} · TTS: {state.providers.tts}. {state.providers.missing?.length > 0 && <>Backend chưa nạp: {state.providers.missing.join(', ')}. </>}Môi trường: {state.providers.configurationEnvironment || 'chưa xác định'}. Có thể nhập văn bản dự phòng.</p>}
       {state.history?.length > 0 && (
         <section className="wf-panel" style={{ marginTop: 20 }}>
-          <h2>Chi tiết câu trả lời & Đánh giá AI</h2>
+          <h2>Lịch sử câu trả lời đã nộp</h2>
           {state.history.map((h, i) => (
             <article className="wf-history vr-qcard" key={i}>
               <div className="vr-qcard__head">
@@ -239,12 +213,6 @@ export default function VivaRoom() {
                   <span className="vr-qcard__num">Câu hỏi {i + 1}</span>
                   <h3 className="vr-qcard__title">{h.question}</h3>
                 </div>
-                {h.evaluation && (
-                  <div className={`vr-qscore-big is-${scoreTone(h.evaluation.aiScore)}`}>
-                    <span className="vr-qscore-big__label">Điểm AI</span>
-                    <strong className="vr-qscore-big__val">{Number(h.evaluation.aiScore).toFixed(1)} <span>/ 10</span></strong>
-                  </div>
-                )}
               </div>
               <div className="vr-compare-col vr-compare-col--student" style={{ marginTop: 12 }}>
                 <div className="vr-compare-col__head"><span>👨‍🎓 Câu trả lời đã nộp</span></div>
@@ -258,23 +226,6 @@ export default function VivaRoom() {
                   ))}
                 </div>
               </div>
-              {h.evaluation && (
-                <div className="vr-ai-review">
-                  <div className="vr-ai-review__summary">
-                    <strong>🤖 Nhận xét của AI:</strong> {h.evaluation.feedback}
-                  </div>
-                  <div className="vr-ai-review__split">
-                    <div className="vr-ai-point is-match">
-                      <strong>✓ Ý đạt được</strong>
-                      <p>{h.evaluation.strengths || '—'}</p>
-                    </div>
-                    <div className="vr-ai-point is-missing">
-                      <strong>✗ Ý còn thiếu / cần bổ sung</strong>
-                      <p>{h.evaluation.missingPoints || h.evaluation.weaknesses || '—'}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
             </article>
           ))}
         </section>

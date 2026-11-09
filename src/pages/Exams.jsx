@@ -31,9 +31,7 @@ export default function Exams() {
           <p className="vr-card-score">
             {e.isFinalized && e.finalScore != null
               ? `✓ Điểm chính thức: ${Number(e.finalScore).toFixed(1)} / 10`
-              : e.aiScore != null
-              ? `AI đề xuất: ${Number(e.aiScore).toFixed(1)} / 10 · Chờ GV duyệt`
-              : 'Đã hoàn thành · Xem đánh giá AI'}
+              : '⏳ Đã nộp bài · Chờ Giảng viên chấm điểm'}
           </p>
         )}
         <Link className="wf-button wf-secondary" to={lecturer ? `/exams/${e.examId}` : `/viva/${e.examId}`}>{lecturer ? 'Xem lịch & Chấm điểm' : e.status === 'Completed' ? 'Xem kết quả & đánh giá' : 'Vào phòng chờ'} →</Link>
